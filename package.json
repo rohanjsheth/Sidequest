@@ -1,0 +1,12 @@
+{
+  "name": "sidequest",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}
