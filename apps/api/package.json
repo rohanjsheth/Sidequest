@@ -6,7 +6,10 @@
         "@hono/node-server": "^2.0.4",
         "@sidequest/db": "workspace:^",
         "@sidequest/shared": "workspace:*",
-        "hono": "^4.12.23"
+        "hono": "^4.12.23",
+        "jose": "^6.2.3",
+        "libphonenumber-js": "^1.13.4",
+        "twilio": "^6.0.2"
     },
     "devDependencies": {
         "tsx": "^4.22.4",
@@ -14,5 +17,5 @@
     },
     "scripts": {
         "dev": "tsx watch --env-file=../../.env src/index.ts"
-  }
+    }
 }
