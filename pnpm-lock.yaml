@@ -11,6 +11,9 @@ importers:
       '@types/node':
         specifier: ^25.9.1
         version: 25.9.1
+      prettier:
+        specifier: ^3.8.3
+        version: 3.8.3
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -838,6 +841,11 @@ packages:
     resolution: {integrity: sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==}
     engines: {node: '>= 0.4'}
 
+  prettier@3.8.3:
+    resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
+    engines: {node: '>=14'}
+    hasBin: true
+
   proxy-from-env@2.1.0:
     resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
     engines: {node: '>=10'}
@@ -1429,6 +1437,8 @@ snapshots:
   nanoid@5.1.11: {}
 
   object-inspect@1.13.4: {}
+
+  prettier@3.8.3: {}
 
   proxy-from-env@2.1.0: {}
 
