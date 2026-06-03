@@ -40,6 +40,8 @@ export const events = pgTable("events", {
     title: text("title").notNull(),
     location: text("location"),
     status: text("status").notNull().default("active"),
+    description: text("description"),
+    notificationMessage: text("notification_message"),
     shareToken: text("share_token").notNull().unique().$defaultFn(() => nanoid()),
     startsAt: timestamp("starts_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
