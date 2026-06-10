@@ -12,25 +12,29 @@ export const users = pgTable("users", {
     .defaultNow(),
 });
 
-export const friendships = pgTable("friendships", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  requesterId: uuid("requester_id")
-    .notNull()
-    .references(() => users.id),
-  addresseeId: uuid("addressee_id")
-    .notNull()
-    .references(() => users.id),
-  status: text("status").notNull().default("pending"),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const friendships = pgTable(
+  "friendships",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    requesterId: uuid("requester_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    addresseeId: uuid("addressee_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    status: text("status").notNull().default("pending"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [unique().on(table.requesterId, table.addresseeId)],
+);
 
 export const friendLists = pgTable("friend_lists", {
   id: uuid("id").primaryKey().defaultRandom(),
   ownerId: uuid("owner_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
@@ -43,10 +47,10 @@ export const friendListMembers = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     listId: uuid("list_id")
       .notNull()
-      .references(() => friendLists.id),
+      .references(() => friendLists.id, { onDelete: "cascade" }),
     memberId: uuid("member_id")
       .notNull()
-      .references(() => users.id),
+      .references(() => users.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -80,10 +84,10 @@ export const invites = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     eventId: uuid("event_id")
       .notNull()
-      .references(() => events.id),
+      .references(() => events.id, { onDelete: "cascade" }),
     attendeeId: uuid("attendee_id")
       .notNull()
-      .references(() => users.id),
+      .references(() => users.id, { onDelete: "cascade" }),
     status: text("status").notNull().default("invited"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
