@@ -2,6 +2,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { auth } from "./routes/auth";
+import { me } from "./routes/me";
 import { authMiddleware } from "./middleware/auth";
 import type { Env } from "./types";
 
@@ -26,7 +27,7 @@ app.onError((err, c) => {
 app.get("/health", (c) => c.json({ status: "ok" }));
 
 app.use("/me", authMiddleware);
-app.get("/me", (c) => c.json({ userId: c.get("userId") }));
+app.route("/me", me);
 
 app.route("/auth", auth);
 

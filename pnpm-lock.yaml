@@ -29,6 +29,9 @@ importers:
       '@sidequest/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@neondatabase/serverless@1.1.0)
       hono:
         specifier: ^4.12.23
         version: 4.12.23
