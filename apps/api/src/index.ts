@@ -4,6 +4,8 @@ import { HTTPException } from "hono/http-exception";
 import { auth } from "./routes/auth";
 import { me } from "./routes/me";
 import { friends } from "./routes/friends";
+import { lists } from "./routes/lists";
+import { isUniqueViolation } from "./lib/db-errors";
 import type { Env } from "./types";
 
 const app = new Hono<Env>();
@@ -15,8 +17,8 @@ app.onError((err, c) => {
   if (err instanceof SyntaxError) {
     return c.json({ error: "invalid body" }, 400);
   }
-  // Postgres unique_violation — a duplicate slipped past an app-level check
-  if ((err as { code?: string }).code === "23505") {
+  // a duplicate slipped past an app-level check (or a concurrent race)
+  if (isUniqueViolation(err)) {
     return c.json({ error: "already exists" }, 409);
   }
   // Twilio RestException carries the upstream HTTP status (429 = rate limit
@@ -32,6 +34,7 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 
 app.route("/me", me);
 app.route("/friends", friends);
+app.route("/lists", lists);
 
 app.route("/auth", auth);
 
