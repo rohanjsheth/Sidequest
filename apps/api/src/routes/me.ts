@@ -1,9 +1,12 @@
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { db, users } from "@sidequest/db";
+import { authMiddleware } from "../middleware/auth";
 import type { Env } from "../types";
 
 export const me = new Hono<Env>();
+
+me.use(authMiddleware);
 
 me.get("/", async (c) => {
   const [user] = await db

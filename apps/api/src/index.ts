@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { auth } from "./routes/auth";
 import { me } from "./routes/me";
-import { authMiddleware } from "./middleware/auth";
+import { friends } from "./routes/friends";
 import type { Env } from "./types";
 
 const app = new Hono<Env>();
@@ -14,6 +14,10 @@ app.onError((err, c) => {
   }
   if (err instanceof SyntaxError) {
     return c.json({ error: "invalid body" }, 400);
+  }
+  // Postgres unique_violation — a duplicate slipped past an app-level check
+  if ((err as { code?: string }).code === "23505") {
+    return c.json({ error: "already exists" }, 409);
   }
   // Twilio RestException carries the upstream HTTP status (429 = rate limit
   // tripped on /auth/start, or too many check attempts on /auth/verify)
@@ -26,8 +30,8 @@ app.onError((err, c) => {
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
-app.use("/me", authMiddleware);
 app.route("/me", me);
+app.route("/friends", friends);
 
 app.route("/auth", auth);
 
