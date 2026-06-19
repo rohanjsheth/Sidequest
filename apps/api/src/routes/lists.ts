@@ -33,7 +33,7 @@ lists.get("/", async (c) => {
     .select()
     .from(friendLists)
     .where(eq(friendLists.ownerId, userId));
-  return c.json({ userLists });
+  return c.json({ lists: userLists });
 });
 
 lists.post("/:id/members", async (c) => {

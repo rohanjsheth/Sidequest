@@ -95,7 +95,7 @@ friends.post("/:id/decline", async (c) => {
 
 friends.get("/", async (c) => {
   const userId = c.get("userId");
-  const friendlist = await db
+  const friendList = await db
     .select({
       friendshipId: friendships.id,
       user: {
@@ -120,12 +120,12 @@ friends.get("/", async (c) => {
       ),
     )
     .where(eq(friendships.status, "accepted"));
-  return c.json({ friends: friendlist });
+  return c.json({ friends: friendList });
 });
 
 friends.get("/requests", async (c) => {
   const userId = c.get("userId");
-  const friendlist = await db
+  const requests = await db
     .select({
       friendshipId: friendships.id,
       user: {
@@ -144,7 +144,7 @@ friends.get("/requests", async (c) => {
       ),
     )
     .where(eq(friendships.status, "pending"));
-  return c.json({ friends: friendlist });
+  return c.json({ requests });
 });
 
 friends.delete("/:id", async (c) => {

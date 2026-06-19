@@ -13,13 +13,11 @@ auth.post("/start", async (c) => {
   if (!parsedPhone?.isValid()) {
     return c.json({ error: "invalid phone" }, 400);
   }
-  await twilioClient.verify.v2
-    .services(verifyServiceSid)
-    .verifications.create({
-      to: parsedPhone.number,
-      channel: "sms",
-      rateLimits: { [RATE_LIMIT_PHONE]: parsedPhone.number },
-    });
+  await twilioClient.verify.v2.services(verifyServiceSid).verifications.create({
+    to: parsedPhone.number,
+    channel: "sms",
+    rateLimits: { [RATE_LIMIT_PHONE]: parsedPhone.number },
+  });
 
   return c.json({ ok: true });
 });

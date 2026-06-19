@@ -5,6 +5,7 @@ import { auth } from "./routes/auth";
 import { me } from "./routes/me";
 import { friends } from "./routes/friends";
 import { lists } from "./routes/lists";
+import { events, eventShare } from "./routes/events";
 import { isUniqueViolation } from "./lib/db-errors";
 import type { Env } from "./types";
 
@@ -35,8 +36,10 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 app.route("/me", me);
 app.route("/friends", friends);
 app.route("/lists", lists);
+app.route("/events", events);
 
 app.route("/auth", auth);
+app.route("/e", eventShare);
 
 const port = 3000;
 serve({ fetch: app.fetch, port }, (info) => {

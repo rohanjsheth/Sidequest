@@ -20,25 +20,31 @@ me.get("/", async (c) => {
   return c.json({ user });
 });
 
-
 me.patch("/", async (c) => {
-    const body = await c.req.json();
-    const updates: Partial<typeof users.$inferInsert> = {};
-    if (typeof body.name === "string" && body.name.trim() !== "") {
-        updates.name = body.name.trim();
-    }
-    if (typeof body.avatarUrl === "string" && body.avatarUrl.trim() !== "") {
-        updates.avatarUrl = body.avatarUrl.trim();
-    }
-    if (typeof body.expoPushToken === "string" && body.expoPushToken.trim() !== "") {
-        updates.expoPushToken = body.expoPushToken.trim();
-    }
-    if (Object.keys(updates).length === 0){
-        return c.json({error: "No fields to patch"}, 400)
-    }
-    const [user] = await db.update(users).set(updates).where(eq(users.id, c.get("userId"))).returning()
-    if (!user) {
-        return c.json({ error: "unauthorized" }, 401);
-    }
-    return c.json({user})
+  const body = await c.req.json();
+  const updates: Partial<typeof users.$inferInsert> = {};
+  if (typeof body.name === "string" && body.name.trim() !== "") {
+    updates.name = body.name.trim();
+  }
+  if (typeof body.avatarUrl === "string" && body.avatarUrl.trim() !== "") {
+    updates.avatarUrl = body.avatarUrl.trim();
+  }
+  if (
+    typeof body.expoPushToken === "string" &&
+    body.expoPushToken.trim() !== ""
+  ) {
+    updates.expoPushToken = body.expoPushToken.trim();
+  }
+  if (Object.keys(updates).length === 0) {
+    return c.json({ error: "no fields to patch" }, 400);
+  }
+  const [user] = await db
+    .update(users)
+    .set(updates)
+    .where(eq(users.id, c.get("userId")))
+    .returning();
+  if (!user) {
+    return c.json({ error: "unauthorized" }, 401);
+  }
+  return c.json({ user });
 });

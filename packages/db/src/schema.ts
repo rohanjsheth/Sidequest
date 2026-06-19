@@ -1,4 +1,11 @@
-import { pgTable, uuid, text, timestamp, unique } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  text,
+  timestamp,
+  boolean,
+  unique,
+} from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
 
 export const users = pgTable("users", {
@@ -64,15 +71,15 @@ export const events = pgTable("events", {
     .notNull()
     .references(() => users.id),
   title: text("title").notNull(),
-  location: text("location"),
-  status: text("status").notNull().default("active"),
+  location: text("location").notNull(),
+  cancelled: boolean("cancelled").notNull().default(false),
   description: text("description"),
-  notificationMessage: text("notification_message"),
+  notificationMessage: text("notification_message").notNull(),
   shareToken: text("share_token")
     .notNull()
     .unique()
     .$defaultFn(() => nanoid()),
-  startsAt: timestamp("starts_at", { withTimezone: true }),
+  startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
