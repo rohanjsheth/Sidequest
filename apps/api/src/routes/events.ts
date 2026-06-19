@@ -15,7 +15,8 @@ events.use(authMiddleware);
 
 events.post("/", async (c) => {
   const userId = c.get("userId");
-  const { title, location, startsAt, notificationMessage } = await c.req.json();
+  const { title, location, startsAt, notificationMessage, imageUrl } =
+    await c.req.json();
 
   if (typeof title !== "string" || title.trim() === "") {
     return c.json({ error: "title is required" }, 400);
@@ -30,6 +31,10 @@ events.post("/", async (c) => {
     typeof notificationMessage !== "string"
   ) {
     return c.json({ error: "invalid notificationMessage" }, 400);
+  }
+
+  if (imageUrl !== undefined && typeof imageUrl !== "string") {
+    return c.json({ error: "invalid imageUrl" }, 400);
   }
 
   if (startsAt === undefined) {
@@ -54,6 +59,7 @@ events.post("/", async (c) => {
       location: location.trim(),
       startsAt: startsAtDate,
       notificationMessage: blast,
+      imageUrl: imageUrl?.trim(),
     })
     .returning();
 
@@ -90,6 +96,7 @@ events.get("/", async (c) => {
       id: eventsTable.id,
       title: eventsTable.title,
       location: eventsTable.location,
+      imageUrl: eventsTable.imageUrl,
       startsAt: eventsTable.startsAt,
       host: {
         id: users.id,
@@ -134,6 +141,7 @@ events.get("/:id", async (c) => {
       title: eventsTable.title,
       location: eventsTable.location,
       description: eventsTable.description,
+      imageUrl: eventsTable.imageUrl,
       startsAt: eventsTable.startsAt,
       cancelled: eventsTable.cancelled,
       shareToken: eventsTable.shareToken,
@@ -224,6 +232,12 @@ events.patch("/:id", async (c) => {
     }
     updates.notificationMessage = body.notificationMessage.trim();
   }
+  if (body.imageUrl !== undefined) {
+    if (typeof body.imageUrl !== "string") {
+      return c.json({ error: "invalid imageUrl" }, 400);
+    }
+    updates.imageUrl = body.imageUrl.trim();
+  }
   if (body.cancelled !== undefined) {
     if (typeof body.cancelled !== "boolean") {
       return c.json({ error: "invalid cancelled" }, 400);
@@ -301,6 +315,7 @@ eventShare.get("/:shareToken", async (c) => {
       title: eventsTable.title,
       location: eventsTable.location,
       description: eventsTable.description,
+      imageUrl: eventsTable.imageUrl,
       startsAt: eventsTable.startsAt,
       cancelled: eventsTable.cancelled,
       shareToken: eventsTable.shareToken,

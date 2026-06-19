@@ -74,6 +74,7 @@ export const events = pgTable("events", {
   location: text("location").notNull(),
   cancelled: boolean("cancelled").notNull().default(false),
   description: text("description"),
+  imageUrl: text("image_url"),
   notificationMessage: text("notification_message").notNull(),
   shareToken: text("share_token")
     .notNull()
