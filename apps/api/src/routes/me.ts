@@ -48,3 +48,14 @@ me.patch("/", async (c) => {
   }
   return c.json({ user });
 });
+
+me.delete("/", async (c) => {
+  const [deleted] = await db
+    .delete(users)
+    .where(eq(users.id, c.get("userId")))
+    .returning({ id: users.id });
+  if (!deleted) {
+    return c.json({ error: "unauthorized" }, 401);
+  }
+  return c.json({ ok: true });
+});

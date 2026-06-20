@@ -282,7 +282,7 @@ events.post("/:id/rsvp", async (c) => {
   }
 
   const [event] = await db
-    .select({ cancelled: eventsTable.cancelled })
+    .select({ hostId : eventsTable.hostId, cancelled: eventsTable.cancelled })
     .from(eventsTable)
     .where(eq(eventsTable.id, eventId));
 
@@ -301,6 +301,39 @@ events.post("/:id/rsvp", async (c) => {
       set: { status },
     })
     .returning();
+  
+  // Positive RSVP auto-friends you with the host (the one instant friendship).
+  const { hostId } = event;
+  if (hostId !== userId && status !== "declined") {
+    const [existing] = await db
+      .select({ id: friendships.id, status: friendships.status })
+      .from(friendships)
+      .where(
+        or(
+          and(
+            eq(friendships.requesterId, userId),
+            eq(friendships.addresseeId, hostId),
+          ),
+          and(
+            eq(friendships.requesterId, hostId),
+            eq(friendships.addresseeId, userId),
+          ),
+        ),
+      );
+
+    if (!existing) {
+      await db.insert(friendships).values({
+        requesterId: userId,
+        addresseeId: hostId,
+        status: "accepted",
+      });
+    } else if (existing.status !== "accepted") {
+      await db
+        .update(friendships)
+        .set({ status: "accepted" })
+        .where(eq(friendships.id, existing.id));
+    }
+  }
 
   return c.json({ invite });
 });

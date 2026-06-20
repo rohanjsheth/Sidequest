@@ -69,7 +69,7 @@ export const events = pgTable("events", {
   id: uuid("id").primaryKey().defaultRandom(),
   hostId: uuid("host_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   location: text("location").notNull(),
   cancelled: boolean("cancelled").notNull().default(false),
