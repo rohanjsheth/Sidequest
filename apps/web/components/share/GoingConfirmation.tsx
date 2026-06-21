@@ -23,9 +23,10 @@ export function GoingConfirmation({ event }: { event: ShareEvent }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          animation: "sq-pop 0.45s cubic-bezier(0.2, 0.8, 0.2, 1.4) both",
         }}
       >
-        <Check size={32} stroke="#fff" />
+        <Check size={32} stroke="#fff" animate />
       </div>
 
       <div
@@ -88,10 +89,29 @@ function ChecklistRow({ children, last }: { children: React.ReactNode; last?: bo
   );
 }
 
-function Check({ size, stroke }: { size: number; stroke: string }) {
+function Check({
+  size,
+  stroke,
+  animate,
+}: {
+  size: number;
+  stroke: string;
+  animate?: boolean;
+}) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 12l5 5L20 6" />
+      <path
+        d="M5 12l5 5L20 6"
+        style={
+          animate
+            ? {
+                strokeDasharray: 24,
+                strokeDashoffset: 24,
+                animation: "sq-draw 0.45s ease-out 0.18s forwards",
+              }
+            : undefined
+        }
+      />
     </svg>
   );
 }

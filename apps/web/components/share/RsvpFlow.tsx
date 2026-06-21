@@ -63,15 +63,23 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
       <div style={{ padding: "18px 0 0" }}>
         <div style={s.label}>RSVP — NO APP NEEDED</div>
         <div style={s.segmented}>
-          {CHOICES.map((c, i) => (
-            <button
-              key={c.value}
-              onClick={() => pick(c.value)}
-              style={{ ...s.seg, borderLeft: i > 0 ? "1px solid #E5E5E5" : "none" }}
-            >
-              {c.label}
-            </button>
-          ))}
+          {CHOICES.map((c, i) => {
+            const isGoing = c.value === "going";
+            return (
+              <button
+                key={c.value}
+                onClick={() => pick(c.value)}
+                style={{
+                  ...s.seg,
+                  borderLeft: i > 0 ? "1px solid #E5E5E5" : "none",
+                  background: isGoing ? colors.ink : "transparent",
+                  color: isGoing ? "#fff" : colors.ink,
+                }}
+              >
+                {c.label}
+              </button>
+            );
+          })}
         </div>
         <div style={s.hint}>
           We&rsquo;ll text a code to confirm it&rsquo;s you.{" "}
