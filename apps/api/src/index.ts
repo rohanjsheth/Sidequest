@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
+import { cors } from "hono/cors";
 import { auth } from "./routes/auth";
 import { me } from "./routes/me";
 import { friends } from "./routes/friends";
@@ -10,6 +11,16 @@ import { isUniqueViolation } from "./lib/db-errors";
 import type { Env } from "./types";
 
 const app = new Hono<Env>();
+
+const webOrigins = (process.env.WEB_ORIGIN ?? "http://localhost:3001").split(",");
+app.use(
+  "*",
+  cors({
+    origin: webOrigins,
+    allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
