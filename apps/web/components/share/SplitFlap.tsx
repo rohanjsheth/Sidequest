@@ -1,7 +1,5 @@
 import { colors, font } from "@/lib/theme";
 
-// One split-flap tile: dark gradient with the horizontal seam baked into the
-// background (the 50% color stop), white mono digit.
 export function FlapTile({
   children,
   size = 21,
@@ -35,7 +33,6 @@ export function FlapTile({
   );
 }
 
-// A short string rendered as a row of tiles (e.g. "45", "00").
 export function SplitFlap({
   text,
   size,

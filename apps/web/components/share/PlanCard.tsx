@@ -2,8 +2,6 @@ import { colors, font } from "@/lib/theme";
 import { formatWhen, planStatus, type ShareEvent } from "@/lib/types";
 import { Countdown } from "./Countdown";
 
-// Read-only plan — server-rendered (no interactivity), so it ships in the HTML
-// for link previews. The interactive RSVP bar is a separate client island.
 export function PlanCard({ event }: { event: ShareEvent }) {
   return (
     <div

@@ -1,6 +1,5 @@
 import { colors } from "@/lib/theme";
 
-// Bottom sheet over a dimmed backdrop — the auth / name steps live in here.
 export function Sheet({
   children,
   onClose,

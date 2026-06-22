@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { colors, font } from "@/lib/theme";
 import type { ShareEvent } from "@/lib/types";
+import { api, setToken } from "@/lib/api";
 import { GoingConfirmation } from "./GoingConfirmation";
 import { Sheet } from "./Sheet";
 
@@ -18,14 +19,19 @@ const CHOICES: { value: Choice; label: string }[] = [
 
 export function RsvpFlow({ event }: { event: ShareEvent }) {
   const [step, setStep] = useState<Step>("pick");
-  const [, setChoice] = useState<Choice | null>(null);
+  const [choice, setChoice] = useState<Choice | null>(null);
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
 
-  // ── LOGIC SEAMS (yours) ──────────────────────────────────────────────────
-  // Each handler just advances the UI so the flow is clickable today. Swap the
-  // bodies for the real API calls — the step transitions can stay as-is.
+  async function rsvp() {
+    if (!choice) return;
+    await api("/events/" + event.id + "/rsvp", {
+      method: "POST",
+      body: { status: choice },
+      auth: true,
+    });
+  }
 
   function pick(c: Choice) {
     setChoice(c);
@@ -33,22 +39,29 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
   }
 
   async function sendCode() {
-    // TODO(you): POST {API_URL}/auth/start { phone }
+    await api("/auth/start", { method: "POST", body: { phone } });
     setStep("otp");
   }
 
   async function verifyAndRsvp() {
-    // TODO(you): POST /auth/verify { phone, code } -> JWT (store it).
-    //   New user (no name) -> setStep("name"); returning user -> finalize().
-    setStep("name");
+    const { token, user } = await api<{ token: string; user: { name: string | null } }>(
+      "/auth/verify",
+      { method: "POST", body: { phone, code } },
+    );
+    setToken(token);
+    if (!user.name) {
+      setStep("name");
+    } else {
+      await rsvp();
+      setStep("done");
+    }
   }
 
   async function finalize() {
-    // TODO(you): PATCH /me { name } if first-timer, then
-    //   POST /events/${event.id}/rsvp { status: chosen } (auto-friends the host).
+    await api("/me", { method: "PATCH", body: { name }, auth: true });
+    await rsvp();
     setStep("done");
   }
-  // ─────────────────────────────────────────────────────────────────────────
 
   if (step === "done") {
     return (
@@ -165,7 +178,6 @@ function SheetTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-// 6 cells reflecting `code`; a transparent input over them captures typing.
 function OtpBoxes({ code, onChange }: { code: string; onChange: (v: string) => void }) {
   const cells = Array.from({ length: 6 });
   return (

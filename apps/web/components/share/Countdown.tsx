@@ -14,7 +14,6 @@ function parts(startsAt: string) {
   };
 }
 
-// "IN  [0][0] HRS  :  [4][5] MIN" — ticks every second.
 export function Countdown({ startsAt }: { startsAt: string }) {
   const [{ hrs, min }, set] = useState(() => parts(startsAt));
 

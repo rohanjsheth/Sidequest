@@ -1,36 +1,36 @@
-// Public share page → sidequest.app/p/<shareToken>
-//
-// Server Component: runs before HTML is sent, so the plan ships in the markup
-// (good link previews) and only the RSVP bar/sheets are a client island.
-// In Next 16, `params` is async — await it.
-
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { cache } from "react";
 
 import { PlanCard } from "@/components/share/PlanCard";
 import { RsvpFlow } from "@/components/share/RsvpFlow";
+import { api, ApiError } from "@/lib/api";
 import { colors, font } from "@/lib/theme";
-import { MOCK_EVENT, type ShareEvent } from "@/lib/types";
+import { formatWhen, type ShareEvent } from "@/lib/types";
 
 type Props = { params: Promise<{ token: string }> };
 
-// ── DATA SEAM (yours) ────────────────────────────────────────────────────────
-// TODO(you): fetch the real event and drop the mock.
-//   const res = await fetch(`${process.env.API_URL}/e/${token}`, { cache: "no-store" });
-//   if (!res.ok) notFound();            // import { notFound } from "next/navigation"
-//   return (await res.json()).event;
-async function getEvent(token: string): Promise<ShareEvent> {
-  void token;
-  return MOCK_EVENT;
-}
-// ─────────────────────────────────────────────────────────────────────────────
+const getEvent = cache(async (token: string): Promise<ShareEvent> => {
+  try {
+    const { event } = await api<{ event: ShareEvent }>(`/e/${token}`);
+    return event;
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) notFound();
+    throw err;
+  }
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { token } = await params;
   const event = await getEvent(token);
-  // TODO(you): once the fetch is real, set openGraph.images for a rich preview.
   return {
     title: `${event.title} · Sidequest`,
     description: event.description ?? "Plans with friends, minus the group chat.",
+    openGraph: {
+      title: event.title,
+      description: `${formatWhen(event.startsAt)} · ${event.location}`,
+      images: event.imageUrl ? [event.imageUrl] : [],
+    },
   };
 }
 

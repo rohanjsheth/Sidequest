@@ -1,7 +1,6 @@
 import { colors, font } from "@/lib/theme";
 import { formatWhen, type ShareEvent } from "@/lib/types";
 
-// Terminal "You're going!" state shown after a confirmed RSVP.
 export function GoingConfirmation({ event }: { event: ShareEvent }) {
   const host = event.host.name ?? "Your host";
   return (
