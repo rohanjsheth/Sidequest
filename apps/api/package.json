@@ -16,7 +16,9 @@
     "typescript": "^6.0.3"
   },
   "scripts": {
+    "predev": "pnpm --filter @sidequest/db build",
     "dev": "tsx watch --env-file=../../.env src/dev.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "vercel-build": "pnpm --filter @sidequest/db build"
   }
 }

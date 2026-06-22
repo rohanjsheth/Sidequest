@@ -5,8 +5,9 @@
   "exports": {
     ".": {
       "types": "./src/index.ts",
-      "import": "./src/index.ts",
-      "default": "./src/index.ts"
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "dependencies": {
@@ -16,9 +17,12 @@
   },
   "devDependencies": {
     "dotenv": "^17.4.2",
-    "drizzle-kit": "^0.31.10"
+    "drizzle-kit": "^0.31.10",
+    "esbuild": "^0.25.12",
+    "typescript": "^6.0.3"
   },
   "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --format=cjs --target=node20 --outfile=dist/index.js --external:@neondatabase/serverless --external:drizzle-orm/neon-http --external:drizzle-orm/pg-core",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio"
