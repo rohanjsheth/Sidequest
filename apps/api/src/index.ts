@@ -1,4 +1,3 @@
-import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { cors } from "hono/cors";
@@ -52,7 +51,4 @@ app.route("/events", events);
 app.route("/auth", auth);
 app.route("/e", eventShare);
 
-const port = 3000;
-serve({ fetch: app.fetch, port }, (info) => {
-  console.log(`API running on http://localhost:${info.port}`);
-});
+export default app;

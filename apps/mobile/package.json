@@ -3,7 +3,6 @@
   "main": "expo-router/entry",
   "version": "0.0.0",
   "dependencies": {
-    "@sidequest/shared": "workspace:*",
     "@expo/ui": "~56.0.18",
     "expo": "~56.0.12",
     "expo-constants": "~56.0.18",

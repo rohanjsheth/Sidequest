@@ -3,9 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@hono/node-server": "^2.0.4",
-    "@sidequest/db": "workspace:^",
-    "@sidequest/shared": "workspace:*",
+    "@sidequest/db": "workspace:*",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.23",
     "jose": "^6.2.3",
@@ -13,10 +11,12 @@
     "twilio": "^6.0.2"
   },
   "devDependencies": {
+    "@hono/node-server": "^2.0.4",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   },
   "scripts": {
-    "dev": "tsx watch --env-file=../../.env src/index.ts"
+    "dev": "tsx watch --env-file=../../.env src/dev.ts",
+    "typecheck": "tsc --noEmit"
   }
 }
