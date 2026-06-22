@@ -51,6 +51,5 @@ auth.post("/verify", async (c) => {
     .setIssuedAt()
     .setExpirationTime("30d")
     .sign(secret);
-
-  return c.json({ token });
+  return c.json({ token, user });
 });
