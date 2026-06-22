@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
-import { twilioClient, verifyServiceSid } from "../lib/twilio";
+import { twilioClient, verifyServiceSid } from "../lib/twilio.js";
 import { db, users } from "@sidequest/db";
 import { SignJWT } from "jose";
-import { RATE_LIMIT_PHONE } from "../lib/constants";
+import { RATE_LIMIT_PHONE } from "../lib/constants.js";
 
 export const auth = new Hono();
 

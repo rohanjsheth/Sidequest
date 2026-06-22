@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { cors } from "hono/cors";
-import { auth } from "./routes/auth";
-import { me } from "./routes/me";
-import { friends } from "./routes/friends";
-import { lists } from "./routes/lists";
-import { events, eventShare } from "./routes/events";
-import { isUniqueViolation } from "./lib/db-errors";
-import type { Env } from "./types";
+import { auth } from "./routes/auth.js";
+import { me } from "./routes/me.js";
+import { friends } from "./routes/friends.js";
+import { lists } from "./routes/lists.js";
+import { events, eventShare } from "./routes/events.js";
+import { isUniqueViolation } from "./lib/db-errors.js";
+import type { Env } from "./types.js";
 
 const app = new Hono<Env>();
 

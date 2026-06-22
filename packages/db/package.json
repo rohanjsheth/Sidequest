@@ -2,10 +2,11 @@
   "name": "@sidequest/db",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "exports": {
     ".": {
       "types": "./src/index.ts",
-      "require": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     }
@@ -22,7 +23,7 @@
     "typescript": "^6.0.3"
   },
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --format=cjs --target=node20 --outfile=dist/index.js --external:@neondatabase/serverless --external:drizzle-orm/neon-http --external:drizzle-orm/pg-core",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node20 --outfile=dist/index.js --external:@neondatabase/serverless --external:drizzle-orm/neon-http --external:drizzle-orm/pg-core && esbuild src/index.ts --bundle --platform=node --format=cjs --target=node20 --outfile=dist/index.cjs --external:@neondatabase/serverless --external:drizzle-orm/neon-http --external:drizzle-orm/pg-core",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio"

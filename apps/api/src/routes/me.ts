@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { db, users } from "@sidequest/db";
-import { authMiddleware } from "../middleware/auth";
-import type { Env } from "../types";
+import { authMiddleware } from "../middleware/auth.js";
+import type { Env } from "../types.js";
 
 export const me = new Hono<Env>();
 

@@ -1,9 +1,9 @@
 import { Hono } from "hono";
-import { authMiddleware } from "../middleware/auth";
+import { authMiddleware } from "../middleware/auth.js";
 import { and, eq, or } from "drizzle-orm";
 import { db, users, friendships } from "@sidequest/db";
-import type { Env } from "../types";
-import parsePhoneNumberFromString from "libphonenumber-js";
+import type { Env } from "../types.js";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 export const friends = new Hono<Env>();
 

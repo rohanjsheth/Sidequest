@@ -2,6 +2,7 @@
   "name": "@sidequest/api",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@sidequest/db": "workspace:*",
     "drizzle-orm": "^0.45.2",

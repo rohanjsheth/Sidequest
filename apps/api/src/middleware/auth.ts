@@ -1,6 +1,6 @@
 import { createMiddleware } from "hono/factory";
 import { jwtVerify } from "jose";
-import type { Env } from "../types";
+import type { Env } from "../types.js";
 
 if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET is not set");
