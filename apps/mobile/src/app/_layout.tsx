@@ -50,6 +50,7 @@ function RootNavigator() {
         <Stack.Protected guard={signedIn && hasName}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="create" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="plan/[id]" />
         </Stack.Protected>
 
         <Stack.Protected guard={signedIn && !hasName}>
