@@ -5,11 +5,11 @@ import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { SessionProvider, useSession } from '@/lib/session';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     Inter_400: require('@/assets/fonts/Inter_400.ttf'),
     Inter_500: require('@/assets/fonts/Inter_500.ttf'),
@@ -28,11 +28,39 @@ export default function RootLayout() {
   if (!loaded) return null;
 
   return (
+    <SessionProvider>
+      <RootNavigator />
+    </SessionProvider>
+  );
+}
+
+function RootNavigator() {
+  const colorScheme = useColorScheme();
+  const { token, user, isLoading } = useSession();
+
+  if (isLoading) return null;
+
+  const signedIn = !!token;
+  const hasName = !!user?.name;
+
+  return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AnimatedSplashOverlay />
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="create" options={{ presentation: 'modal' }} />
+        <Stack.Protected guard={signedIn && hasName}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="create" options={{ presentation: 'modal' }} />
+        </Stack.Protected>
+
+        <Stack.Protected guard={signedIn && !hasName}>
+          <Stack.Screen name="(auth)/set-name" />
+        </Stack.Protected>
+
+        <Stack.Protected guard={!signedIn}>
+          <Stack.Screen name="(auth)/welcome" />
+          <Stack.Screen name="(auth)/phone" />
+          <Stack.Screen name="(auth)/verify" />
+        </Stack.Protected>
       </Stack>
     </ThemeProvider>
   );
