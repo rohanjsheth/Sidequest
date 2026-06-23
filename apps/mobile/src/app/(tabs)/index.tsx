@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#EDEDED',
     alignItems: 'center',
   },
-  cdCol: { minWidth: 80 },
+  cdCol: { minWidth: 55 },
   flaps: { flexDirection: 'row', gap: 3 },
 
   body: { flex: 1, minWidth: 0 },
