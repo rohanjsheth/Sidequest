@@ -46,7 +46,6 @@ function EventRow({ event }: { event: FeedEvent }) {
   return (
     <Pressable style={styles.row} onPress={() => router.push(`/plan/${event.id}`)}>
       <View style={styles.cdCol}>
-        <Text style={styles.cdLabel}>in</Text>
         <View style={styles.flaps}>
           {c.chars.map((ch, i) => (
             <FlapTile key={i} char={ch} />
@@ -192,16 +191,9 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     borderTopWidth: 1,
     borderTopColor: '#EDEDED',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
-  cdCol: { width: 74 },
-  cdLabel: {
-    fontFamily: Font.mono,
-    fontSize: 10,
-    letterSpacing: 1,
-    color: SQ.faint,
-    marginBottom: 6,
-  },
+  cdCol: { minWidth: 80 },
   flaps: { flexDirection: 'row', gap: 3 },
 
   body: { flex: 1, minWidth: 0 },
