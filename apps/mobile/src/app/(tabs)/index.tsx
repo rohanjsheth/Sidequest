@@ -1,4 +1,3 @@
-import { Feather } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
@@ -134,12 +133,6 @@ export default function Feed() {
           contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
         />
       )}
-
-      <Pressable
-        style={[styles.fab, { bottom: insets.bottom + 24 }]}
-        onPress={() => router.push('/create')}>
-        <Feather name="plus" size={26} color={SQ.card} />
-      </Pressable>
     </View>
   );
 }
@@ -244,21 +237,6 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
 
-  fab: {
-    position: 'absolute',
-    right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: SQ.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.28,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 8,
-  },
 });
 
 const flap = StyleSheet.create({
