@@ -223,9 +223,7 @@ events.get("/:id/attendees", async (c) => {
     .from(invites)
     .innerJoin(users, eq(invites.attendeeId, users.id))
     .where(
-      viewerIsHost
-        ? eq(invites.eventId, eventId)
-        : and(eq(invites.eventId, eventId), eq(invites.status, "going")),
+      and(eq(invites.eventId, eventId), eq(invites.status, "going")),
     );
 
   const attendeesWithHost = [
