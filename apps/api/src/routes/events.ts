@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { and, eq, or, inArray, desc, gte, count } from "drizzle-orm";
+import { and, eq, or, inArray, gte } from "drizzle-orm";
 import {
   db,
   events as eventsTable,
@@ -117,17 +117,25 @@ events.get("/", async (c) => {
 
   const eventIds = eventList.map((e) => e.id);
 
-  const goingCounts = await db
-    .select({ eventId: invites.eventId, going: count() })
+  const goingInvites = await db
+    .select({ eventId: invites.eventId, attendeeId: invites.attendeeId })
     .from(invites)
-    .where(and(inArray(invites.eventId, eventIds), eq(invites.status, "going")))
-    .groupBy(invites.eventId);
+    .where(and(inArray(invites.eventId, eventIds), eq(invites.status, "going")));
+  const goingByEvent = new Map<string, Set<string>>();
 
-  const countMap = new Map(goingCounts.map((r) => [r.eventId, r.going]));
+  for (const invite of goingInvites) {
+    const attendeeIds = goingByEvent.get(invite.eventId) ?? new Set<string>();
+    attendeeIds.add(invite.attendeeId);
+    goingByEvent.set(invite.eventId, attendeeIds);
+  }
 
   const feed = eventList.map((e) => ({
     ...e,
-    going: countMap.get(e.id) ?? 0,
+    going:
+      1 +
+      [...(goingByEvent.get(e.id) ?? [])].filter(
+        (attendeeId) => attendeeId !== e.host.id,
+      ).length,
   }));
 
   return c.json({ events: feed });
@@ -155,10 +163,13 @@ events.get("/:id", async (c) => {
     return c.json({ error: "could not find event" }, 404);
   }
 
-  const [{ going }] = await db
-    .select({ going: count() })
+  const goingInvites = await db
+    .select({ attendeeId: invites.attendeeId })
     .from(invites)
     .where(and(eq(invites.eventId, event.id), eq(invites.status, "going")));
+  const going =
+    1 +
+    goingInvites.filter((invite) => invite.attendeeId !== event.host.id).length;
 
   return c.json({ event: { ...event, going } });
 });
@@ -168,15 +179,23 @@ events.get("/:id/attendees", async (c) => {
   const userId = c.get("userId");
 
   const [event] = await db
-    .select({ hostId: eventsTable.hostId })
+    .select({
+      hostId: eventsTable.hostId,
+      host: {
+        id: users.id,
+        name: users.name,
+        avatarUrl: users.avatarUrl,
+      },
+    })
     .from(eventsTable)
+    .innerJoin(users, eq(eventsTable.hostId, users.id))
     .where(eq(eventsTable.id, eventId));
 
   if (!event) {
     return c.json({ error: "could not find event" }, 404);
   }
 
-  const isHost = event.hostId === userId;
+  const viewerIsHost = event.hostId === userId;
 
   const attendees = await db
     .select({
@@ -190,12 +209,25 @@ events.get("/:id/attendees", async (c) => {
     .from(invites)
     .innerJoin(users, eq(invites.attendeeId, users.id))
     .where(
-      isHost
+      viewerIsHost
         ? eq(invites.eventId, eventId)
         : and(eq(invites.eventId, eventId), eq(invites.status, "going")),
     );
 
-  return c.json({ attendees });
+  const attendeesWithHost = attendees.map((attendee) => ({
+    ...attendee,
+    isHost: attendee.user.id === event.hostId,
+  }));
+
+  if (!attendeesWithHost.some((attendee) => attendee.user.id === event.hostId)) {
+    attendeesWithHost.unshift({
+      user: event.host,
+      status: "going",
+      isHost: true,
+    });
+  }
+
+  return c.json({ attendees: attendeesWithHost });
 });
 
 events.patch("/:id", async (c) => {
@@ -282,7 +314,7 @@ events.post("/:id/rsvp", async (c) => {
   }
 
   const [event] = await db
-    .select({ hostId : eventsTable.hostId, cancelled: eventsTable.cancelled })
+    .select({ hostId: eventsTable.hostId, cancelled: eventsTable.cancelled })
     .from(eventsTable)
     .where(eq(eventsTable.id, eventId));
 
@@ -291,6 +323,9 @@ events.post("/:id/rsvp", async (c) => {
   }
   if (event.cancelled) {
     return c.json({ error: "event is cancelled" }, 400);
+  }
+  if (event.hostId === userId) {
+    return c.json({ error: "host cannot rsvp" }, 400);
   }
 
   const [invite] = await db
@@ -362,10 +397,13 @@ eventShare.get("/:shareToken", async (c) => {
     return c.json({ error: "could not find event" }, 404);
   }
 
-  const [{ going }] = await db
-    .select({ going: count() })
+  const goingInvites = await db
+    .select({ attendeeId: invites.attendeeId })
     .from(invites)
     .where(and(eq(invites.eventId, event.id), eq(invites.status, "going")));
+  const going =
+    1 +
+    goingInvites.filter((invite) => invite.attendeeId !== event.host.id).length;
 
   return c.json({ event: { ...event, going } });
 });
