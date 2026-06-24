@@ -31,10 +31,13 @@ export function TabBar({ routes, activeIndex, onTab }: Props) {
       <Pressable
         key={route.key}
         style={styles.tab}
+        hitSlop={{ top: 16, bottom: 16, left: 10, right: 10 }}
         onPress={() => {
           if (!focused) onTab(route.name, route.key);
         }}>
-        <Text style={[styles.label, focused && styles.labelActive]}>
+        <Text
+          style={[styles.label, focused && styles.labelActive]}
+          numberOfLines={1}>
           {LABELS[route.name] ?? route.name.toUpperCase()}
         </Text>
       </Pressable>
@@ -64,8 +67,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingTop: 14,
   },
-  tab: { flex: 1, alignItems: 'center' },
-  label: { fontFamily: Font.mono, fontSize: 10, letterSpacing: 2, color: '#BBBBBB' },
+  tab: { flex: 1, alignItems: 'center', paddingVertical: 9 },
+  label: { fontFamily: Font.mono, fontSize: 11.5, letterSpacing: 1.3, color: '#BBBBBB' },
   labelActive: { fontFamily: Font.monoBold, color: SQ.ink },
   fab: {
     width: 48,

@@ -1,18 +1,17 @@
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { api, ApiError } from '@/lib/api';
 import { Font, SQ } from '@/constants/sidequest';
-
-const KEYS = [
-  ['1', '2', '3'],
-  ['4', '5', '6'],
-  ['7', '8', '9'],
-  ['', '0', 'del'],
-];
 
 function formatUSPhone(d: string) {
   const a = d.slice(0, 3);
@@ -31,10 +30,7 @@ export default function Phone() {
   const [sending, setSending] = useState(false);
   const complete = phone.length === 10;
 
-  function press(k: string) {
-    if (k === 'del') setPhone((p) => p.slice(0, -1));
-    else if (k && phone.length < 10) setPhone((p) => p + k);
-  }
+  const inputRef = useRef<TextInput>(null);
 
   async function sendCode() {
     if (!complete || sending) return;
@@ -65,7 +61,9 @@ export default function Phone() {
         </Text>
       </View>
 
-      <View style={styles.inputRow}>
+      <Pressable
+        style={styles.inputRow}
+        onPress={() => inputRef.current?.focus()}>
         <View style={styles.cc}>
           <Text style={styles.flag}>🇺🇸</Text>
           <Text style={styles.ccText}>+1</Text>
@@ -74,37 +72,28 @@ export default function Phone() {
           <Text style={styles.number}>{formatUSPhone(phone)}</Text>
           <View style={styles.caret} />
         </View>
-      </View>
+      </Pressable>
 
-      <View style={styles.spacer} />
+      <TextInput
+        ref={inputRef}
+        value={phone}
+        onChangeText={(t) => setPhone(t.replace(/\D/g, '').slice(0, 10))}
+        keyboardType="phone-pad"
+        textContentType="telephoneNumber"
+        autoComplete="tel"
+        autoFocus
+        maxLength={10}
+        style={styles.hiddenInput}
+      />
 
-      <View style={[styles.keypad, { paddingBottom: insets.bottom + 10 }]}>
-        {KEYS.map((row, ri) => (
-          <View key={ri} style={styles.keyRow}>
-            {row.map((k, ci) => (
-              <Pressable
-                key={ci}
-                style={styles.key}
-                onPress={() => press(k)}
-                disabled={!k}>
-                {k === 'del' ? (
-                  <Feather name="delete" size={24} color={SQ.ink} />
-                ) : (
-                  <Text style={styles.keyText}>{k}</Text>
-                )}
-              </Pressable>
-            ))}
-          </View>
-        ))}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        <Pressable
-          style={[styles.cta, (!complete || sending) && styles.ctaOff]}
-          onPress={sendCode}
-          disabled={!complete || sending}>
-          <Text style={styles.ctaText}>{sending ? 'Sending…' : 'Send code'}</Text>
-        </Pressable>
-      </View>
+      <Pressable
+        style={[styles.cta, (!complete || sending) && styles.ctaOff]}
+        onPress={sendCode}
+        disabled={!complete || sending}>
+        <Text style={styles.ctaText}>{sending ? 'Sending…' : 'Send code'}</Text>
+      </Pressable>
     </View>
   );
 }
@@ -172,26 +161,15 @@ const styles = StyleSheet.create({
   },
   caret: { width: 2, height: 26, backgroundColor: SQ.ink, marginLeft: 3 },
 
-  spacer: { flex: 1 },
-
-  keypad: {
-    backgroundColor: '#FAFAF9',
-    borderTopWidth: 1,
-    borderTopColor: '#EFEFEC',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
-  keyRow: { flexDirection: 'row' },
-  key: { flex: 1, height: 50, alignItems: 'center', justifyContent: 'center' },
-  keyText: { fontFamily: Font.sansMedium, fontSize: 25, color: SQ.ink },
+  hiddenInput: { position: 'absolute', opacity: 0, height: 1, width: 1 },
 
   cta: {
     backgroundColor: SQ.ink,
     borderRadius: 13,
     alignItems: 'center',
     paddingVertical: 16,
-    marginTop: 8,
-    marginHorizontal: 8,
+    marginTop: 28,
+    marginHorizontal: 28,
   },
   ctaOff: { opacity: 0.35 },
   ctaText: { fontFamily: Font.sansSemibold, fontSize: 14, color: SQ.card },
@@ -200,7 +178,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#B3261E',
     textAlign: 'center',
-    marginHorizontal: 8,
-    marginBottom: 8,
+    marginHorizontal: 28,
+    marginTop: 16,
   },
 });

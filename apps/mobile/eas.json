@@ -8,19 +8,22 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://sidequest-api-eight.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://sidequest-api-eight.vercel.app",
+        "EXPO_PUBLIC_WEB_URL": "https://sidequest-web-nu.vercel.app"
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://sidequest-api-eight.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://sidequest-api-eight.vercel.app",
+        "EXPO_PUBLIC_WEB_URL": "https://sidequest-web-nu.vercel.app"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://sidequest-api-eight.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://sidequest-api-eight.vercel.app",
+        "EXPO_PUBLIC_WEB_URL": "https://sidequest-web-nu.vercel.app"
       }
     }
   },

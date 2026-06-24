@@ -1,19 +1,12 @@
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { api, ApiError } from '@/lib/api';
 import { useSession, type SessionUser } from '@/lib/session';
 import { Font, SQ } from '@/constants/sidequest';
-
-const KEYS = [
-  ['1', '2', '3'],
-  ['4', '5', '6'],
-  ['7', '8', '9'],
-  ['', '0', 'del'],
-];
 
 const RESEND_SECONDS = 30;
 
@@ -35,6 +28,8 @@ export default function Verify() {
   const [error, setError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [seconds, setSeconds] = useState(RESEND_SECONDS);
+
+  const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (seconds <= 0) return;
@@ -76,11 +71,6 @@ export default function Verify() {
     }
   }
 
-  function press(k: string) {
-    if (k === 'del') setCode((c) => c.slice(0, -1));
-    else if (k && code.length < 6) setCode((c) => c + k);
-  }
-
   const cells = Array.from({ length: 6 }, (_, i) => code[i] ?? '');
   const activeIndex = code.length;
 
@@ -101,32 +91,45 @@ export default function Verify() {
           </Text>
         </Text>
       </View>
+      <Pressable onPress={() => inputRef.current?.focus()}>
+        <View style={styles.otp}>
+          {cells.map((d, i) => {
+            const filled = d !== '';
+            const active = i === activeIndex;
+            return (
+              <View
+                key={i}
+                style={[
+                  styles.cell,
+                  filled
+                    ? styles.cellFilled
+                    : active
+                      ? styles.cellActive
+                      : styles.cellEmpty,
+                ]}>
+                {filled ? <View style={styles.cellBottom} /> : null}
+                {filled ? (
+                  <Text style={styles.cellDigit}>{d}</Text>
+                ) : active ? (
+                  <View style={styles.caret} />
+                ) : null}
+              </View>
+            );
+          })}
+        </View>
+      </Pressable>
 
-      <View style={styles.otp}>
-        {cells.map((d, i) => {
-          const filled = d !== '';
-          const active = i === activeIndex;
-          return (
-            <View
-              key={i}
-              style={[
-                styles.cell,
-                filled
-                  ? styles.cellFilled
-                  : active
-                    ? styles.cellActive
-                    : styles.cellEmpty,
-              ]}>
-              {filled ? <View style={styles.cellBottom} /> : null}
-              {filled ? (
-                <Text style={styles.cellDigit}>{d}</Text>
-              ) : active ? (
-                <View style={styles.caret} />
-              ) : null}
-            </View>
-          );
-        })}
-      </View>
+      <TextInput
+        ref={inputRef}
+        value={code}
+        onChangeText={(t) => setCode(t.replace(/\D/g, '').slice(0, 6))}
+        keyboardType="number-pad"
+        textContentType="oneTimeCode"
+        autoComplete="sms-otp"
+        autoFocus
+        maxLength={6}
+        style={styles.hiddenInput}
+      />
 
       {error ? (
         <Text style={styles.error}>{error}</Text>
@@ -140,27 +143,6 @@ export default function Verify() {
         </Pressable>
       )}
 
-      <View style={styles.spacer} />
-
-      <View style={[styles.keypad, { paddingBottom: insets.bottom + 10 }]}>
-        {KEYS.map((row, ri) => (
-          <View key={ri} style={styles.keyRow}>
-            {row.map((k, ci) => (
-              <Pressable
-                key={ci}
-                style={styles.key}
-                onPress={() => press(k)}
-                disabled={!k || verifying}>
-                {k === 'del' ? (
-                  <Feather name="delete" size={24} color={SQ.ink} />
-                ) : (
-                  <Text style={styles.keyText}>{k}</Text>
-                )}
-              </Pressable>
-            ))}
-          </View>
-        ))}
-      </View>
     </View>
   );
 }
@@ -232,16 +214,5 @@ const styles = StyleSheet.create({
     paddingTop: 22,
   },
 
-  spacer: { flex: 1 },
-
-  keypad: {
-    backgroundColor: '#FAFAF9',
-    borderTopWidth: 1,
-    borderTopColor: '#EFEFEC',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
-  keyRow: { flexDirection: 'row' },
-  key: { flex: 1, height: 50, alignItems: 'center', justifyContent: 'center' },
-  keyText: { fontFamily: Font.sansMedium, fontSize: 25, color: SQ.ink },
+  hiddenInput: { position: 'absolute', opacity: 0, height: 1, width: 1 },
 });
