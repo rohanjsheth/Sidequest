@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { eq, desc} from "drizzle-orm";
+import { eq, desc, and, inArray} from "drizzle-orm";
 import { db, events, invites, users } from "@sidequest/db";
 import { authMiddleware } from "../middleware/auth.js";
 import type { Env } from "../types.js";
@@ -33,7 +33,7 @@ me.get("/activity", async (c) => {
     .from(invites)
     .innerJoin(events, eq(invites.eventId, events.id))
     .innerJoin(users, eq(invites.attendeeId, users.id))
-    .where(eq(events.hostId, userId))
+    .where(and(eq(events.hostId, userId), inArray(invites.status, ['going','declined'])))
     .orderBy(desc(invites.createdAt))
     .limit(50)
 

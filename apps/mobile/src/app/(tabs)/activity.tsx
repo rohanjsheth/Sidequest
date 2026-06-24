@@ -12,18 +12,8 @@ type Activity = {
   event: { id: string; title: string };
 };
 
-// TODO(you): GET /me/activity (auth) → replace MOCK with data.activity (same shape as Activity)
-const MOCK: Activity[] = [
-  { id: '1', status: 'going', createdAt: minsAgo(2), attendee: { id: 'u1', name: 'Maya', avatarUrl: null }, event: { id: 'e1', title: 'Rooftop Sunset Hangs' } },
-  { id: '2', status: 'going', createdAt: minsAgo(18), attendee: { id: 'u2', name: 'Dev', avatarUrl: null }, event: { id: 'e2', title: 'Pickup Basketball' } },
-  { id: '3', status: 'declined', createdAt: minsAgo(64), attendee: { id: 'u3', name: 'Priya', avatarUrl: null }, event: { id: 'e3', title: 'Thai Night + Trivia' } },
-  { id: '4', status: 'going', createdAt: minsAgo(190), attendee: { id: 'u4', name: 'Leo', avatarUrl: null }, event: { id: 'e4', title: 'Beach Bonfire' } },
-  { id: '5', status: 'declined', createdAt: minsAgo(320), attendee: { id: 'u5', name: 'Ana', avatarUrl: null }, event: { id: 'e1', title: 'Rooftop Sunset Hangs' } },
-];
-
-function minsAgo(m: number) {
-  return new Date(Date.now() - m * 60000).toISOString();
-}
+// TODO(you): const [activity, setActivity] = useState<Activity[]>([]);
+//            useFocusEffect → GET /me/activity (auth) → setActivity(data.activity)
 
 function ago(iso: string) {
   const s = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
@@ -45,7 +35,7 @@ const colorFor = (id: string) => COLORS[id.charCodeAt(id.length - 1) % COLORS.le
 
 export default function Activity() {
   const insets = useSafeAreaInsets();
-  const activity = MOCK;
+  const activity: Activity[] = [];
 
   return (
     <View style={styles.screen}>
