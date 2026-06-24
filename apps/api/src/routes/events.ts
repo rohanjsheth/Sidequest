@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { and, eq, or, inArray, gte, count } from "drizzle-orm";
+import { and, eq, or, inArray, gte, count, isNotNull } from "drizzle-orm";
 import {
   db,
   events as eventsTable,
@@ -9,6 +9,7 @@ import {
 } from "@sidequest/db";
 import { authMiddleware } from "../middleware/auth.js";
 import type { Env } from "../types.js";
+import { use } from "hono/jsx";
 
 export const events = new Hono<Env>();
 events.use(authMiddleware);
@@ -76,34 +77,43 @@ events.post("/", async (c) => {
     })
     .returning();
 
+  // seed an invite per accepted friend — this set powers both the feed
+  const friends = await db
+    .select({
+      requesterId: friendships.requesterId,
+      addresseeId: friendships.addresseeId,
+    })
+    .from(friendships)
+    .where(
+      and(
+        eq(friendships.status, "accepted"),
+        or(
+          eq(friendships.requesterId, userId),
+          eq(friendships.addresseeId, userId),
+        ),
+      ),
+    );
+
+  const friendIds = friends.map((f) =>
+    f.requesterId === userId ? f.addresseeId : f.requesterId,
+  );
+
+  if (friendIds.length > 0) {
+    await db.insert(invites).values(
+      friendIds.map((friendId) => ({
+        eventId: event.id,
+        attendeeId: friendId,
+        status: "invited",
+      })),
+    );
+  }
+
   return c.json({ event }, 201);
 });
 
 events.get("/", async (c) => {
   const userId = c.get("userId");
-  const friendList = await db
-    .select({
-      id: users.id,
-    })
-    .from(friendships)
-    .innerJoin(
-      users,
-      or(
-        and(
-          eq(friendships.requesterId, userId),
-          eq(users.id, friendships.addresseeId),
-        ),
-        and(
-          eq(friendships.addresseeId, userId),
-          eq(users.id, friendships.requesterId),
-        ),
-      ),
-    )
-    .where(eq(friendships.status, "accepted"));
-
-  const friendIds = friendList.map((f) => f.id);
-  const hostIds = [userId, ...friendIds];
-
+  
   const eventList = await db
     .select({
       id: eventsTable.id,
@@ -119,9 +129,10 @@ events.get("/", async (c) => {
     })
     .from(eventsTable)
     .innerJoin(users, eq(eventsTable.hostId, users.id))
+    .leftJoin(invites, and(eq(invites.eventId, eventsTable.id), eq(invites.attendeeId, userId)))
     .where(
       and(
-        inArray(eventsTable.hostId, hostIds),
+        or(isNotNull(invites.id), eq(eventsTable.hostId, userId)),
         eq(eventsTable.cancelled, false),
         gte(eventsTable.startsAt, new Date()),
       ),
