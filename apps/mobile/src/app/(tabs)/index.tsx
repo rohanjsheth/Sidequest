@@ -23,8 +23,8 @@ type FeedEvent = {
   going: number;
 };
 
-function countdown(startsAt: string) {
-  const mins = Math.max(0, Math.round((new Date(startsAt).getTime() - Date.now()) / 60000));
+function countdown(startsAt: string, now: number) {
+  const mins = Math.max(0, Math.round((new Date(startsAt).getTime() - now) / 60000));
   if (mins < 60) return { chars: [...String(mins), 'm'], soon: true };
   const hrs = Math.round(mins / 60);
   if (hrs < 24) return { chars: [...String(hrs), 'h'], soon: false };
@@ -41,8 +41,8 @@ function FlapTile({ char }: { char: string }) {
   );
 }
 
-function EventRow({ event }: { event: FeedEvent }) {
-  const c = countdown(event.startsAt);
+function EventRow({ event, now }: { event: FeedEvent; now: number }) {
+  const c = countdown(event.startsAt, now);
   return (
     <Pressable style={styles.row} onPress={() => router.push(`/plan/${event.id}`)}>
       <View style={styles.cdCol}>
@@ -82,10 +82,12 @@ export default function Feed() {
   const { user } = useSession();
   const [events, setEvents] = useState<FeedEvent[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [now, setNow] = useState(Date.now());
 
   useFocusEffect(
     useCallback(() => {
       let active = true;
+      setNow(Date.now());
       (async () => {
         try {
           const { events: data } = await api<{ events: FeedEvent[] }>('/events', {
@@ -127,7 +129,8 @@ export default function Feed() {
         <FlatList
           data={events}
           keyExtractor={(e) => e.id}
-          renderItem={({ item }) => <EventRow event={item} />}
+          renderItem={({ item }) => <EventRow event={item} now={now} />}
+          extraData={now}
           ListHeaderComponent={<Text style={styles.heading}>Upcoming</Text>}
           contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
         />
@@ -160,17 +163,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { fontFamily: Font.mono, fontSize: 10, color: '#666666' },
+  avatarText: { fontFamily: Font.sansSemibold, fontSize: 11, color: '#666666' },
 
   heading: {
     fontFamily: Font.sansBold,
-    fontSize: 40,
-    lineHeight: 40,
-    letterSpacing: -0.5,
+    fontSize: 32,
+    letterSpacing: -0.6,
     color: SQ.ink,
     paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 26,
+    paddingTop: 14,
+    paddingBottom: 15,
   },
 
   center: { marginTop: 60 },

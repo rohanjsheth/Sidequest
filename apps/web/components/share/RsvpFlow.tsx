@@ -9,11 +9,10 @@ import { GoingConfirmation } from "./GoingConfirmation";
 import { Sheet } from "./Sheet";
 
 type Step = "pick" | "phone" | "otp" | "name" | "done";
-type Choice = "going" | "maybe" | "declined";
+type Choice = "going" | "declined";
 
 const CHOICES: { value: Choice; label: string }[] = [
   { value: "going", label: "Going" },
-  { value: "maybe", label: "Maybe" },
   { value: "declined", label: "Can’t" },
 ];
 
@@ -66,7 +65,7 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
   if (step === "done") {
     return (
       <div style={{ position: "fixed", inset: 0, background: colors.surface, overflow: "auto" }}>
-        <GoingConfirmation event={event} />
+        <GoingConfirmation event={event} status={choice ?? "going"} />
       </div>
     );
   }

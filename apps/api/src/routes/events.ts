@@ -290,7 +290,7 @@ events.patch("/:id", async (c) => {
 
 // POST   /:id/rsvp   (yours)
 
-const RSVP_STATUSES = ["going", "maybe", "declined"];
+const RSVP_STATUSES = ["going", "declined"];
 
 events.post("/:id/rsvp", async (c) => {
   const eventId = c.req.param("id");

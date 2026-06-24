@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     backgroundColor: SQ.ink,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -26,
+    marginTop: -22,
     marginHorizontal: 8,
     shadowColor: '#000',
     shadowOpacity: 0.28,
