@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { and, eq, or, inArray, gte } from "drizzle-orm";
+import { and, eq, or, inArray, gte, count } from "drizzle-orm";
 import {
   db,
   events as eventsTable,
@@ -117,25 +117,17 @@ events.get("/", async (c) => {
 
   const eventIds = eventList.map((e) => e.id);
 
-  const goingInvites = await db
-    .select({ eventId: invites.eventId, attendeeId: invites.attendeeId })
+  const goingCounts = await db
+    .select({ eventId: invites.eventId, going: count() })
     .from(invites)
-    .where(and(inArray(invites.eventId, eventIds), eq(invites.status, "going")));
-  const goingByEvent = new Map<string, Set<string>>();
+    .where(and(inArray(invites.eventId, eventIds), eq(invites.status, "going")))
+    .groupBy(invites.eventId);
 
-  for (const invite of goingInvites) {
-    const attendeeIds = goingByEvent.get(invite.eventId) ?? new Set<string>();
-    attendeeIds.add(invite.attendeeId);
-    goingByEvent.set(invite.eventId, attendeeIds);
-  }
+  const countMap = new Map(goingCounts.map((r) => [r.eventId, r.going]));
 
   const feed = eventList.map((e) => ({
     ...e,
-    going:
-      1 +
-      [...(goingByEvent.get(e.id) ?? [])].filter(
-        (attendeeId) => attendeeId !== e.host.id,
-      ).length,
+    going: 1 + (countMap.get(e.id) ?? 0),
   }));
 
   return c.json({ events: feed });
@@ -169,7 +161,7 @@ events.get("/:id", async (c) => {
     .where(and(eq(invites.eventId, event.id), eq(invites.status, "going")));
   const going =
     1 +
-    goingInvites.filter((invite) => invite.attendeeId !== event.host.id).length;
+    goingInvites.length;
 
   return c.json({ event: { ...event, going } });
 });
@@ -214,18 +206,14 @@ events.get("/:id/attendees", async (c) => {
         : and(eq(invites.eventId, eventId), eq(invites.status, "going")),
     );
 
-  const attendeesWithHost = attendees.map((attendee) => ({
+  const attendeesWithHost = [{
+    user: event.host,
+    status: "going",
+    isHost: true,
+  }, ...attendees.map((attendee) => ({
     ...attendee,
-    isHost: attendee.user.id === event.hostId,
-  }));
-
-  if (!attendeesWithHost.some((attendee) => attendee.user.id === event.hostId)) {
-    attendeesWithHost.unshift({
-      user: event.host,
-      status: "going",
-      isHost: true,
-    });
-  }
+    isHost: false,
+  }))];
 
   return c.json({ attendees: attendeesWithHost });
 });
@@ -403,7 +391,7 @@ eventShare.get("/:shareToken", async (c) => {
     .where(and(eq(invites.eventId, event.id), eq(invites.status, "going")));
   const going =
     1 +
-    goingInvites.filter((invite) => invite.attendeeId !== event.host.id).length;
+    goingInvites.length;
 
   return c.json({ event: { ...event, going } });
 });
