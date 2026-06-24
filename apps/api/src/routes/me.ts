@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { eq } from "drizzle-orm";
-import { db, users } from "@sidequest/db";
+import { eq, desc} from "drizzle-orm";
+import { db, events, invites, users } from "@sidequest/db";
 import { authMiddleware } from "../middleware/auth.js";
 import type { Env } from "../types.js";
 
@@ -19,6 +19,26 @@ me.get("/", async (c) => {
   }
   return c.json({ user });
 });
+
+me.get("/activity", async (c) => {
+  const userId = c.get("userId")
+  const hostedEvents = await db
+    .select({
+      id: invites.id,
+      status: invites.status, 
+      createdAt: invites.createdAt,
+      attendee: { id: users.id, name: users.name, avatarUrl: users.avatarUrl },
+      event: { id: events.id, title: events.title },
+    })
+    .from(invites)
+    .innerJoin(events, eq(invites.eventId, events.id))
+    .innerJoin(users, eq(invites.attendeeId, users.id))
+    .where(eq(events.hostId, userId))
+    .orderBy(desc(invites.createdAt))
+    .limit(50)
+
+    return c.json({ activity: hostedEvents });
+})
 
 me.patch("/", async (c) => {
   const body = await c.req.json();
