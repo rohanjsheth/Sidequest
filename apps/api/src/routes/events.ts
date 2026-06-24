@@ -15,8 +15,14 @@ events.use(authMiddleware);
 
 events.post("/", async (c) => {
   const userId = c.get("userId");
-  const { title, location, startsAt, notificationMessage, imageUrl } =
-    await c.req.json();
+  const {
+    title,
+    location,
+    startsAt,
+    description,
+    notificationMessage,
+    imageUrl,
+  } = await c.req.json();
 
   if (typeof title !== "string" || title.trim() === "") {
     return c.json({ error: "title is required" }, 400);
@@ -33,6 +39,10 @@ events.post("/", async (c) => {
     return c.json({ error: "invalid notificationMessage" }, 400);
   }
 
+  if (description !== undefined && typeof description !== "string") {
+    return c.json({ error: "invalid description" }, 400);
+  }
+
   if (imageUrl !== undefined && typeof imageUrl !== "string") {
     return c.json({ error: "invalid imageUrl" }, 400);
   }
@@ -47,8 +57,10 @@ events.post("/", async (c) => {
 
   // host's name powers the default blast message
   const [host] = await db.select().from(users).where(eq(users.id, userId));
+  const cleanedDescription = description?.trim();
   const blast =
     notificationMessage?.trim() ||
+    cleanedDescription ||
     `${host?.name ?? "Someone"} wants to sidequest`;
 
   const [event] = await db
@@ -58,6 +70,7 @@ events.post("/", async (c) => {
       title: title.trim(),
       location: location.trim(),
       startsAt: startsAtDate,
+      description: cleanedDescription || null,
       notificationMessage: blast,
       imageUrl: imageUrl?.trim(),
     })

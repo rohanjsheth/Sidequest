@@ -1,7 +1,7 @@
-import { Feather } from '@expo/vector-icons';
-import { DatePicker, Host } from '@expo/ui/swift-ui';
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { Feather } from "@expo/vector-icons";
+import { DatePicker, Host } from "@expo/ui/swift-ui";
+import { router } from "expo-router";
+import { useState } from "react";
 import {
   Pressable,
   ScrollView,
@@ -9,11 +9,11 @@ import {
   Text,
   TextInput,
   View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { api, ApiError } from '@/lib/api';
-import { Font, SQ } from '@/constants/sidequest';
+import { api, ApiError } from "@/lib/api";
+import { Font, SQ } from "@/constants/sidequest";
 
 function nextHalfHour() {
   const d = new Date();
@@ -25,33 +25,35 @@ function nextHalfHour() {
 export default function CreateScreen() {
   const insets = useSafeAreaInsets();
 
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [startsAt, setStartsAt] = useState<Date>(nextHalfHour);
-  const [location, setLocation] = useState('');
-  const [note, setNote] = useState('');
+  const [location, setLocation] = useState("");
+  const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const canSubmit = title.trim() !== '' && location.trim() !== '';
+  const canSubmit = title.trim() !== "" && location.trim() !== "";
 
   async function createPlan() {
     if (!canSubmit || submitting) return;
     setError(null);
     setSubmitting(true);
+    const trimmedNote = note.trim();
     try {
-      await api('/events', {
-        method: 'POST',
+      await api("/events", {
+        method: "POST",
         body: {
           title: title.trim(),
           location: location.trim(),
           startsAt: startsAt.toISOString(),
-          notificationMessage: note.trim() || undefined,
+          description: trimmedNote || undefined,
+          notificationMessage: trimmedNote || undefined,
         },
         auth: true,
       });
       router.back();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
     } finally {
       setSubmitting(false);
     }
@@ -70,7 +72,8 @@ export default function CreateScreen() {
       <ScrollView
         style={styles.body}
         contentContainerStyle={styles.bodyContent}
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+      >
         <TextInput
           value={title}
           onChangeText={setTitle}
@@ -88,7 +91,7 @@ export default function CreateScreen() {
               <Host matchContents>
                 <DatePicker
                   selection={startsAt}
-                  displayedComponents={['date', 'hourAndMinute']}
+                  displayedComponents={["date", "hourAndMinute"]}
                   onDateChange={setStartsAt}
                 />
               </Host>
@@ -123,9 +126,10 @@ export default function CreateScreen() {
         <Pressable
           style={[styles.cta, (!canSubmit || submitting) && styles.ctaOff]}
           onPress={createPlan}
-          disabled={!canSubmit || submitting}>
+          disabled={!canSubmit || submitting}
+        >
           <Text style={styles.ctaText}>
-            {submitting ? 'Creating…' : 'Create plan'}
+            {submitting ? "Creating…" : "Create plan"}
           </Text>
         </Pressable>
       </View>
@@ -136,9 +140,9 @@ export default function CreateScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: SQ.card },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 22,
     paddingBottom: 14,
     borderBottomWidth: 1,
@@ -169,8 +173,8 @@ const styles = StyleSheet.create({
 
   fields: { paddingHorizontal: 24, paddingTop: 22 },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 13,
     paddingVertical: 15,
     borderBottomWidth: 1,
@@ -184,7 +188,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
     color: SQ.faint,
   },
-  rowControl: { flex: 1, alignItems: 'flex-start' },
+  rowControl: { flex: 1, alignItems: "flex-start" },
   rowInput: {
     flex: 1,
     padding: 0,
@@ -211,14 +215,14 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.sansMedium,
     fontSize: 13,
-    color: '#B3261E',
-    textAlign: 'center',
+    color: "#B3261E",
+    textAlign: "center",
     marginBottom: 10,
   },
   cta: {
     backgroundColor: SQ.ink,
     borderRadius: 13,
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 17,
   },
   ctaOff: { opacity: 0.35 },

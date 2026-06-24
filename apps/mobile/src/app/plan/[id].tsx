@@ -184,7 +184,7 @@ export default function Plan() {
       const url = `${WEB_BASE.replace(/\/$/, "")}/p/${plan.shareToken}`;
       await Share.share({
         title: plan.title,
-        message: `${plan.title}\n${url}`,
+        message: `Join my sidequest: ${plan.title}\n${url}`,
         url,
       });
     } finally {
