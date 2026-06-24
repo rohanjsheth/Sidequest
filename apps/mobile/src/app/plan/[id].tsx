@@ -1,14 +1,21 @@
-import { Feather } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Feather } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Pressable,
+  ScrollView,
+  Share,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { api, ApiError } from '@/lib/api';
-import { useSession } from '@/lib/session';
-import { Font, SQ } from '@/constants/sidequest';
+import { api, ApiError } from "@/lib/api";
+import { useSession } from "@/lib/session";
+import { Font, SQ } from "@/constants/sidequest";
 
-const WEB_BASE = process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:3001';
+const WEB_BASE = process.env.EXPO_PUBLIC_WEB_URL ?? "http://localhost:3001";
 
 type Person = {
   id: string;
@@ -32,20 +39,20 @@ type ApiAttendee = {
   status: string;
   isHost: boolean;
 };
-type Rsvp = 'going' | 'declined';
+type Rsvp = "going" | "declined";
 
 const RSVPS: { key: Rsvp; label: string }[] = [
-  { key: 'going', label: 'Going' },
-  { key: 'declined', label: "Can't" },
+  { key: "going", label: "Going" },
+  { key: "declined", label: "Can't" },
 ];
 
-const pad = (n: number) => String(n).padStart(2, '0');
+const pad = (n: number) => String(n).padStart(2, "0");
 
 function formatWhen(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
-    weekday: 'short',
-    hour: 'numeric',
-    minute: '2-digit',
+    weekday: "short",
+    hour: "numeric",
+    minute: "2-digit",
   });
 }
 
@@ -73,30 +80,35 @@ export default function Plan() {
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const loadPlan = useCallback(async (showLoading = true) => {
-    try {
-      if (showLoading) setLoading(true);
-      const [{ event }, { attendees: rows }] = await Promise.all([
-        api<{ event: Plan }>(`/events/${id}`, { auth: true }),
-        api<{ attendees: ApiAttendee[] }>(`/events/${id}/attendees`, {
-          auth: true,
-        }),
-      ]);
-      setPlan(event);
-      setAttendees(
-        rows.map((row) => ({
-          id: row.user.id,
-          name: row.user.name ?? 'Someone',
-          isHost: row.isHost,
-        })),
-      );
-      setError(null);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
-    } finally {
-      if (showLoading) setLoading(false);
-    }
-  }, [id]);
+  const loadPlan = useCallback(
+    async (showLoading = true) => {
+      try {
+        if (showLoading) setLoading(true);
+        const [{ event }, { attendees: rows }] = await Promise.all([
+          api<{ event: Plan }>(`/events/${id}`, { auth: true }),
+          api<{ attendees: ApiAttendee[] }>(`/events/${id}/attendees`, {
+            auth: true,
+          }),
+        ]);
+        setPlan(event);
+        setAttendees(
+          rows.map((row) => ({
+            id: row.user.id,
+            name: row.user.name ?? "Someone",
+            isHost: row.isHost,
+          })),
+        );
+        setError(null);
+      } catch (err) {
+        setError(
+          err instanceof ApiError ? err.message : "Something went wrong",
+        );
+      } finally {
+        if (showLoading) setLoading(false);
+      }
+    },
+    [id],
+  );
 
   useEffect(() => {
     void loadPlan();
@@ -126,15 +138,18 @@ export default function Plan() {
           </Pressable>
         </View>
         <Text style={styles.state}>
-          {loading ? 'Loading plan...' : error ?? 'Could not load plan.'}
+          {loading ? "Loading plan..." : (error ?? "Could not load plan.")}
         </Text>
       </View>
     );
   }
 
-  const hostName = plan.host.name ?? 'Someone';
+  const hostName = plan.host.name ?? "Someone";
   const isHost = user?.id === plan.host.id;
-  const mins = Math.max(0, Math.round((new Date(plan.startsAt).getTime() - Date.now()) / 60000));
+  const mins = Math.max(
+    0,
+    Math.round((new Date(plan.startsAt).getTime() - Date.now()) / 60000),
+  );
   const hrs = Math.floor(mins / 60);
   const pill = mins < 60 ? `IN ${mins} MIN · SOON` : `IN ${hrs}H ${mins % 60}M`;
 
@@ -147,15 +162,15 @@ export default function Plan() {
     setSavingRsvp(true);
     try {
       await api(`/events/${id}/rsvp`, {
-        method: 'POST',
+        method: "POST",
         body: { status },
         auth: true,
       });
       await loadPlan(false);
-      showToast(status === 'going' ? "You're going" : "Marked can't go");
+      showToast(status === "going" ? "You're going" : "Marked can't go");
     } catch (err) {
       setRsvp(previous);
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
     } finally {
       setSavingRsvp(false);
     }
@@ -166,7 +181,7 @@ export default function Plan() {
 
     setSharing(true);
     try {
-      const url = `${WEB_BASE.replace(/\/$/, '')}/p/${plan.shareToken}`;
+      const url = `${WEB_BASE.replace(/\/$/, "")}/p/${plan.shareToken}`;
       await Share.share({
         title: plan.title,
         message: `${plan.title}\n${url}`,
@@ -179,16 +194,20 @@ export default function Plan() {
 
   return (
     <View style={styles.screen}>
-      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 110 }}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: insets.bottom + 110 }}
+      >
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
           <Pressable onPress={() => router.back()} hitSlop={8}>
             <Text style={styles.headerBtn}>‹ back</Text>
           </Pressable>
-          {isHost && <Pressable onPress={sharePlan} disabled={sharing} hitSlop={8}>
-            <Text style={[styles.headerBtn, sharing && styles.headerBtnOff]}>
-              {sharing ? 'sharing...' : 'share ↗'}
-            </Text>
-          </Pressable>}
+          {isHost && (
+            <Pressable onPress={sharePlan} disabled={sharing} hitSlop={8}>
+              <Text style={[styles.headerBtn, sharing && styles.headerBtnOff]}>
+                {sharing ? "sharing..." : "share ↗"}
+              </Text>
+            </Pressable>
+          )}
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -200,7 +219,9 @@ export default function Plan() {
           <Text style={styles.title}>{plan.title}</Text>
           <View style={styles.hostRow}>
             <View style={styles.hostAvatar}>
-              <Text style={styles.hostAvatarText}>{hostName[0].toUpperCase()}</Text>
+              <Text style={styles.hostAvatarText}>
+                {hostName[0].toUpperCase()}
+              </Text>
             </View>
             <Text style={styles.hostText}>Hosted by {hostName}</Text>
           </View>
@@ -230,8 +251,12 @@ export default function Plan() {
           <View style={styles.attendees}>
             {attendees.map((a) => (
               <View key={a.id} style={styles.attendee}>
-                <View style={[styles.attAvatar, a.isHost && styles.attAvatarHost]}>
-                  <Text style={styles.attAvatarText}>{a.name[0].toUpperCase()}</Text>
+                <View
+                  style={[styles.attAvatar, a.isHost && styles.attAvatarHost]}
+                >
+                  <Text style={styles.attAvatarText}>
+                    {a.name[0].toUpperCase()}
+                  </Text>
                 </View>
                 <Text style={styles.attName}>{a.name}</Text>
                 {a.isHost ? <Text style={styles.attHost}>HOST</Text> : null}
@@ -274,8 +299,14 @@ export default function Plan() {
                   i > 0 && styles.rsvpDivider,
                   rsvp === r.key && styles.rsvpActive,
                   savingRsvp && styles.rsvpOff,
-                ]}>
-                <Text style={[styles.rsvpText, rsvp === r.key && styles.rsvpTextActive]}>
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.rsvpText,
+                    rsvp === r.key && styles.rsvpTextActive,
+                  ]}
+                >
                   {r.label}
                 </Text>
               </Pressable>
@@ -290,12 +321,12 @@ export default function Plan() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: SQ.card },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: 22,
     paddingBottom: 8,
   },
-  headerBtn: { fontFamily: Font.mono, fontSize: 12.5, color: '#666666' },
+  headerBtn: { fontFamily: Font.mono, fontSize: 12.5, color: "#666666" },
   headerBtnOff: { color: SQ.ghost },
   state: {
     fontFamily: Font.mono,
@@ -307,14 +338,14 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: '#B3261E',
+    color: "#B3261E",
     paddingHorizontal: 24,
     paddingTop: 8,
   },
 
   intro: { paddingHorizontal: 24, paddingTop: 6 },
   pill: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     backgroundColor: SQ.ink,
     borderRadius: 4,
     paddingHorizontal: 8,
@@ -334,21 +365,26 @@ const styles = StyleSheet.create({
     color: SQ.ink,
     marginTop: 14,
   },
-  hostRow: { flexDirection: 'row', alignItems: 'center', gap: 9, marginTop: 12 },
+  hostRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+    marginTop: 12,
+  },
   hostAvatar: {
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#A0A0A0',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#A0A0A0",
+    alignItems: "center",
+    justifyContent: "center",
   },
   hostAvatarText: { fontFamily: Font.mono, fontSize: 9, color: SQ.card },
-  hostText: { fontFamily: Font.mono, fontSize: 12, color: '#666666' },
+  hostText: { fontFamily: Font.mono, fontSize: 12, color: "#666666" },
 
   countdown: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     gap: 11,
     paddingHorizontal: 24,
     paddingTop: 18,
@@ -361,8 +397,8 @@ const styles = StyleSheet.create({
     height: 42,
     lineHeight: 42,
   },
-  cdUnit: { alignItems: 'center', gap: 7 },
-  flapRow: { flexDirection: 'row', gap: 3 },
+  cdUnit: { alignItems: "center", gap: 7 },
+  flapRow: { flexDirection: "row", gap: 3 },
   cdUnitLabel: {
     fontFamily: Font.mono,
     fontSize: 8,
@@ -380,9 +416,9 @@ const styles = StyleSheet.create({
   goingCard: {
     marginHorizontal: 24,
     marginTop: 16,
-    backgroundColor: '#F4F3EF',
+    backgroundColor: "#F4F3EF",
     borderWidth: 1,
-    borderColor: '#EFEEE9',
+    borderColor: "#EFEEE9",
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingTop: 20,
@@ -392,27 +428,31 @@ const styles = StyleSheet.create({
     fontFamily: Font.mono,
     fontSize: 11,
     letterSpacing: 1.5,
-    color: '#8A8A8A',
+    color: "#8A8A8A",
     marginBottom: 15,
     paddingHorizontal: 2,
   },
-  attendees: { flexDirection: 'row', flexWrap: 'wrap', gap: 16 },
-  attendee: { width: 56, alignItems: 'center', gap: 6 },
+  attendees: { flexDirection: "row", flexWrap: "wrap", gap: 16 },
+  attendee: { width: 56, alignItems: "center", gap: 6 },
   attAvatar: {
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: '#8A9BA8',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#8A9BA8",
+    alignItems: "center",
+    justifyContent: "center",
   },
   attAvatarHost: {
-    backgroundColor: '#A0A0A0',
+    backgroundColor: "#A0A0A0",
     borderWidth: 3.5,
     borderColor: SQ.ink,
   },
-  attAvatarText: { fontFamily: Font.sansSemibold, fontSize: 15, color: SQ.card },
-  attName: { fontFamily: Font.mono, fontSize: 10.5, color: '#444444' },
+  attAvatarText: {
+    fontFamily: Font.sansSemibold,
+    fontSize: 15,
+    color: SQ.card,
+  },
+  attName: { fontFamily: Font.mono, fontSize: 10.5, color: "#444444" },
   attHost: {
     fontFamily: Font.monoBold,
     fontSize: 8,
@@ -423,8 +463,8 @@ const styles = StyleSheet.create({
 
   details: { paddingHorizontal: 24, paddingTop: 16 },
   detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 11,
     paddingVertical: 13,
     borderBottomWidth: 1,
@@ -443,7 +483,7 @@ const styles = StyleSheet.create({
   },
 
   footer: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,
@@ -454,7 +494,7 @@ const styles = StyleSheet.create({
     paddingTop: 14,
   },
   toast: {
-    alignSelf: 'center',
+    alignSelf: "center",
     backgroundColor: SQ.ink,
     borderRadius: 999,
     paddingHorizontal: 14,
@@ -467,13 +507,13 @@ const styles = StyleSheet.create({
     color: SQ.card,
   },
   rsvpBar: {
-    flexDirection: 'row',
+    flexDirection: "row",
     borderWidth: 1,
     borderColor: SQ.ink,
     borderRadius: 11,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
-  rsvpBtn: { flex: 1, alignItems: 'center', paddingVertical: 14 },
+  rsvpBtn: { flex: 1, alignItems: "center", paddingVertical: 14 },
   rsvpDivider: { borderLeftWidth: 1, borderLeftColor: SQ.line },
   rsvpActive: { backgroundColor: SQ.ink },
   rsvpOff: { opacity: 0.45 },
@@ -486,18 +526,18 @@ const flap = StyleSheet.create({
     minWidth: 26,
     height: 42,
     borderRadius: 5,
-    backgroundColor: '#3A3A3A',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
+    backgroundColor: "#3A3A3A",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
   },
   bottom: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,
     height: 21,
-    backgroundColor: '#1B1B1B',
+    backgroundColor: "#1B1B1B",
   },
-  char: { fontFamily: Font.monoBold, fontSize: 22, color: '#FFFFFF' },
+  char: { fontFamily: Font.monoBold, fontSize: 22, color: "#FFFFFF" },
 });

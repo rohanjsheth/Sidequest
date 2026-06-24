@@ -1,5 +1,5 @@
-import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -7,12 +7,12 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { api, ApiError } from '@/lib/api';
-import { useSession } from '@/lib/session';
-import { Font, SQ } from '@/constants/sidequest';
+import { api, ApiError } from "@/lib/api";
+import { useSession } from "@/lib/session";
+import { Font, SQ } from "@/constants/sidequest";
 
 type FeedEvent = {
   id: string;
@@ -24,11 +24,14 @@ type FeedEvent = {
 };
 
 function countdown(startsAt: string, now: number) {
-  const mins = Math.max(0, Math.round((new Date(startsAt).getTime() - now) / 60000));
-  if (mins < 60) return { chars: [...String(mins), 'm'], soon: true };
+  const mins = Math.max(
+    0,
+    Math.round((new Date(startsAt).getTime() - now) / 60000),
+  );
+  if (mins < 60) return { chars: [...String(mins), "m"], soon: true };
   const hrs = Math.round(mins / 60);
-  if (hrs < 24) return { chars: [...String(hrs), 'h'], soon: false };
-  return { chars: [...String(Math.round(hrs / 24)), 'd'], soon: false };
+  if (hrs < 24) return { chars: [...String(hrs), "h"], soon: false };
+  return { chars: [...String(Math.round(hrs / 24)), "d"], soon: false };
 }
 
 function FlapTile({ char }: { char: string }) {
@@ -44,7 +47,10 @@ function FlapTile({ char }: { char: string }) {
 function EventRow({ event, now }: { event: FeedEvent; now: number }) {
   const c = countdown(event.startsAt, now);
   return (
-    <Pressable style={styles.row} onPress={() => router.push(`/plan/${event.id}`)}>
+    <Pressable
+      style={styles.row}
+      onPress={() => router.push(`/plan/${event.id}`)}
+    >
       <View style={styles.cdCol}>
         <View style={styles.flaps}>
           {c.chars.map((ch, i) => (
@@ -64,7 +70,7 @@ function EventRow({ event, now }: { event: FeedEvent; now: number }) {
             </View>
           ) : null}
           <Text style={styles.meta} numberOfLines={1}>
-            {event.location} · {event.host.name ?? 'Someone'}
+            {event.location} · {event.host.name ?? "Someone"}
           </Text>
         </View>
       </View>
@@ -90,16 +96,21 @@ export default function Feed() {
       setNow(Date.now());
       (async () => {
         try {
-          const { events: data } = await api<{ events: FeedEvent[] }>('/events', {
-            auth: true,
-          });
+          const { events: data } = await api<{ events: FeedEvent[] }>(
+            "/events",
+            {
+              auth: true,
+            },
+          );
           if (active) {
             setEvents(data);
             setError(null);
           }
         } catch (err) {
           if (active)
-            setError(err instanceof ApiError ? err.message : 'Something went wrong');
+            setError(
+              err instanceof ApiError ? err.message : "Something went wrong",
+            );
         }
       })();
       return () => {
@@ -108,7 +119,7 @@ export default function Feed() {
     }, []),
   );
 
-  const initials = (user?.name ?? '?').slice(0, 2).toUpperCase();
+  const initials = (user?.name ?? "?").slice(0, 2).toUpperCase();
 
   return (
     <View style={styles.screen}>
@@ -142,9 +153,9 @@ export default function Feed() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: SQ.card },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 24,
     paddingBottom: 4,
   },
@@ -160,10 +171,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     borderWidth: 1,
     borderColor: SQ.line,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
-  avatarText: { fontFamily: Font.sansSemibold, fontSize: 11, color: '#666666' },
+  avatarText: { fontFamily: Font.sansSemibold, fontSize: 11, color: "#666666" },
 
   heading: {
     fontFamily: Font.sansBold,
@@ -180,23 +191,23 @@ const styles = StyleSheet.create({
     fontFamily: Font.mono,
     fontSize: 13,
     color: SQ.faint,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 60,
     paddingHorizontal: 40,
     lineHeight: 20,
   },
 
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 16,
     paddingHorizontal: 24,
     paddingVertical: 18,
     borderTopWidth: 1,
-    borderTopColor: '#EDEDED',
-    alignItems: 'center',
+    borderTopColor: "#EDEDED",
+    alignItems: "center",
   },
   cdCol: { minWidth: 55 },
-  flaps: { flexDirection: 'row', gap: 3 },
+  flaps: { flexDirection: "row", gap: 3 },
 
   body: { flex: 1, minWidth: 0 },
   title: {
@@ -206,7 +217,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: SQ.ink,
   },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 7 },
+  metaRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 7 },
   soon: {
     backgroundColor: SQ.ink,
     borderRadius: 4,
@@ -219,9 +230,9 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
     color: SQ.card,
   },
-  meta: { flex: 1, fontFamily: Font.mono, fontSize: 11.5, color: '#666666' },
+  meta: { flex: 1, fontFamily: Font.mono, fontSize: 11.5, color: "#666666" },
 
-  goingCol: { alignItems: 'flex-end' },
+  goingCol: { alignItems: "flex-end" },
   goingNum: { fontFamily: Font.sansBold, fontSize: 17, color: SQ.ink },
   goingLabel: {
     fontFamily: Font.mono,
@@ -230,7 +241,6 @@ const styles = StyleSheet.create({
     color: SQ.faint,
     marginTop: 3,
   },
-
 });
 
 const flap = StyleSheet.create({
@@ -238,21 +248,21 @@ const flap = StyleSheet.create({
     minWidth: 21,
     height: 32,
     borderRadius: 5,
-    backgroundColor: '#2A2A2A',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
+    backgroundColor: "#2A2A2A",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
     paddingHorizontal: 3,
   },
   unit: { minWidth: 16 },
   bottom: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,
     height: 16,
-    backgroundColor: '#161616',
+    backgroundColor: "#161616",
   },
-  char: { fontFamily: Font.monoBold, fontSize: 16, color: '#FFFFFF' },
+  char: { fontFamily: Font.monoBold, fontSize: 16, color: "#FFFFFF" },
   charUnit: { fontSize: 13 },
 });

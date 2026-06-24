@@ -1,19 +1,26 @@
-import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useState } from "react";
+import {
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { api, ApiError } from '@/lib/api';
-import { useSession, type SessionUser } from '@/lib/session';
-import { Font, SQ } from '@/constants/sidequest';
+import { api, ApiError } from "@/lib/api";
+import { useSession, type SessionUser } from "@/lib/session";
+import { Font, SQ } from "@/constants/sidequest";
 
 export default function You() {
   const insets = useSafeAreaInsets();
   const { user, setUser, signOut } = useSession();
 
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(user?.name ?? '');
-  const initial = (name.trim() || user?.name || '?')[0].toUpperCase();
-  const canSave = name.trim().length > 0 && name.trim() !== (user?.name ?? '');
+  const [name, setName] = useState(user?.name ?? "");
+  const initial = (name.trim() || user?.name || "?")[0].toUpperCase();
+  const canSave = name.trim().length > 0 && name.trim() !== (user?.name ?? "");
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,21 +31,21 @@ export default function You() {
     setError(null);
     setSaving(true);
     try {
-      const { user: updated } = await api<{ user: SessionUser }>('/me', {
-        method: 'PATCH',
+      const { user: updated } = await api<{ user: SessionUser }>("/me", {
+        method: "PATCH",
         body: { name: name.trim() },
         auth: true,
       });
       setUser(updated);
       setEditing(false);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
     } finally {
       setSaving(false);
     }
   }
   function cancel() {
-    setName(user?.name ?? '');
+    setName(user?.name ?? "");
     setEditing(false);
   }
   async function handleSignOut() {
@@ -48,21 +55,23 @@ export default function You() {
     if (deleting) return;
 
     Alert.alert(
-      'Delete account?',
-      'This permanently deletes your profile, friendships, RSVPs, and hosted plans.',
+      "Delete account?",
+      "This permanently deletes your profile, friendships, RSVPs, and hosted plans.",
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: "Cancel", style: "cancel" },
         {
-          text: 'Delete',
-          style: 'destructive',
+          text: "Delete",
+          style: "destructive",
           onPress: async () => {
             setError(null);
             setDeleting(true);
             try {
-              await api('/me', { method: 'DELETE', auth: true });
+              await api("/me", { method: "DELETE", auth: true });
               await signOut();
             } catch (err) {
-              setError(err instanceof ApiError ? err.message : 'Something went wrong');
+              setError(
+                err instanceof ApiError ? err.message : "Something went wrong",
+              );
               setDeleting(false);
             }
           },
@@ -90,7 +99,7 @@ export default function You() {
             onSubmitEditing={save}
           />
         ) : (
-          <Text style={styles.name}>{user?.name ?? 'You'}</Text>
+          <Text style={styles.name}>{user?.name ?? "You"}</Text>
         )}
       </View>
 
@@ -102,10 +111,17 @@ export default function You() {
               <Text style={styles.cancelText}>Cancel</Text>
             </Pressable>
             <Pressable
-              style={[styles.edit, styles.editGrow, (!canSave || saving) && styles.editOff]}
+              style={[
+                styles.edit,
+                styles.editGrow,
+                (!canSave || saving) && styles.editOff,
+              ]}
               onPress={save}
-              disabled={!canSave || saving}>
-              <Text style={styles.editText}>{saving ? 'Saving...' : 'Save'}</Text>
+              disabled={!canSave || saving}
+            >
+              <Text style={styles.editText}>
+                {saving ? "Saving..." : "Save"}
+              </Text>
             </Pressable>
           </View>
         ) : (
@@ -125,9 +141,10 @@ export default function You() {
         <Pressable
           style={[styles.action, deleting && styles.editOff]}
           onPress={deleteAccount}
-          disabled={deleting}>
+          disabled={deleting}
+        >
           <Text style={[styles.actionText, styles.danger]}>
-            {deleting ? 'Deleting...' : 'Delete account'}
+            {deleting ? "Deleting..." : "Delete account"}
           </Text>
         </Pressable>
       </View>
@@ -138,14 +155,14 @@ export default function You() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: SQ.card },
 
-  profile: { alignItems: 'center', gap: 13, paddingHorizontal: 24 },
+  profile: { alignItems: "center", gap: 13, paddingHorizontal: 24 },
   avatar: {
     width: 90,
     height: 90,
     borderRadius: 45,
     backgroundColor: SQ.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatarText: { fontFamily: Font.sansSemibold, fontSize: 36, color: SQ.card },
   name: {
@@ -159,7 +176,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     letterSpacing: -0.4,
     color: SQ.ink,
-    textAlign: 'center',
+    textAlign: "center",
     minWidth: 180,
     borderBottomWidth: 2,
     borderBottomColor: SQ.ink,
@@ -170,15 +187,15 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: '#B3261E',
-    textAlign: 'center',
+    color: "#B3261E",
+    textAlign: "center",
     marginBottom: 8,
   },
-  editRow: { flexDirection: 'row', gap: 10 },
+  editRow: { flexDirection: "row", gap: 10 },
   edit: {
     backgroundColor: SQ.ink,
     borderRadius: 13,
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 14,
   },
   editGrow: { flex: 1 },
@@ -189,7 +206,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: SQ.line,
     borderRadius: 13,
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 14,
   },
   cancelText: { fontFamily: Font.sansSemibold, fontSize: 13, color: SQ.ink },
@@ -199,6 +216,6 @@ const styles = StyleSheet.create({
   actions: { paddingHorizontal: 24, paddingBottom: 28 },
   action: { paddingVertical: 15 },
   actionText: { fontFamily: Font.sansMedium, fontSize: 14, color: SQ.ink },
-  danger: { color: '#B3261E' },
+  danger: { color: "#B3261E" },
   divider: { height: 1, backgroundColor: SQ.rule },
 });

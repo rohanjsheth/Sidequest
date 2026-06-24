@@ -1,11 +1,11 @@
-import { Feather } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Feather } from "@expo/vector-icons";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Font, SQ } from '@/constants/sidequest';
-import { api, ApiError } from '@/lib/api';
+import { Font, SQ } from "@/constants/sidequest";
+import { api, ApiError } from "@/lib/api";
 
 type FriendUser = {
   id: string;
@@ -29,15 +29,23 @@ type Person = {
   hosting?: boolean;
 };
 
-const COLORS = ['#A0A0A0', '#8A9BA8', '#B0A48F', '#7E8C99', '#9AA497', '#C2897A'];
-const colorFor = (id: string) => COLORS[id.charCodeAt(id.length - 1) % COLORS.length];
+const COLORS = [
+  "#A0A0A0",
+  "#8A9BA8",
+  "#B0A48F",
+  "#7E8C99",
+  "#9AA497",
+  "#C2897A",
+];
+const colorFor = (id: string) =>
+  COLORS[id.charCodeAt(id.length - 1) % COLORS.length];
 
-function personFromRow(row : FriendshipRow) : Person {
+function personFromRow(row: FriendshipRow): Person {
   return {
-    id : row.friendshipId,
-    name : row.user.name ?? 'Friend',
-    sub : row.user.phone,
-  }
+    id: row.friendshipId,
+    name: row.user.name ?? "Friend",
+    sub: row.user.phone,
+  };
 }
 
 export default function Friends() {
@@ -47,24 +55,22 @@ export default function Friends() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadFriends = useCallback( async () => {
+  const loadFriends = useCallback(async () => {
     setLoading(true);
     try {
-      const [{ friends },  {requests}] = await Promise.all([
-        api<FriendsResponse>('/friends', { auth : true }),
-        api<RequestsResponse>('/friends/requests', { auth : true })
-      ])
+      const [{ friends }, { requests }] = await Promise.all([
+        api<FriendsResponse>("/friends", { auth: true }),
+        api<RequestsResponse>("/friends/requests", { auth: true }),
+      ]);
       setFriends(friends.map(personFromRow));
       setFriendReq(requests.map(personFromRow));
       setError(null);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
+    } finally {
+      setLoading(false);
     }
-    catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
-    }
-    finally {
-      setLoading(false)
-    }
-  }, [])
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -75,23 +81,21 @@ export default function Friends() {
   async function accept(id: string) {
     setError(null);
     try {
-      await api(`/friends/${id}/accept`, { method: 'POST', auth: true });
+      await api(`/friends/${id}/accept`, { method: "POST", auth: true });
       await loadFriends();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
     }
   }
   async function decline(id: string) {
     setError(null);
     try {
-      await api(`/friends/${id}/decline`, { method: 'POST', auth: true });
+      await api(`/friends/${id}/decline`, { method: "POST", auth: true });
       await loadFriends();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
     }
   }
-
-   
 
   return (
     <View style={styles.screen}>
@@ -153,9 +157,9 @@ export default function Friends() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: SQ.card },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 24,
     paddingBottom: 10,
   },
@@ -170,13 +174,13 @@ const styles = StyleSheet.create({
     height: 38,
     borderRadius: 19,
     backgroundColor: SQ.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: '#B3261E',
+    color: "#B3261E",
     paddingHorizontal: 24,
     paddingTop: 8,
   },
@@ -205,8 +209,8 @@ const styles = StyleSheet.create({
   },
 
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 13,
     paddingHorizontal: 24,
     paddingVertical: 10,
@@ -215,14 +219,14 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatarText: { fontFamily: Font.sansSemibold, fontSize: 15, color: SQ.card },
   rowBody: { flex: 1, minWidth: 0 },
   name: { fontFamily: Font.sansSemibold, fontSize: 15, color: SQ.ink },
   sub: { fontFamily: Font.mono, fontSize: 10.5, color: SQ.faint, marginTop: 2 },
-  subRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 },
+  subRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 3 },
   subHosting: { color: SQ.ink, marginTop: 0 },
   dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: SQ.ink },
 
@@ -239,7 +243,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: SQ.line,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

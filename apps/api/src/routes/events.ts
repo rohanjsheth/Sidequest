@@ -159,9 +159,7 @@ events.get("/:id", async (c) => {
     .select({ attendeeId: invites.attendeeId })
     .from(invites)
     .where(and(eq(invites.eventId, event.id), eq(invites.status, "going")));
-  const going =
-    1 +
-    goingInvites.length;
+  const going = 1 + goingInvites.length;
 
   return c.json({ event: { ...event, going } });
 });
@@ -206,14 +204,17 @@ events.get("/:id/attendees", async (c) => {
         : and(eq(invites.eventId, eventId), eq(invites.status, "going")),
     );
 
-  const attendeesWithHost = [{
-    user: event.host,
-    status: "going",
-    isHost: true,
-  }, ...attendees.map((attendee) => ({
-    ...attendee,
-    isHost: false,
-  }))];
+  const attendeesWithHost = [
+    {
+      user: event.host,
+      status: "going",
+      isHost: true,
+    },
+    ...attendees.map((attendee) => ({
+      ...attendee,
+      isHost: false,
+    })),
+  ];
 
   return c.json({ attendees: attendeesWithHost });
 });
@@ -324,7 +325,7 @@ events.post("/:id/rsvp", async (c) => {
       set: { status },
     })
     .returning();
-  
+
   // Positive RSVP auto-friends you with the host (the one instant friendship).
   const { hostId } = event;
   if (hostId !== userId && status !== "declined") {
@@ -389,9 +390,7 @@ eventShare.get("/:shareToken", async (c) => {
     .select({ attendeeId: invites.attendeeId })
     .from(invites)
     .where(and(eq(invites.eventId, event.id), eq(invites.status, "going")));
-  const going =
-    1 +
-    goingInvites.length;
+  const going = 1 + goingInvites.length;
 
   return c.json({ event: { ...event, going } });
 });
