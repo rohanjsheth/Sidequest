@@ -1,7 +1,14 @@
 import { Feather } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Font, SQ } from "@/constants/sidequest";
@@ -48,12 +55,34 @@ function personFromRow(row: FriendshipRow): Person {
   };
 }
 
+function normalizeUSPhone(text: string) {
+  let digits = text.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
+  return digits.slice(0, 10);
+}
+
+function formatUSPhone(digits: string) {
+  const a = digits.slice(0, 3);
+  const b = digits.slice(3, 6);
+  const c = digits.slice(6, 10);
+  if (!digits) return "";
+  if (digits.length < 4) return `(${a}`;
+  if (digits.length < 7) return `(${a}) ${b}`;
+  return `(${a}) ${b}-${c}`;
+}
+
 export default function Friends() {
   const insets = useSafeAreaInsets();
   const [friends, setFriends] = useState<Person[]>([]);
   const [friendReq, setFriendReq] = useState<Person[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [sendingRequest, setSendingRequest] = useState(false);
+
+  const canRequest = phone.length === 10 && !sendingRequest;
 
   const loadFriends = useCallback(async () => {
     setLoading(true);
@@ -97,58 +126,125 @@ export default function Friends() {
     }
   }
 
+  async function sendFriendRequest() {
+    if (!canRequest) return;
+
+    setError(null);
+    setNotice(null);
+    setSendingRequest(true);
+    try {
+      await api("/friends/request", {
+        method: "POST",
+        body: { phone },
+        auth: true,
+      });
+      setPhone("");
+      setAdding(false);
+      setNotice("Friend request sent.");
+      await loadFriends();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
+    } finally {
+      setSendingRequest(false);
+    }
+  }
+
+  function toggleAdding() {
+    setAdding((open) => !open);
+    setPhone("");
+    setError(null);
+    setNotice(null);
+  }
+
   return (
     <View style={styles.screen}>
       <View style={[styles.header, { paddingTop: insets.top + 14 }]}>
         <Text style={styles.title}>Friends</Text>
-        <Pressable style={styles.addBtn}>
-          {/* TODO(you): add-friend flow (by phone / contact picker) */}
-          <Feather name="plus" size={22} color={SQ.card} />
+        <Pressable style={styles.addBtn} onPress={toggleAdding}>
+          <Feather name={adding ? "x" : "plus"} size={22} color={SQ.card} />
         </Pressable>
       </View>
 
+      {adding ? (
+        <View style={styles.addPanel}>
+          <View style={styles.addInputWrap}>
+            <Text style={styles.addLabel}>PHONE</Text>
+            <TextInput
+              value={formatUSPhone(phone)}
+              onChangeText={(value) => setPhone(normalizeUSPhone(value))}
+              placeholder="(415) 555-0134"
+              placeholderTextColor={SQ.ghost}
+              keyboardType="phone-pad"
+              textContentType="telephoneNumber"
+              autoComplete="tel"
+              returnKeyType="send"
+              onSubmitEditing={sendFriendRequest}
+              style={styles.addInput}
+              autoFocus
+            />
+          </View>
+          <Pressable
+            style={[styles.send, !canRequest && styles.sendOff]}
+            onPress={sendFriendRequest}
+            disabled={!canRequest}>
+            <Text style={styles.sendText}>
+              {sendingRequest ? "Sending..." : "Send"}
+            </Text>
+          </Pressable>
+        </View>
+      ) : null}
+
       {error ? <Text style={styles.error}>{error}</Text> : null}
+      {notice ? <Text style={styles.notice}>{notice}</Text> : null}
       {loading ? <Text style={styles.state}>Loading friends...</Text> : null}
 
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
         <Text style={styles.eyebrow}>REQUESTS · {friendReq.length}</Text>
-        {friendReq.map((p) => (
-          <View key={p.id} style={styles.row}>
-            <View style={[styles.avatar, { backgroundColor: colorFor(p.id) }]}>
-              <Text style={styles.avatarText}>{p.name[0]}</Text>
+        {friendReq.length === 0 ? (
+          <Text style={styles.empty}>No pending requests.</Text>
+        ) : (
+          friendReq.map((p) => (
+            <View key={p.id} style={styles.row}>
+              <View style={[styles.avatar, { backgroundColor: colorFor(p.id) }]}>
+                <Text style={styles.avatarText}>{p.name[0]}</Text>
+              </View>
+              <View style={styles.rowBody}>
+                <Text style={styles.name}>{p.name}</Text>
+                <Text style={styles.sub}>{p.sub}</Text>
+              </View>
+              <Pressable style={styles.accept} onPress={() => accept(p.id)}>
+                <Text style={styles.acceptText}>Accept</Text>
+              </Pressable>
+              <Pressable style={styles.decline} onPress={() => decline(p.id)}>
+                <Feather name="x" size={15} color="#AAAAAA" />
+              </Pressable>
             </View>
-            <View style={styles.rowBody}>
-              <Text style={styles.name}>{p.name}</Text>
-              <Text style={styles.sub}>{p.sub}</Text>
-            </View>
-            <Pressable style={styles.accept} onPress={() => accept(p.id)}>
-              <Text style={styles.acceptText}>Accept</Text>
-            </Pressable>
-            <Pressable style={styles.decline} onPress={() => decline(p.id)}>
-              <Feather name="x" size={15} color="#AAAAAA" />
-            </Pressable>
-          </View>
-        ))}
+          ))
+        )}
 
         <Text style={[styles.eyebrow, styles.eyebrowDivider]}>
           ALL FRIENDS · {friends.length}
         </Text>
-        {friends.map((p) => (
-          <View key={p.id} style={styles.row}>
-            <View style={[styles.avatar, { backgroundColor: colorFor(p.id) }]}>
-              <Text style={styles.avatarText}>{p.name[0]}</Text>
-            </View>
-            <View style={styles.rowBody}>
-              <Text style={styles.name}>{p.name}</Text>
-              <View style={styles.subRow}>
-                {p.hosting ? <View style={styles.dot} /> : null}
-                <Text style={[styles.sub, p.hosting && styles.subHosting]}>
-                  {p.sub}
-                </Text>
+        {friends.length === 0 ? (
+          <Text style={styles.empty}>No friends yet.</Text>
+        ) : (
+          friends.map((p) => (
+            <View key={p.id} style={styles.row}>
+              <View style={[styles.avatar, { backgroundColor: colorFor(p.id) }]}>
+                <Text style={styles.avatarText}>{p.name[0]}</Text>
+              </View>
+              <View style={styles.rowBody}>
+                <Text style={styles.name}>{p.name}</Text>
+                <View style={styles.subRow}>
+                  {p.hosting ? <View style={styles.dot} /> : null}
+                  <Text style={[styles.sub, p.hosting && styles.subHosting]}>
+                    {p.sub}
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-        ))}
+          ))
+        )}
       </ScrollView>
     </View>
   );
@@ -177,10 +273,54 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  addPanel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 24,
+    paddingBottom: 12,
+  },
+  addInputWrap: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: SQ.line,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 9,
+  },
+  addLabel: {
+    fontFamily: Font.mono,
+    fontSize: 9,
+    letterSpacing: 1.3,
+    color: SQ.faint,
+  },
+  addInput: {
+    fontFamily: Font.monoMedium,
+    fontSize: 16,
+    color: SQ.ink,
+    padding: 0,
+    marginTop: 4,
+  },
+  send: {
+    backgroundColor: SQ.ink,
+    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+  },
+  sendOff: { opacity: 0.35 },
+  sendText: { fontFamily: Font.sansSemibold, fontSize: 13, color: SQ.card },
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
     color: "#B3261E",
+    paddingHorizontal: 24,
+    paddingTop: 8,
+  },
+  notice: {
+    fontFamily: Font.mono,
+    fontSize: 12,
+    color: SQ.ink,
     paddingHorizontal: 24,
     paddingTop: 8,
   },
@@ -190,6 +330,13 @@ const styles = StyleSheet.create({
     color: SQ.faint,
     paddingHorizontal: 24,
     paddingTop: 8,
+  },
+  empty: {
+    fontFamily: Font.mono,
+    fontSize: 12,
+    color: SQ.faint,
+    paddingHorizontal: 24,
+    paddingVertical: 8,
   },
 
   eyebrow: {

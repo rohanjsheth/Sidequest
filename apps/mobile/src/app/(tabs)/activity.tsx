@@ -1,7 +1,10 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Font, SQ } from '@/constants/sidequest';
+import { api, ApiError } from '@/lib/api';
 
 type Status = 'going' | 'declined';
 type Activity = {
@@ -11,9 +14,6 @@ type Activity = {
   attendee: { id: string; name: string | null; avatarUrl: string | null };
   event: { id: string; title: string };
 };
-
-// TODO(you): const [activity, setActivity] = useState<Activity[]>([]);
-//            useFocusEffect → GET /me/activity (auth) → setActivity(data.activity)
 
 function ago(iso: string) {
   const s = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
@@ -35,22 +35,51 @@ const colorFor = (id: string) => COLORS[id.charCodeAt(id.length - 1) % COLORS.le
 
 export default function Activity() {
   const insets = useSafeAreaInsets();
-  const activity: Activity[] = [];
+  const [activity, setActivity] = useState<Activity[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadActivity = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { activity: rows } = await api<{ activity: Activity[] }>('/me/activity', {
+        auth: true,
+      });
+      setActivity(rows);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadActivity();
+    }, [loadActivity]),
+  );
 
   return (
     <View style={styles.screen}>
       <Text style={[styles.title, { paddingTop: insets.top + 14 }]}>Activity</Text>
 
-      {activity.length === 0 ? (
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {loading && activity === null ? (
+        <Text style={styles.state}>Loading activity...</Text>
+      ) : activity === null ? null : activity.length === 0 ? (
         <Text style={styles.empty}>
           No activity yet. When people respond to your plans, it shows up here.
         </Text>
       ) : (
-        <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
           {activity.map((a) => {
             const name = a.attendee.name ?? 'Someone';
             return (
-              <View key={a.id} style={styles.row}>
+              <Pressable
+                key={a.id}
+                style={styles.row}
+                onPress={() => router.push(`/plan/${a.event.id}`)}>
                 <View style={[styles.avatar, { backgroundColor: colorFor(a.attendee.id) }]}>
                   <Text style={styles.avatarText}>{name[0].toUpperCase()}</Text>
                 </View>
@@ -60,7 +89,7 @@ export default function Activity() {
                   <Text style={styles.event}>{a.event.title}</Text>
                 </Text>
                 <Text style={styles.time}>{ago(a.createdAt)}</Text>
-              </View>
+              </Pressable>
             );
           })}
         </ScrollView>
@@ -88,6 +117,20 @@ const styles = StyleSheet.create({
     marginTop: 60,
     paddingHorizontal: 40,
     lineHeight: 20,
+  },
+  state: {
+    fontFamily: Font.mono,
+    fontSize: 12,
+    color: SQ.faint,
+    paddingHorizontal: 24,
+    paddingTop: 8,
+  },
+  error: {
+    fontFamily: Font.mono,
+    fontSize: 12,
+    color: '#B3261E',
+    paddingHorizontal: 24,
+    paddingTop: 8,
   },
 
   row: {

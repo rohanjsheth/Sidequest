@@ -66,7 +66,7 @@ export default function CreateScreen() {
           <Text style={styles.cancel}>Cancel</Text>
         </Pressable>
         <Text style={styles.heading}>NEW PLAN</Text>
-        <Text style={styles.next}>Next</Text>
+        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView
@@ -149,13 +149,13 @@ const styles = StyleSheet.create({
     borderBottomColor: SQ.hair,
   },
   cancel: { fontFamily: Font.sans, fontSize: 13, color: SQ.muted },
+  headerSpacer: { width: 42 },
   heading: {
     fontFamily: Font.monoBold,
     fontSize: 11,
     letterSpacing: 2,
     color: SQ.ink,
   },
-  next: { fontFamily: Font.sans, fontSize: 13, color: SQ.ghost },
 
   body: { flex: 1 },
   bodyContent: { paddingBottom: 24 },

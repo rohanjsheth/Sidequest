@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import {
   Pressable,
   ScrollView,
@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, ApiError } from "@/lib/api";
+import { detailedCountdown } from "@/lib/countdown";
 import { useSession } from "@/lib/session";
 import { Font, SQ } from "@/constants/sidequest";
 
@@ -45,8 +46,6 @@ const RSVPS: { key: Rsvp; label: string }[] = [
   { key: "going", label: "Going" },
   { key: "declined", label: "Can't" },
 ];
-
-const pad = (n: number) => String(n).padStart(2, "0");
 
 function formatWhen(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
@@ -146,12 +145,7 @@ export default function Plan() {
 
   const hostName = plan.host.name ?? "Someone";
   const isHost = user?.id === plan.host.id;
-  const mins = Math.max(
-    0,
-    Math.round((new Date(plan.startsAt).getTime() - Date.now()) / 60000),
-  );
-  const hrs = Math.floor(mins / 60);
-  const pill = mins < 60 ? `IN ${mins} MIN · SOON` : `IN ${hrs}H ${mins % 60}M`;
+  const countdown = detailedCountdown(plan.startsAt);
 
   async function choose(status: Rsvp) {
     if (savingRsvp) return;
@@ -185,7 +179,6 @@ export default function Plan() {
       await Share.share({
         title: plan.title,
         message: `Join my sidequest: ${plan.title}\n${url}`,
-        url,
       });
     } finally {
       setSharing(false);
@@ -214,7 +207,7 @@ export default function Plan() {
 
         <View style={styles.intro}>
           <View style={styles.pill}>
-            <Text style={styles.pillText}>{pill}</Text>
+            <Text style={styles.pillText}>{countdown.pill}</Text>
           </View>
           <Text style={styles.title}>{plan.title}</Text>
           <View style={styles.hostRow}>
@@ -229,21 +222,19 @@ export default function Plan() {
 
         <View style={styles.countdown}>
           <Text style={styles.inLabel}>IN</Text>
-          <View style={styles.cdUnit}>
-            <View style={styles.flapRow}>
-              <FlapBig char={pad(hrs)[0]} />
-              <FlapBig char={pad(hrs)[1]} />
-            </View>
-            <Text style={styles.cdUnitLabel}>HRS</Text>
-          </View>
-          <Text style={styles.colon}>:</Text>
-          <View style={styles.cdUnit}>
-            <View style={styles.flapRow}>
-              <FlapBig char={pad(mins % 60)[0]} />
-              <FlapBig char={pad(mins % 60)[1]} />
-            </View>
-            <Text style={styles.cdUnitLabel}>MIN</Text>
-          </View>
+          {countdown.units.map((unit, index) => (
+            <Fragment key={unit.label}>
+              {index > 0 ? <Text style={styles.colon}>:</Text> : null}
+              <View style={styles.cdUnit}>
+                <View style={styles.flapRow}>
+                  {[...unit.value].map((char, i) => (
+                    <FlapBig key={`${unit.label}-${i}`} char={char} />
+                  ))}
+                </View>
+                <Text style={styles.cdUnitLabel}>{unit.label}</Text>
+              </View>
+            </Fragment>
+          ))}
         </View>
 
         <View style={styles.goingCard}>

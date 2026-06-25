@@ -11,6 +11,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, ApiError } from "@/lib/api";
+import { compactCountdown } from "@/lib/countdown";
 import { useSession } from "@/lib/session";
 import { Font, SQ } from "@/constants/sidequest";
 
@@ -23,17 +24,6 @@ type FeedEvent = {
   going: number;
 };
 
-function countdown(startsAt: string, now: number) {
-  const mins = Math.max(
-    0,
-    Math.round((new Date(startsAt).getTime() - now) / 60000),
-  );
-  if (mins < 60) return { chars: [...String(mins), "m"], soon: true };
-  const hrs = Math.round(mins / 60);
-  if (hrs < 24) return { chars: [...String(hrs), "h"], soon: false };
-  return { chars: [...String(Math.round(hrs / 24)), "d"], soon: false };
-}
-
 function FlapTile({ char }: { char: string }) {
   const isUnit = /[a-z]/i.test(char);
   return (
@@ -45,7 +35,7 @@ function FlapTile({ char }: { char: string }) {
 }
 
 function EventRow({ event, now }: { event: FeedEvent; now: number }) {
-  const c = countdown(event.startsAt, now);
+  const c = compactCountdown(event.startsAt, now);
   return (
     <Pressable
       style={styles.row}
