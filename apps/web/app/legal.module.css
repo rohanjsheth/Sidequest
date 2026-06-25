@@ -1,0 +1,147 @@
+.page {
+  min-height: 100vh;
+  background: #f8f7f3;
+  color: #111;
+}
+
+.shell {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  padding: 26px 24px 72px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 64px;
+}
+
+.wordmark {
+  font-family: var(--font-recursive), ui-monospace, monospace;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 3px;
+}
+
+.navLinks {
+  display: flex;
+  gap: 18px;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 13px;
+  color: #5e5a52;
+}
+
+.hero {
+  border-bottom: 1px solid #dfd9ce;
+  padding-bottom: 34px;
+}
+
+.kicker {
+  font-family: var(--font-recursive), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: #777;
+  margin-bottom: 14px;
+}
+
+.hero h1 {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: clamp(38px, 7vw, 66px);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.updated {
+  font-family: var(--font-recursive), ui-monospace, monospace;
+  font-size: 12px;
+  color: #777;
+  margin-top: 18px;
+}
+
+.content {
+  display: grid;
+  gap: 34px;
+  padding-top: 34px;
+}
+
+.section {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.28fr) minmax(0, 1fr);
+  gap: 28px;
+}
+
+.section h2 {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.body {
+  display: grid;
+  gap: 14px;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #4f4a43;
+}
+
+.body ul {
+  display: grid;
+  gap: 10px;
+  padding-left: 20px;
+}
+
+.body a {
+  color: #111;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.callout {
+  border: 1px solid #dfd9ce;
+  border-radius: 8px;
+  background: #fff;
+  padding: 18px;
+}
+
+.footer {
+  border-top: 1px solid #dfd9ce;
+  margin-top: 52px;
+  padding-top: 22px;
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  font-family: var(--font-recursive), ui-monospace, monospace;
+  font-size: 11px;
+  color: #777;
+}
+
+@media (max-width: 680px) {
+  .shell {
+    padding: 22px 20px 54px;
+  }
+
+  .nav {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-bottom: 44px;
+  }
+
+  .navLinks {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .section {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .footer {
+    flex-direction: column;
+  }
+}
