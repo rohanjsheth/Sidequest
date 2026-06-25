@@ -1,15 +1,25 @@
 import { Hono } from "hono";
-import { and, eq, or, inArray, gte, count, isNotNull } from "drizzle-orm";
+import {
+  and,
+  eq,
+  or,
+  inArray,
+  gte,
+  count,
+  isNotNull,
+  isNull,
+} from "drizzle-orm";
 import {
   db,
   events as eventsTable,
   invites,
   friendships,
   users,
+  blocks,
 } from "@sidequest/db";
 import { authMiddleware } from "../middleware/auth.js";
+import { isBlocked } from "../lib/blocks.js";
 import type { Env } from "../types.js";
-import { use } from "hono/jsx";
 
 export const events = new Hono<Env>();
 events.use(authMiddleware);
@@ -113,7 +123,7 @@ events.post("/", async (c) => {
 
 events.get("/", async (c) => {
   const userId = c.get("userId");
-  
+
   const eventList = await db
     .select({
       id: eventsTable.id,
@@ -129,9 +139,26 @@ events.get("/", async (c) => {
     })
     .from(eventsTable)
     .innerJoin(users, eq(eventsTable.hostId, users.id))
-    .leftJoin(invites, and(eq(invites.eventId, eventsTable.id), eq(invites.attendeeId, userId)))
+    .leftJoin(
+      invites,
+      and(eq(invites.eventId, eventsTable.id), eq(invites.attendeeId, userId)),
+    )
+    .leftJoin(
+      blocks,
+      or(
+        and(
+          eq(blocks.blockerId, userId),
+          eq(blocks.blockedId, eventsTable.hostId),
+        ),
+        and(
+          eq(blocks.blockerId, eventsTable.hostId),
+          eq(blocks.blockedId, userId),
+        ),
+      ),
+    )
     .where(
       and(
+        isNull(blocks.id),
         or(isNotNull(invites.id), eq(eventsTable.hostId, userId)),
         eq(eventsTable.cancelled, false),
         gte(eventsTable.startsAt, new Date()),
@@ -144,7 +171,26 @@ events.get("/", async (c) => {
   const goingCounts = await db
     .select({ eventId: invites.eventId, going: count() })
     .from(invites)
-    .where(and(inArray(invites.eventId, eventIds), eq(invites.status, "going")))
+    .leftJoin(
+      blocks,
+      or(
+        and(
+          eq(blocks.blockerId, userId),
+          eq(blocks.blockedId, invites.attendeeId),
+        ),
+        and(
+          eq(blocks.blockerId, invites.attendeeId),
+          eq(blocks.blockedId, userId),
+        ),
+      ),
+    )
+    .where(
+      and(
+        inArray(invites.eventId, eventIds),
+        eq(invites.status, "going"),
+        isNull(blocks.id),
+      ),
+    )
     .groupBy(invites.eventId);
 
   const countMap = new Map(goingCounts.map((r) => [r.eventId, r.going]));
@@ -159,6 +205,7 @@ events.get("/", async (c) => {
 
 events.get("/:id", async (c) => {
   const eventId = c.req.param("id");
+  const userId = c.get("userId");
   const [event] = await db
     .select({
       id: eventsTable.id,
@@ -179,10 +226,33 @@ events.get("/:id", async (c) => {
     return c.json({ error: "could not find event" }, 404);
   }
 
+  if (await isBlocked(userId, event.host.id)) {
+    return c.json({ error: "could not find event" }, 404);
+  }
+
   const goingInvites = await db
     .select({ attendeeId: invites.attendeeId })
     .from(invites)
-    .where(and(eq(invites.eventId, event.id), eq(invites.status, "going")));
+    .leftJoin(
+      blocks,
+      or(
+        and(
+          eq(blocks.blockerId, userId),
+          eq(blocks.blockedId, invites.attendeeId),
+        ),
+        and(
+          eq(blocks.blockerId, invites.attendeeId),
+          eq(blocks.blockedId, userId),
+        ),
+      ),
+    )
+    .where(
+      and(
+        eq(invites.eventId, event.id),
+        eq(invites.status, "going"),
+        isNull(blocks.id),
+      ),
+    );
   const going = 1 + goingInvites.length;
 
   return c.json({ event: { ...event, going } });
@@ -209,7 +279,9 @@ events.get("/:id/attendees", async (c) => {
     return c.json({ error: "could not find event" }, 404);
   }
 
-  const viewerIsHost = event.hostId === userId;
+  if (await isBlocked(userId, event.hostId)) {
+    return c.json({ error: "could not find event" }, 404);
+  }
 
   const attendees = await db
     .select({
@@ -222,8 +294,25 @@ events.get("/:id/attendees", async (c) => {
     })
     .from(invites)
     .innerJoin(users, eq(invites.attendeeId, users.id))
+    .leftJoin(
+      blocks,
+      or(
+        and(
+          eq(blocks.blockerId, userId),
+          eq(blocks.blockedId, invites.attendeeId),
+        ),
+        and(
+          eq(blocks.blockerId, invites.attendeeId),
+          eq(blocks.blockedId, userId),
+        ),
+      ),
+    )
     .where(
-      and(eq(invites.eventId, eventId), eq(invites.status, "going")),
+      and(
+        eq(invites.eventId, eventId),
+        eq(invites.status, "going"),
+        isNull(blocks.id),
+      ),
     );
 
   const attendeesWithHost = [
@@ -337,6 +426,10 @@ events.post("/:id/rsvp", async (c) => {
   }
   if (event.hostId === userId) {
     return c.json({ error: "host cannot rsvp" }, 400);
+  }
+
+  if (await isBlocked(userId, event.hostId)) {
+    return c.json({ error: "could not find event" }, 404);
   }
 
   const [invite] = await db

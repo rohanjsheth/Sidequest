@@ -6,6 +6,7 @@ import { me } from "./routes/me.js";
 import { friends } from "./routes/friends.js";
 import { lists } from "./routes/lists.js";
 import { events, eventShare } from "./routes/events.js";
+import { blocks } from "./routes/blocks.js";
 import { isUniqueViolation } from "./lib/db-errors.js";
 import type { Env } from "./types.js";
 
@@ -47,6 +48,7 @@ app.route("/me", me);
 app.route("/friends", friends);
 app.route("/lists", lists);
 app.route("/events", events);
+app.route("/blocks", blocks);
 
 app.route("/auth", auth);
 app.route("/e", eventShare);

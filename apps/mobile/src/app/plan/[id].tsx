@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Pressable,
   ScrollView,
   Share,
@@ -76,6 +77,7 @@ export default function Plan() {
   const [loading, setLoading] = useState(true);
   const [savingRsvp, setSavingRsvp] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [blocking, setBlocking] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -185,6 +187,30 @@ export default function Plan() {
     }
   }
 
+  function confirmBlock() {
+    Alert.alert(
+      `Block ${hostName}?`,
+      "You won't see each other's plans, and they're removed as a friend.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Block", style: "destructive", onPress: blockHost },
+      ],
+    );
+  }
+
+  async function blockHost() {
+    if (blocking || !plan) return;
+
+    setBlocking(true);
+    try {
+      await api(`/blocks/${plan.host.id}`, { method: "POST", auth: true });
+      router.back();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
+      setBlocking(false);
+    }
+  }
+
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -194,10 +220,16 @@ export default function Plan() {
           <Pressable onPress={() => router.back()} hitSlop={8}>
             <Text style={styles.headerBtn}>‹ back</Text>
           </Pressable>
-          {isHost && (
+          {isHost ? (
             <Pressable onPress={sharePlan} disabled={sharing} hitSlop={8}>
               <Text style={[styles.headerBtn, sharing && styles.headerBtnOff]}>
                 {sharing ? "sharing..." : "share ↗"}
+              </Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={confirmBlock} disabled={blocking} hitSlop={8}>
+              <Text style={[styles.headerBtn, blocking && styles.headerBtnOff]}>
+                {blocking ? "blocking..." : "block"}
               </Text>
             </Pressable>
           )}

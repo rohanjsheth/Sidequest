@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { authMiddleware } from "../middleware/auth.js";
 import { and, eq, or } from "drizzle-orm";
 import { db, users, friendships } from "@sidequest/db";
+import { isBlocked } from "../lib/blocks.js";
 import type { Env } from "../types.js";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 
@@ -26,6 +27,9 @@ friends.post("/request", async (c) => {
   }
   if (requested.id === userId) {
     return c.json({ error: "cannot friend yourself" }, 400);
+  }
+  if (await isBlocked(userId, requested.id)) {
+    return c.json({ error: "could not find user" }, 404);
   }
   const [existing] = await db
     .select()
