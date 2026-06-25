@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -33,6 +34,7 @@ type Person = {
   name: string;
   sub: string;
   id: string;
+  userId: string;
   hosting?: boolean;
 };
 
@@ -50,6 +52,7 @@ const colorFor = (id: string) =>
 function personFromRow(row: FriendshipRow): Person {
   return {
     id: row.friendshipId,
+    userId: row.user.id,
     name: row.user.name ?? "Friend",
     sub: row.user.phone,
   };
@@ -124,6 +127,42 @@ export default function Friends() {
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
     }
+  }
+
+  async function removeFriend(p: Person) {
+    setError(null);
+    try {
+      await api(`/friends/${p.id}`, { method: "DELETE", auth: true });
+      await loadFriends();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
+    }
+  }
+
+  async function blockFriend(p: Person) {
+    setError(null);
+    try {
+      await api(`/blocks/${p.userId}`, { method: "POST", auth: true });
+      await loadFriends();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
+    }
+  }
+
+  function openFriendMenu(p: Person) {
+    Alert.alert(
+      p.name,
+      "Remove unfriends them. Block also hides each other's plans and stops re-adding.",
+      [
+        { text: "Block", style: "destructive", onPress: () => blockFriend(p) },
+        {
+          text: "Remove friend",
+          style: "destructive",
+          onPress: () => removeFriend(p),
+        },
+        { text: "Cancel", style: "cancel" },
+      ],
+    );
   }
 
   async function sendFriendRequest() {
@@ -242,6 +281,12 @@ export default function Friends() {
                   </Text>
                 </View>
               </View>
+              <Pressable
+                style={styles.menuBtn}
+                onPress={() => openFriendMenu(p)}
+                hitSlop={8}>
+                <Feather name="more-horizontal" size={18} color={SQ.faint} />
+              </Pressable>
             </View>
           ))
         )}
@@ -376,6 +421,12 @@ const styles = StyleSheet.create({
   subRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 3 },
   subHosting: { color: SQ.ink, marginTop: 0 },
   dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: SQ.ink },
+  menuBtn: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
   accept: {
     backgroundColor: SQ.ink,
