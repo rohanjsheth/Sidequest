@@ -1,8 +1,14 @@
 import { Tabs } from 'expo-router';
+import { useEffect } from 'react';
 
 import { TabBar } from '@/components/tab-bar';
+import { registerForPushNotificationsAsync } from '@/lib/push';
 
 export default function TabsLayout() {
+  useEffect(() => {
+    void registerForPushNotificationsAsync();
+  }, []);
+
   return (
     <Tabs
       screenOptions={{ headerShown: false }}

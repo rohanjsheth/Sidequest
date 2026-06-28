@@ -19,6 +19,7 @@ import {
 } from "@sidequest/db";
 import { authMiddleware } from "../middleware/auth.js";
 import { isBlocked } from "../lib/blocks.js";
+import { sendPushToUsers } from "../lib/push.js";
 import type { Env } from "../types.js";
 
 export const events = new Hono<Env>();
@@ -71,8 +72,7 @@ events.post("/", async (c) => {
   const cleanedDescription = description?.trim();
   const blast =
     notificationMessage?.trim() ||
-    cleanedDescription ||
-    `${host?.name ?? "Someone"} wants to sidequest`;
+    `${host?.name ?? "Someone"} wants you to join a sidequest`;
 
   const [event] = await db
     .insert(eventsTable)
@@ -117,6 +117,12 @@ events.post("/", async (c) => {
       })),
     );
   }
+
+  await sendPushToUsers(friendIds, {
+    title: event.title,
+    body: blast,
+    data: { eventId: event.id },
+  });
 
   return c.json({ event }, 201);
 });

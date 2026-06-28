@@ -1,4 +1,5 @@
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider } from 'expo-router';
+import * as Notifications from 'expo-notifications';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
@@ -37,6 +38,13 @@ export default function RootLayout() {
 function RootNavigator() {
   const colorScheme = useColorScheme();
   const { token, user, isLoading } = useSession();
+
+  const lastNotification = Notifications.useLastNotificationResponse();
+  useEffect(() => {
+    const eventId =
+      lastNotification?.notification.request.content.data?.eventId;
+    if (typeof eventId === 'string') router.push(`/plan/${eventId}`);
+  }, [lastNotification]);
 
   if (isLoading) return null;
 
