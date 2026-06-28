@@ -1,8 +1,12 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Font, SQ } from '@/constants/sidequest';
+
+const WEB_BASE = (
+  process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:3001'
+).replace(/\/$/, '');
 
 const TEASE = [
   {
@@ -84,7 +88,19 @@ export default function Welcome() {
           <Text style={styles.ctaText}>Continue with phone</Text>
         </Pressable>
         <Text style={styles.terms}>
-          {'By continuing you agree to our\nTerms & Privacy Policy.'}
+          By continuing you agree to our{'\n'}
+          <Text
+            style={styles.termsLink}
+            onPress={() => Linking.openURL(`${WEB_BASE}/terms`)}>
+            Terms
+          </Text>
+          {' & '}
+          <Text
+            style={styles.termsLink}
+            onPress={() => Linking.openURL(`${WEB_BASE}/privacy`)}>
+            Privacy Policy
+          </Text>
+          .
         </Text>
       </View>
     </View>
@@ -156,6 +172,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 14,
   },
+  termsLink: { color: SQ.muted, textDecorationLine: 'underline' },
 });
 
 const flap = StyleSheet.create({

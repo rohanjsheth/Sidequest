@@ -75,6 +75,11 @@ export default function TermsPage() {
                 sexually exploitative, threatening, invasive of privacy,
                 misleading, spammy, or otherwise unsafe.
               </p>
+              <p>
+                Sidequest has zero tolerance for objectionable content and
+                abusive behavior. Content or users that violate these rules may
+                be removed without notice.
+              </p>
             </div>
           </section>
 
@@ -111,10 +116,11 @@ export default function TermsPage() {
                 created safety risk, or misused the service.
               </p>
               <p>
-                To report a plan, user, or safety issue, email{" "}
+                You can report a plan from inside the app using the ⋯ menu, or
+                email{" "}
                 <a href="mailto:support@sidequest.app">support@sidequest.app</a>{" "}
-                with the relevant details. We review reports and may take action
-                based on the context and severity.
+                with the relevant details. We review reports within 24 hours and
+                remove content or users that violate these terms.
               </p>
             </div>
           </section>

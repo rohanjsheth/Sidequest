@@ -78,6 +78,7 @@ export default function Plan() {
   const [savingRsvp, setSavingRsvp] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [blocking, setBlocking] = useState(false);
+  const [reporting, setReporting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -211,6 +212,39 @@ export default function Plan() {
     }
   }
 
+  function openPlanMenu() {
+    Alert.alert(hostName, undefined, [
+      { text: "Report plan", style: "destructive", onPress: confirmReport },
+      { text: "Block host", style: "destructive", onPress: confirmBlock },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  }
+
+  function confirmReport() {
+    Alert.alert(
+      "Report this plan?",
+      "Our team reviews reports within 24 hours and removes content that violates our guidelines.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Report", style: "destructive", onPress: reportPlan },
+      ],
+    );
+  }
+
+  async function reportPlan() {
+    if (reporting || !plan) return;
+
+    setReporting(true);
+    try {
+      await api(`/reports/${plan.id}`, { method: "POST", auth: true });
+      showToast("Thanks — we'll review this plan");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
+    } finally {
+      setReporting(false);
+    }
+  }
+
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -227,10 +261,8 @@ export default function Plan() {
               </Text>
             </Pressable>
           ) : (
-            <Pressable onPress={confirmBlock} disabled={blocking} hitSlop={8}>
-              <Text style={[styles.headerBtn, blocking && styles.headerBtnOff]}>
-                {blocking ? "blocking..." : "block"}
-              </Text>
+            <Pressable onPress={openPlanMenu} hitSlop={8}>
+              <Feather name="more-horizontal" size={18} color="#666666" />
             </Pressable>
           )}
         </View>
@@ -398,11 +430,13 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: "#A0A0A0",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: SQ.line,
     alignItems: "center",
     justifyContent: "center",
   },
-  hostAvatarText: { fontFamily: Font.mono, fontSize: 9, color: SQ.card },
+  hostAvatarText: { fontFamily: Font.mono, fontSize: 9, color: SQ.ink },
   hostText: { fontFamily: Font.mono, fontSize: 12, color: "#666666" },
 
   countdown: {
@@ -461,19 +495,20 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: "#8A9BA8",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: SQ.line,
     alignItems: "center",
     justifyContent: "center",
   },
   attAvatarHost: {
-    backgroundColor: "#A0A0A0",
     borderWidth: 3.5,
     borderColor: SQ.ink,
   },
   attAvatarText: {
     fontFamily: Font.sansSemibold,
     fontSize: 15,
-    color: SQ.card,
+    color: SQ.ink,
   },
   attName: { fontFamily: Font.mono, fontSize: 10.5, color: "#444444" },
   attHost: {
