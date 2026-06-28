@@ -1,23 +1,17 @@
-import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useRef, useState } from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useRef, useState } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { api, ApiError } from '@/lib/api';
-import { Font, SQ } from '@/constants/sidequest';
+import { api, ApiError } from "@/lib/api";
+import { Font, SQ } from "@/constants/sidequest";
 
 function formatUSPhone(d: string) {
   const a = d.slice(0, 3);
   const b = d.slice(3, 6);
   const c = d.slice(6, 10);
-  if (!d) return '';
+  if (!d) return "";
   if (d.length < 4) return `(${a}`;
   if (d.length < 7) return `(${a}) ${b}`;
   return `(${a}) ${b}-${c}`;
@@ -25,7 +19,7 @@ function formatUSPhone(d: string) {
 
 export default function Phone() {
   const insets = useSafeAreaInsets();
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const complete = phone.length === 10;
@@ -37,10 +31,10 @@ export default function Phone() {
     setError(null);
     setSending(true);
     try {
-      await api('/auth/start', { method: 'POST', body: { phone } });
-      router.push({ pathname: '/verify', params: { phone } });
+      await api("/auth/start", { method: "POST", body: { phone } });
+      router.push({ pathname: "/verify", params: { phone } });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
     } finally {
       setSending(false);
     }
@@ -49,7 +43,11 @@ export default function Phone() {
   return (
     <View style={styles.screen}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <Pressable style={styles.back} onPress={() => router.back()} hitSlop={8}>
+        <Pressable
+          style={styles.back}
+          onPress={() => router.back()}
+          hitSlop={8}
+        >
           <Feather name="chevron-left" size={18} color="#444" />
         </Pressable>
       </View>
@@ -63,7 +61,8 @@ export default function Phone() {
 
       <Pressable
         style={styles.inputRow}
-        onPress={() => inputRef.current?.focus()}>
+        onPress={() => inputRef.current?.focus()}
+      >
         <View style={styles.cc}>
           <Text style={styles.flag}>🇺🇸</Text>
           <Text style={styles.ccText}>+1</Text>
@@ -77,7 +76,7 @@ export default function Phone() {
       <TextInput
         ref={inputRef}
         value={phone}
-        onChangeText={(t) => setPhone(t.replace(/\D/g, '').slice(0, 10))}
+        onChangeText={(t) => setPhone(t.replace(/\D/g, "").slice(0, 10))}
         keyboardType="phone-pad"
         textContentType="telephoneNumber"
         autoComplete="tel"
@@ -91,8 +90,9 @@ export default function Phone() {
       <Pressable
         style={[styles.cta, (!complete || sending) && styles.ctaOff]}
         onPress={sendCode}
-        disabled={!complete || sending}>
-        <Text style={styles.ctaText}>{sending ? 'Sending…' : 'Send code'}</Text>
+        disabled={!complete || sending}
+      >
+        <Text style={styles.ctaText}>{sending ? "Sending…" : "Send code"}</Text>
       </Pressable>
     </View>
   );
@@ -106,8 +106,8 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     backgroundColor: SQ.fill,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   intro: { paddingHorizontal: 28, paddingTop: 22 },
@@ -129,25 +129,25 @@ const styles = StyleSheet.create({
   inputRow: {
     paddingHorizontal: 28,
     paddingTop: 30,
-    flexDirection: 'row',
-    alignItems: 'stretch',
+    flexDirection: "row",
+    alignItems: "stretch",
     gap: 10,
   },
   cc: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     paddingHorizontal: 14,
     borderWidth: 1.5,
-    borderColor: '#EAEAEA',
+    borderColor: "#EAEAEA",
     borderRadius: 11,
   },
   flag: { fontSize: 18 },
   ccText: { fontFamily: Font.sansSemibold, fontSize: 16, color: SQ.ink },
   field: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderBottomWidth: 2,
     borderBottomColor: SQ.ink,
     paddingVertical: 11,
@@ -161,12 +161,12 @@ const styles = StyleSheet.create({
   },
   caret: { width: 2, height: 26, backgroundColor: SQ.ink, marginLeft: 3 },
 
-  hiddenInput: { position: 'absolute', opacity: 0, height: 1, width: 1 },
+  hiddenInput: { position: "absolute", opacity: 0, height: 1, width: 1 },
 
   cta: {
     backgroundColor: SQ.ink,
     borderRadius: 13,
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 16,
     marginTop: 28,
     marginHorizontal: 28,
@@ -176,8 +176,8 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: '#B3261E',
-    textAlign: 'center',
+    color: "#B3261E",
+    textAlign: "center",
     marginHorizontal: 28,
     marginTop: 16,
   },

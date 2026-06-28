@@ -4,9 +4,9 @@ import {
   useEffect,
   useState,
   type ReactNode,
-} from 'react';
+} from "react";
 
-import { clearToken, getToken, setToken , api} from '@/lib/api';
+import { clearToken, getToken, setToken, api } from "@/lib/api";
 
 export type SessionUser = { id: string; name: string | null } | null;
 
@@ -29,26 +29,25 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       const saved = await getToken();
-      if (saved)
-      {
+      if (saved) {
         try {
-          const { user } = await api<{ user: SessionUser }>('/me', {auth: true});
+          const { user } = await api<{ user: SessionUser }>("/me", {
+            auth: true,
+          });
           setTokenState(saved);
           setUser(user);
-        }
-        catch {
+        } catch {
           await clearToken();
-        }   
+        }
       }
       setIsLoading(false);
-      
     })();
   }, []);
 
   async function signIn(newToken: string, newUser: SessionUser) {
     await setToken(newToken);
     setTokenState(newToken);
-    setUser(newUser)
+    setUser(newUser);
   }
 
   async function signOut() {
@@ -59,7 +58,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   return (
     <SessionContext.Provider
-      value={{ token, user, isLoading, signIn, signOut, setUser }}>
+      value={{ token, user, isLoading, signIn, signOut, setUser }}
+    >
       {children}
     </SessionContext.Provider>
   );
@@ -67,6 +67,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
 export function useSession() {
   const ctx = useContext(SessionContext);
-  if (!ctx) throw new Error('useSession must be used inside <SessionProvider>');
+  if (!ctx) throw new Error("useSession must be used inside <SessionProvider>");
   return ctx;
 }

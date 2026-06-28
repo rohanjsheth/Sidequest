@@ -1,4 +1,8 @@
-export type Host = { id: string; name: string | null; avatarUrl: string | null };
+export type Host = {
+  id: string;
+  name: string | null;
+  avatarUrl: string | null;
+};
 
 export type ShareEvent = {
   id: string;
@@ -13,7 +17,10 @@ export type ShareEvent = {
   going: number;
 };
 
-export function planStatus(e: { cancelled: boolean; startsAt: string }): string {
+export function planStatus(e: {
+  cancelled: boolean;
+  startsAt: string;
+}): string {
   if (e.cancelled) return "CANCELLED";
   const t = new Date(e.startsAt).getTime();
   const mins = Math.round((t - Date.now()) / 60000);
@@ -29,6 +36,10 @@ export function formatWhen(iso: string): string {
   const sameDay = d.toDateString() === today.toDateString();
   const day = sameDay
     ? "Today"
-    : d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+    : d.toLocaleDateString([], {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      });
   return `${day} · ${time}`;
 }

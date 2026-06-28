@@ -116,28 +116,28 @@ export default function Feed() {
     <ColorBlurBackground>
       <View style={styles.screen}>
         <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-        <Text style={styles.wordmark}>SIDEQUEST</Text>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initials}</Text>
+          <Text style={styles.wordmark}>SIDEQUEST</Text>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initials}</Text>
+          </View>
         </View>
-      </View>
 
-      {events === null && !error ? (
-        <ActivityIndicator style={styles.center} color={SQ.ink} />
-      ) : error ? (
-        <Text style={styles.state}>{error}</Text>
-      ) : events && events.length === 0 ? (
-        <Text style={styles.state}>No plans yet. Tap + to start one.</Text>
-      ) : (
-        <FlatList
-          data={events}
-          keyExtractor={(e) => e.id}
-          renderItem={({ item }) => <EventRow event={item} now={now} />}
-          extraData={now}
-          ListHeaderComponent={<Text style={styles.heading}>Upcoming</Text>}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
-        />
-      )}
+        {events === null && !error ? (
+          <ActivityIndicator style={styles.center} color={SQ.ink} />
+        ) : error ? (
+          <Text style={styles.state}>{error}</Text>
+        ) : events && events.length === 0 ? (
+          <Text style={styles.state}>No plans yet. Tap + to start one.</Text>
+        ) : (
+          <FlatList
+            data={events}
+            keyExtractor={(e) => e.id}
+            renderItem={({ item }) => <EventRow event={item} now={now} />}
+            extraData={now}
+            ListHeaderComponent={<Text style={styles.heading}>Upcoming</Text>}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
+          />
+        )}
       </View>
     </ColorBlurBackground>
   );

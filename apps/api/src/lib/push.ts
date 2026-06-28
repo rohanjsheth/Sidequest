@@ -12,19 +12,18 @@ export async function sendPushToUsers(userIds: string[], msg: Push) {
   const rows = await db
     .select({ token: users.expoPushToken })
     .from(users)
-    .where(and(inArray(users.id, userIds), isNotNull(users.expoPushToken)))
-  
-  const messages: ExpoPushMessage[] = rows
-    .map((r) => r.token )
-    .filter((t): t is string => t !== null && Expo.isExpoPushToken(t))
-    .map((r) => ({to: r, sound: "default", ...msg}));
+    .where(and(inArray(users.id, userIds), isNotNull(users.expoPushToken)));
 
-  try{
+  const messages: ExpoPushMessage[] = rows
+    .map((r) => r.token)
+    .filter((t): t is string => t !== null && Expo.isExpoPushToken(t))
+    .map((r) => ({ to: r, sound: "default", ...msg }));
+
+  try {
     for (const chunk of expo.chunkPushNotifications(messages)) {
-      await expo.sendPushNotificationsAsync(chunk)
+      await expo.sendPushNotificationsAsync(chunk);
     }
-  }
-  catch (err) {
+  } catch (err) {
     console.error("push send failed", err);
   }
 }

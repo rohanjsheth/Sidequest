@@ -25,7 +25,9 @@ export function Countdown({ startsAt }: { startsAt: string }) {
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
       <div style={{ height: 42, display: "flex", alignItems: "center" }}>
-        <span style={{ fontSize: 14, letterSpacing: 2, fontWeight: 700 }}>IN</span>
+        <span style={{ fontSize: 14, letterSpacing: 2, fontWeight: 700 }}>
+          IN
+        </span>
       </div>
       <Group value={hrs} label="HRS" />
       <div style={{ height: 42, display: "flex", alignItems: "center" }}>
@@ -38,7 +40,9 @@ export function Countdown({ startsAt }: { startsAt: string }) {
 
 function Group({ value, label }: { value: string; label: string }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div
+      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+    >
       <SplitFlap text={value} />
       <span
         style={{

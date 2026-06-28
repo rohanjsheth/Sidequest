@@ -85,71 +85,71 @@ export default function You() {
     <ColorBlurBackground>
       <View style={styles.screen}>
         <View style={[styles.profile, { paddingTop: insets.top + 48 }]}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initial}</Text>
-        </View>
-        {editing ? (
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Your name"
-            placeholderTextColor={SQ.ghost}
-            style={styles.nameInput}
-            autoFocus
-            autoCapitalize="words"
-            returnKeyType="done"
-            onSubmitEditing={save}
-          />
-        ) : (
-          <Text style={styles.name}>{user?.name ?? "You"}</Text>
-        )}
-      </View>
-
-      <View style={styles.editWrap}>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        {editing ? (
-          <View style={styles.editRow}>
-            <Pressable style={styles.cancel} onPress={cancel}>
-              <Text style={styles.cancelText}>Cancel</Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.edit,
-                styles.editGrow,
-                (!canSave || saving) && styles.editOff,
-              ]}
-              onPress={save}
-              disabled={!canSave || saving}
-            >
-              <Text style={styles.editText}>
-                {saving ? "Saving..." : "Save"}
-              </Text>
-            </Pressable>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initial}</Text>
           </View>
-        ) : (
-          <Pressable style={styles.edit} onPress={() => setEditing(true)}>
-            <Text style={styles.editText}>Edit profile</Text>
+          {editing ? (
+            <TextInput
+              value={name}
+              onChangeText={setName}
+              placeholder="Your name"
+              placeholderTextColor={SQ.ghost}
+              style={styles.nameInput}
+              autoFocus
+              autoCapitalize="words"
+              returnKeyType="done"
+              onSubmitEditing={save}
+            />
+          ) : (
+            <Text style={styles.name}>{user?.name ?? "You"}</Text>
+          )}
+        </View>
+
+        <View style={styles.editWrap}>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {editing ? (
+            <View style={styles.editRow}>
+              <Pressable style={styles.cancel} onPress={cancel}>
+                <Text style={styles.cancelText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                style={[
+                  styles.edit,
+                  styles.editGrow,
+                  (!canSave || saving) && styles.editOff,
+                ]}
+                onPress={save}
+                disabled={!canSave || saving}
+              >
+                <Text style={styles.editText}>
+                  {saving ? "Saving..." : "Save"}
+                </Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable style={styles.edit} onPress={() => setEditing(true)}>
+              <Text style={styles.editText}>Edit profile</Text>
+            </Pressable>
+          )}
+        </View>
+
+        <View style={styles.spacer} />
+
+        <View style={styles.actions}>
+          <Pressable style={styles.action} onPress={handleSignOut}>
+            <Text style={styles.actionText}>Sign out</Text>
           </Pressable>
-        )}
-      </View>
-
-      <View style={styles.spacer} />
-
-      <View style={styles.actions}>
-        <Pressable style={styles.action} onPress={handleSignOut}>
-          <Text style={styles.actionText}>Sign out</Text>
-        </Pressable>
-        <View style={styles.divider} />
-        <Pressable
-          style={[styles.action, deleting && styles.editOff]}
-          onPress={deleteAccount}
-          disabled={deleting}
-        >
-          <Text style={[styles.actionText, styles.danger]}>
-            {deleting ? "Deleting..." : "Delete account"}
-          </Text>
-        </Pressable>
-      </View>
+          <View style={styles.divider} />
+          <Pressable
+            style={[styles.action, deleting && styles.editOff]}
+            onPress={deleteAccount}
+            disabled={deleting}
+          >
+            <Text style={[styles.actionText, styles.danger]}>
+              {deleting ? "Deleting..." : "Delete account"}
+            </Text>
+          </Pressable>
+        </View>
       </View>
     </ColorBlurBackground>
   );

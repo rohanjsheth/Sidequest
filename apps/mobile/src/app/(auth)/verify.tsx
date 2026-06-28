@@ -1,12 +1,12 @@
-import { Feather } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Feather } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useRef, useState } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { api, ApiError } from '@/lib/api';
-import { useSession, type SessionUser } from '@/lib/session';
-import { Font, SQ } from '@/constants/sidequest';
+import { api, ApiError } from "@/lib/api";
+import { useSession, type SessionUser } from "@/lib/session";
+import { Font, SQ } from "@/constants/sidequest";
 
 const RESEND_SECONDS = 30;
 
@@ -24,7 +24,7 @@ export default function Verify() {
   const { phone } = useLocalSearchParams<{ phone: string }>();
   const { signIn } = useSession();
 
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [seconds, setSeconds] = useState(RESEND_SECONDS);
@@ -47,14 +47,14 @@ export default function Verify() {
     setVerifying(true);
     try {
       const { token, user } = await api<{ token: string; user: SessionUser }>(
-        '/auth/verify',
-        { method: 'POST', body: { phone, code } },
+        "/auth/verify",
+        { method: "POST", body: { phone, code } },
       );
       await signIn(token, user);
       // session state flips → Stack.Protected routes to set-name or tabs
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
-      setCode('');
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
+      setCode("");
     } finally {
       setVerifying(false);
     }
@@ -64,20 +64,24 @@ export default function Verify() {
     if (seconds > 0) return;
     setError(null);
     try {
-      await api('/auth/start', { method: 'POST', body: { phone } });
+      await api("/auth/start", { method: "POST", body: { phone } });
       setSeconds(RESEND_SECONDS);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
     }
   }
 
-  const cells = Array.from({ length: 6 }, (_, i) => code[i] ?? '');
+  const cells = Array.from({ length: 6 }, (_, i) => code[i] ?? "");
   const activeIndex = code.length;
 
   return (
     <View style={styles.screen}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <Pressable style={styles.back} onPress={() => router.back()} hitSlop={8}>
+        <Pressable
+          style={styles.back}
+          onPress={() => router.back()}
+          hitSlop={8}
+        >
           <Feather name="chevron-left" size={18} color="#444" />
         </Pressable>
       </View>
@@ -85,7 +89,7 @@ export default function Verify() {
       <View style={styles.intro}>
         <Text style={styles.title}>Enter the code</Text>
         <Text style={styles.sub}>
-          Sent to +1 {formatUSPhone(phone ?? '')} ·{' '}
+          Sent to +1 {formatUSPhone(phone ?? "")} ·{" "}
           <Text style={styles.edit} onPress={() => router.back()}>
             Edit
           </Text>
@@ -94,7 +98,7 @@ export default function Verify() {
       <Pressable onPress={() => inputRef.current?.focus()}>
         <View style={styles.otp}>
           {cells.map((d, i) => {
-            const filled = d !== '';
+            const filled = d !== "";
             const active = i === activeIndex;
             return (
               <View
@@ -106,7 +110,8 @@ export default function Verify() {
                     : active
                       ? styles.cellActive
                       : styles.cellEmpty,
-                ]}>
+                ]}
+              >
                 {filled ? <View style={styles.cellBottom} /> : null}
                 {filled ? (
                   <Text style={styles.cellDigit}>{d}</Text>
@@ -122,7 +127,7 @@ export default function Verify() {
       <TextInput
         ref={inputRef}
         value={code}
-        onChangeText={(t) => setCode(t.replace(/\D/g, '').slice(0, 6))}
+        onChangeText={(t) => setCode(t.replace(/\D/g, "").slice(0, 6))}
         keyboardType="number-pad"
         textContentType="oneTimeCode"
         autoComplete="sms-otp"
@@ -134,15 +139,18 @@ export default function Verify() {
       {error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
-        <Pressable onPress={resend} disabled={seconds > 0} style={styles.resendWrap}>
+        <Pressable
+          onPress={resend}
+          disabled={seconds > 0}
+          style={styles.resendWrap}
+        >
           <Text style={styles.resend}>
             {seconds > 0
-              ? `Resend code in 0:${String(seconds).padStart(2, '0')}`
-              : 'Resend code'}
+              ? `Resend code in 0:${String(seconds).padStart(2, "0")}`
+              : "Resend code"}
           </Text>
         </Pressable>
       )}
-
     </View>
   );
 }
@@ -155,8 +163,8 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     backgroundColor: SQ.fill,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   intro: { paddingHorizontal: 28, paddingTop: 22 },
@@ -174,10 +182,10 @@ const styles = StyleSheet.create({
     color: SQ.muted,
     marginTop: 13,
   },
-  edit: { color: SQ.ink, textDecorationLine: 'underline' },
+  edit: { color: SQ.ink, textDecorationLine: "underline" },
 
   otp: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 7,
     paddingHorizontal: 24,
     paddingTop: 34,
@@ -186,33 +194,33 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 64,
     borderRadius: 7,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
   },
-  cellFilled: { backgroundColor: '#3A3A3A' },
+  cellFilled: { backgroundColor: "#3A3A3A" },
   cellActive: { backgroundColor: SQ.fill, borderWidth: 2, borderColor: SQ.ink },
   cellEmpty: { backgroundColor: SQ.fill },
   cellBottom: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,
     height: 32,
-    backgroundColor: '#1B1B1B',
+    backgroundColor: "#1B1B1B",
   },
-  cellDigit: { fontFamily: Font.monoBold, fontSize: 30, color: '#FFFFFF' },
+  cellDigit: { fontFamily: Font.monoBold, fontSize: 30, color: "#FFFFFF" },
   caret: { width: 2, height: 30, backgroundColor: SQ.ink },
 
-  resendWrap: { paddingTop: 22, alignItems: 'center' },
+  resendWrap: { paddingTop: 22, alignItems: "center" },
   resend: { fontFamily: Font.mono, fontSize: 12, color: SQ.faint },
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: '#B3261E',
-    textAlign: 'center',
+    color: "#B3261E",
+    textAlign: "center",
     paddingTop: 22,
   },
 
-  hiddenInput: { position: 'absolute', opacity: 0, height: 1, width: 1 },
+  hiddenInput: { position: "absolute", opacity: 0, height: 1, width: 1 },
 });

@@ -43,10 +43,10 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
   }
 
   async function verifyAndRsvp() {
-    const { token, user } = await api<{ token: string; user: { name: string | null } }>(
-      "/auth/verify",
-      { method: "POST", body: { phone, code } },
-    );
+    const { token, user } = await api<{
+      token: string;
+      user: { name: string | null };
+    }>("/auth/verify", { method: "POST", body: { phone, code } });
     setToken(token);
     if (!user.name) {
       setStep("name");
@@ -64,7 +64,14 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
 
   if (step === "done") {
     return (
-      <div style={{ position: "fixed", inset: 0, background: colors.surface, overflow: "auto" }}>
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: colors.surface,
+          overflow: "auto",
+        }}
+      >
         <GoingConfirmation event={event} status={choice ?? "going"} />
       </div>
     );
@@ -102,7 +109,9 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
       {step === "phone" && (
         <Sheet onClose={() => setStep("pick")}>
           <SheetTitle>Confirm it&rsquo;s you to RSVP</SheetTitle>
-          <div style={s.sub}>We&rsquo;ll text a 6-digit code — no password.</div>
+          <div style={s.sub}>
+            We&rsquo;ll text a 6-digit code — no password.
+          </div>
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -126,8 +135,16 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
             </span>
           </div>
           <OtpBoxes code={code} onChange={setCode} />
-          <div style={{ textAlign: "center", fontSize: 12, color: colors.faint, marginTop: 16 }}>
-            Resend code in <span style={{ color: colors.ink, fontWeight: 600 }}>0:24</span>
+          <div
+            style={{
+              textAlign: "center",
+              fontSize: 12,
+              color: colors.faint,
+              marginTop: 16,
+            }}
+          >
+            Resend code in{" "}
+            <span style={{ color: colors.ink, fontWeight: 600 }}>0:24</span>
           </div>
           <button onClick={verifyAndRsvp} style={s.primary}>
             Confirm &amp; RSVP
@@ -139,7 +156,15 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
         <Sheet onClose={() => setStep("pick")}>
           <div style={{ ...s.kicker, textAlign: "center" }}>LAST STEP</div>
           <SheetTitle>What should we call you?</SheetTitle>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, marginTop: 22 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 16,
+              marginTop: 22,
+            }}
+          >
             <div style={s.avatar}>{(name.trim()[0] || "?").toUpperCase()}</div>
             <input
               value={name}
@@ -177,7 +202,13 @@ function SheetTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-function OtpBoxes({ code, onChange }: { code: string; onChange: (v: string) => void }) {
+function OtpBoxes({
+  code,
+  onChange,
+}: {
+  code: string;
+  onChange: (v: string) => void;
+}) {
   const cells = Array.from({ length: 6 });
   return (
     <div style={{ position: "relative", marginTop: 24 }}>
@@ -186,7 +217,10 @@ function OtpBoxes({ code, onChange }: { code: string; onChange: (v: string) => v
           const ch = code[i];
           const current = i === code.length;
           return (
-            <span key={i} style={ch ? s.otpFilled : current ? s.otpCurrent : s.otpEmpty}>
+            <span
+              key={i}
+              style={ch ? s.otpFilled : current ? s.otpCurrent : s.otpEmpty}
+            >
               {ch ??
                 (current ? (
                   <span
@@ -205,10 +239,19 @@ function OtpBoxes({ code, onChange }: { code: string; onChange: (v: string) => v
       </div>
       <input
         value={code}
-        onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 6))}
+        onChange={(e) =>
+          onChange(e.target.value.replace(/\D/g, "").slice(0, 6))
+        }
         inputMode="numeric"
         autoFocus
-        style={{ position: "absolute", inset: 0, opacity: 0, width: "100%", height: "100%", cursor: "pointer" }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: 0,
+          width: "100%",
+          height: "100%",
+          cursor: "pointer",
+        }}
       />
     </div>
   );
@@ -226,7 +269,12 @@ const otpBase: React.CSSProperties = {
 };
 
 const s: Record<string, React.CSSProperties> = {
-  label: { fontSize: 10, letterSpacing: 1.5, color: colors.faint, marginBottom: 10 },
+  label: {
+    fontSize: 10,
+    letterSpacing: 1.5,
+    color: colors.faint,
+    marginBottom: 10,
+  },
   segmented: {
     display: "flex",
     border: `1px solid ${colors.ink}`,
@@ -246,10 +294,27 @@ const s: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     cursor: "pointer",
   },
-  hint: { textAlign: "center", fontSize: 12, color: colors.muted, marginTop: 12, fontFamily: font.sans },
-  link: { color: colors.ink, fontWeight: 600, textDecoration: "underline", cursor: "pointer" },
+  hint: {
+    textAlign: "center",
+    fontSize: 12,
+    color: colors.muted,
+    marginTop: 12,
+    fontFamily: font.sans,
+  },
+  link: {
+    color: colors.ink,
+    fontWeight: 600,
+    textDecoration: "underline",
+    cursor: "pointer",
+  },
   kicker: { fontSize: 10, letterSpacing: 2, color: colors.faint },
-  sub: { fontSize: 12, color: colors.muted, textAlign: "center", lineHeight: 1.6, marginTop: 9 },
+  sub: {
+    fontSize: 12,
+    color: colors.muted,
+    textAlign: "center",
+    lineHeight: 1.6,
+    marginTop: 9,
+  },
   input: {
     width: "100%",
     fontFamily: font.mono,
@@ -305,6 +370,11 @@ const s: Record<string, React.CSSProperties> = {
     color: "#fff",
     boxShadow: "0 2px 6px rgba(0,0,0,0.22)",
   },
-  otpCurrent: { ...otpBase, background: "#F4F4F2", border: `2px solid ${colors.ink}`, color: colors.ink },
+  otpCurrent: {
+    ...otpBase,
+    background: "#F4F4F2",
+    border: `2px solid ${colors.ink}`,
+    color: colors.ink,
+  },
   otpEmpty: { ...otpBase, background: "#F4F4F2" },
 };

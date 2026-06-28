@@ -23,18 +23,20 @@ blocks.post("/:id", async (c) => {
     return c.json({ error: "could not find user" }, 404);
   }
 
-  await db.delete(friendships).where(
-    or(
-      and(
-        eq(friendships.requesterId, userId),
-        eq(friendships.addresseeId, blockedId),
+  await db
+    .delete(friendships)
+    .where(
+      or(
+        and(
+          eq(friendships.requesterId, userId),
+          eq(friendships.addresseeId, blockedId),
+        ),
+        and(
+          eq(friendships.requesterId, blockedId),
+          eq(friendships.addresseeId, userId),
+        ),
       ),
-      and(
-        eq(friendships.requesterId, blockedId),
-        eq(friendships.addresseeId, userId),
-      ),
-    ),
-  );
+    );
 
   const [block] = await db
     .insert(blocksTable)
@@ -52,7 +54,10 @@ blocks.delete("/:id", async (c) => {
   const [deleted] = await db
     .delete(blocksTable)
     .where(
-      and(eq(blocksTable.blockerId, userId), eq(blocksTable.blockedId, blockedId)),
+      and(
+        eq(blocksTable.blockerId, userId),
+        eq(blocksTable.blockedId, blockedId),
+      ),
     )
     .returning();
 

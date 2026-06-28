@@ -25,7 +25,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const event = await getEvent(token);
   return {
     title: `${event.title} · Sidequest`,
-    description: event.description ?? "Plans with friends, minus the group chat.",
+    description:
+      event.description ?? "Plans with friends, minus the group chat.",
     openGraph: {
       title: event.title,
       description: `${formatWhen(event.startsAt)} · ${event.location}`,
@@ -50,7 +51,9 @@ export default async function SharePage({ params }: Props) {
     >
       <div style={{ width: "100%", maxWidth: 440, padding: "20px 18px 40px" }}>
         <div style={{ textAlign: "center" }}>
-          <span style={{ fontSize: 13, letterSpacing: 3, fontWeight: 700 }}>SIDEQUEST</span>
+          <span style={{ fontSize: 13, letterSpacing: 3, fontWeight: 700 }}>
+            SIDEQUEST
+          </span>
         </div>
 
         <div
@@ -79,7 +82,9 @@ export default async function SharePage({ params }: Props) {
           >
             {host[0]?.toUpperCase()}
           </span>
-          <span style={{ fontSize: 12, color: colors.muted, fontFamily: font.sans }}>
+          <span
+            style={{ fontSize: 12, color: colors.muted, fontFamily: font.sans }}
+          >
             <b style={{ color: colors.ink }}>{host}</b> invited you to a plan
           </span>
         </div>

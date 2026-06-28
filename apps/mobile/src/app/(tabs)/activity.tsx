@@ -1,13 +1,13 @@
-import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Font, SQ } from '@/constants/sidequest';
-import { api, ApiError } from '@/lib/api';
-import { ColorBlurBackground } from '@/components/color-blur-bg';
+import { Font, SQ } from "@/constants/sidequest";
+import { api, ApiError } from "@/lib/api";
+import { ColorBlurBackground } from "@/components/color-blur-bg";
 
-type Status = 'going' | 'declined';
+type Status = "going" | "declined";
 type Activity = {
   id: string;
   status: Status;
@@ -17,8 +17,11 @@ type Activity = {
 };
 
 function ago(iso: string) {
-  const s = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
-  if (s < 60) return 'now';
+  const s = Math.max(
+    0,
+    Math.floor((Date.now() - new Date(iso).getTime()) / 1000),
+  );
+  if (s < 60) return "now";
   const m = Math.floor(s / 60);
   if (m < 60) return `${m}m`;
   const h = Math.floor(m / 60);
@@ -27,7 +30,7 @@ function ago(iso: string) {
 }
 
 const VERB: Record<Status, string> = {
-  going: 'is going to',
+  going: "is going to",
   declined: "can't make",
 };
 
@@ -40,13 +43,16 @@ export default function Activity() {
   const loadActivity = useCallback(async () => {
     setLoading(true);
     try {
-      const { activity: rows } = await api<{ activity: Activity[] }>('/me/activity', {
-        auth: true,
-      });
+      const { activity: rows } = await api<{ activity: Activity[] }>(
+        "/me/activity",
+        {
+          auth: true,
+        },
+      );
       setActivity(rows);
       setError(null);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -61,38 +67,46 @@ export default function Activity() {
   return (
     <ColorBlurBackground>
       <View style={styles.screen}>
-        <Text style={[styles.title, { paddingTop: insets.top + 14 }]}>Activity</Text>
-
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      {loading && activity === null ? (
-        <Text style={styles.state}>Loading activity...</Text>
-      ) : activity === null ? null : activity.length === 0 ? (
-        <Text style={styles.empty}>
-          No activity yet. When people respond to your plans, it shows up here.
+        <Text style={[styles.title, { paddingTop: insets.top + 14 }]}>
+          Activity
         </Text>
-      ) : (
-        <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
-          {activity.map((a) => {
-            const name = a.attendee.name ?? 'Someone';
-            return (
-              <Pressable
-                key={a.id}
-                style={styles.row}
-                onPress={() => router.push(`/plan/${a.event.id}`)}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>{name[0].toUpperCase()}</Text>
-                </View>
-                <Text style={styles.text} numberOfLines={2}>
-                  <Text style={styles.name}>{name}</Text>
-                  <Text style={styles.verb}> {VERB[a.status]} </Text>
-                  <Text style={styles.event}>{a.event.title}</Text>
-                </Text>
-                <Text style={styles.time}>{ago(a.createdAt)}</Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-      )}
+
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {loading && activity === null ? (
+          <Text style={styles.state}>Loading activity...</Text>
+        ) : activity === null ? null : activity.length === 0 ? (
+          <Text style={styles.empty}>
+            No activity yet. When people respond to your plans, it shows up
+            here.
+          </Text>
+        ) : (
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+          >
+            {activity.map((a) => {
+              const name = a.attendee.name ?? "Someone";
+              return (
+                <Pressable
+                  key={a.id}
+                  style={styles.row}
+                  onPress={() => router.push(`/plan/${a.event.id}`)}
+                >
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>
+                      {name[0].toUpperCase()}
+                    </Text>
+                  </View>
+                  <Text style={styles.text} numberOfLines={2}>
+                    <Text style={styles.name}>{name}</Text>
+                    <Text style={styles.verb}> {VERB[a.status]} </Text>
+                    <Text style={styles.event}>{a.event.title}</Text>
+                  </Text>
+                  <Text style={styles.time}>{ago(a.createdAt)}</Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        )}
       </View>
     </ColorBlurBackground>
   );
@@ -113,7 +127,7 @@ const styles = StyleSheet.create({
     fontFamily: Font.mono,
     fontSize: 13,
     color: SQ.faint,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 60,
     paddingHorizontal: 40,
     lineHeight: 20,
@@ -128,29 +142,29 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: '#B3261E',
+    color: "#B3261E",
     paddingHorizontal: 24,
     paddingTop: 8,
   },
 
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 13,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#EDEDED',
+    borderTopColor: "#EDEDED",
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: SQ.line,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatarText: { fontFamily: Font.sansSemibold, fontSize: 14, color: SQ.ink },
 

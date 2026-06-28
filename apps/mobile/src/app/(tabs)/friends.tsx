@@ -189,99 +189,101 @@ export default function Friends() {
     <ColorBlurBackground>
       <View style={styles.screen}>
         <View style={[styles.header, { paddingTop: insets.top + 14 }]}>
-        <Text style={styles.title}>Friends</Text>
-        <Pressable style={styles.addBtn} onPress={toggleAdding}>
-          <Feather name={adding ? "x" : "plus"} size={22} color={SQ.card} />
-        </Pressable>
-      </View>
-
-      {adding ? (
-        <View style={styles.addPanel}>
-          <View style={styles.addInputWrap}>
-            <Text style={styles.addLabel}>PHONE</Text>
-            <TextInput
-              value={formatUSPhone(phone)}
-              onChangeText={(value) => setPhone(normalizeUSPhone(value))}
-              placeholder="(415) 555-0134"
-              placeholderTextColor={SQ.ghost}
-              keyboardType="phone-pad"
-              textContentType="telephoneNumber"
-              autoComplete="tel"
-              returnKeyType="send"
-              onSubmitEditing={sendFriendRequest}
-              style={styles.addInput}
-              autoFocus
-            />
-          </View>
-          <Pressable
-            style={[styles.send, !canRequest && styles.sendOff]}
-            onPress={sendFriendRequest}
-            disabled={!canRequest}>
-            <Text style={styles.sendText}>
-              {sendingRequest ? "Sending..." : "Send"}
-            </Text>
+          <Text style={styles.title}>Friends</Text>
+          <Pressable style={styles.addBtn} onPress={toggleAdding}>
+            <Feather name={adding ? "x" : "plus"} size={22} color={SQ.card} />
           </Pressable>
         </View>
-      ) : null}
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      {notice ? <Text style={styles.notice}>{notice}</Text> : null}
-      {loading ? <Text style={styles.state}>Loading friends...</Text> : null}
-
-      <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-        <Text style={styles.eyebrow}>REQUESTS · {friendReq.length}</Text>
-        {friendReq.length === 0 ? (
-          <Text style={styles.empty}>No pending requests.</Text>
-        ) : (
-          friendReq.map((p) => (
-            <View key={p.id} style={styles.row}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{p.name[0]}</Text>
-              </View>
-              <View style={styles.rowBody}>
-                <Text style={styles.name}>{p.name}</Text>
-                <Text style={styles.sub}>{p.sub}</Text>
-              </View>
-              <Pressable style={styles.accept} onPress={() => accept(p.id)}>
-                <Text style={styles.acceptText}>Accept</Text>
-              </Pressable>
-              <Pressable style={styles.decline} onPress={() => decline(p.id)}>
-                <Feather name="x" size={15} color="#AAAAAA" />
-              </Pressable>
+        {adding ? (
+          <View style={styles.addPanel}>
+            <View style={styles.addInputWrap}>
+              <Text style={styles.addLabel}>PHONE</Text>
+              <TextInput
+                value={formatUSPhone(phone)}
+                onChangeText={(value) => setPhone(normalizeUSPhone(value))}
+                placeholder="(415) 555-0134"
+                placeholderTextColor={SQ.ghost}
+                keyboardType="phone-pad"
+                textContentType="telephoneNumber"
+                autoComplete="tel"
+                returnKeyType="send"
+                onSubmitEditing={sendFriendRequest}
+                style={styles.addInput}
+                autoFocus
+              />
             </View>
-          ))
-        )}
+            <Pressable
+              style={[styles.send, !canRequest && styles.sendOff]}
+              onPress={sendFriendRequest}
+              disabled={!canRequest}
+            >
+              <Text style={styles.sendText}>
+                {sendingRequest ? "Sending..." : "Send"}
+              </Text>
+            </Pressable>
+          </View>
+        ) : null}
 
-        <Text style={[styles.eyebrow, styles.eyebrowDivider]}>
-          ALL FRIENDS · {friends.length}
-        </Text>
-        {friends.length === 0 ? (
-          <Text style={styles.empty}>No friends yet.</Text>
-        ) : (
-          friends.map((p) => (
-            <View key={p.id} style={styles.row}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{p.name[0]}</Text>
-              </View>
-              <View style={styles.rowBody}>
-                <Text style={styles.name}>{p.name}</Text>
-                <View style={styles.subRow}>
-                  {p.hosting ? <View style={styles.dot} /> : null}
-                  <Text style={[styles.sub, p.hosting && styles.subHosting]}>
-                    {p.sub}
-                  </Text>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {notice ? <Text style={styles.notice}>{notice}</Text> : null}
+        {loading ? <Text style={styles.state}>Loading friends...</Text> : null}
+
+        <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+          <Text style={styles.eyebrow}>REQUESTS · {friendReq.length}</Text>
+          {friendReq.length === 0 ? (
+            <Text style={styles.empty}>No pending requests.</Text>
+          ) : (
+            friendReq.map((p) => (
+              <View key={p.id} style={styles.row}>
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>{p.name[0]}</Text>
                 </View>
+                <View style={styles.rowBody}>
+                  <Text style={styles.name}>{p.name}</Text>
+                  <Text style={styles.sub}>{p.sub}</Text>
+                </View>
+                <Pressable style={styles.accept} onPress={() => accept(p.id)}>
+                  <Text style={styles.acceptText}>Accept</Text>
+                </Pressable>
+                <Pressable style={styles.decline} onPress={() => decline(p.id)}>
+                  <Feather name="x" size={15} color="#AAAAAA" />
+                </Pressable>
               </View>
-              <Pressable
-                style={styles.menuBtn}
-                onPress={() => openFriendMenu(p)}
-                hitSlop={8}>
-                <Feather name="more-horizontal" size={18} color={SQ.faint} />
-              </Pressable>
-            </View>
-          ))
-        )}
-      </ScrollView>
+            ))
+          )}
+
+          <Text style={[styles.eyebrow, styles.eyebrowDivider]}>
+            ALL FRIENDS · {friends.length}
+          </Text>
+          {friends.length === 0 ? (
+            <Text style={styles.empty}>No friends yet.</Text>
+          ) : (
+            friends.map((p) => (
+              <View key={p.id} style={styles.row}>
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>{p.name[0]}</Text>
+                </View>
+                <View style={styles.rowBody}>
+                  <Text style={styles.name}>{p.name}</Text>
+                  <View style={styles.subRow}>
+                    {p.hosting ? <View style={styles.dot} /> : null}
+                    <Text style={[styles.sub, p.hosting && styles.subHosting]}>
+                      {p.sub}
+                    </Text>
+                  </View>
+                </View>
+                <Pressable
+                  style={styles.menuBtn}
+                  onPress={() => openFriendMenu(p)}
+                  hitSlop={8}
+                >
+                  <Feather name="more-horizontal" size={18} color={SQ.faint} />
+                </Pressable>
+              </View>
+            ))
+          )}
+        </ScrollView>
       </View>
     </ColorBlurBackground>
   );

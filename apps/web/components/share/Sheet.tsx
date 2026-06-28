@@ -11,7 +11,11 @@ export function Sheet({
     <>
       <div
         onClick={onClose}
-        style={{ position: "fixed", inset: 0, background: "rgba(20,20,20,0.32)" }}
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(20,20,20,0.32)",
+        }}
       />
       <div
         style={{
@@ -27,9 +31,20 @@ export function Sheet({
           padding: "12px 26px 34px",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "center", paddingBottom: 14 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            paddingBottom: 14,
+          }}
+        >
           <span
-            style={{ width: 38, height: 5, borderRadius: 3, background: "#E2E2DD" }}
+            style={{
+              width: 38,
+              height: 5,
+              borderRadius: 3,
+              background: "#E2E2DD",
+            }}
           />
         </div>
         {children}

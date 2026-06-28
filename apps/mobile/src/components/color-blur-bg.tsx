@@ -17,7 +17,7 @@ const BLOBS = [
   { color: "#5C8DF0", cx: 0.22, cy: 15, r: 0.35, opacity: 0.5 }, // blue
   { color: "#74C0FF", cx: 0.82, cy: 10, r: 0.36, opacity: 0.4 }, // sky
   { color: "#FF6F9C", cx: 0.5, cy: 25, r: 0.32, opacity: 0.4 }, // rose
-  { color: "#FFC56B", cx: 0.3, cy: 50, r: 0.34, opacity: 0.37 }, // gold 
+  { color: "#FFC56B", cx: 0.3, cy: 50, r: 0.34, opacity: 0.37 }, // gold
 ];
 
 export function ColorBlurBackground({ children }: { children: ReactNode }) {
@@ -45,8 +45,14 @@ export function ColorBlurBackground({ children }: { children: ReactNode }) {
     return () => loop.stop();
   }, [pulse]);
 
-  const scale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.26] });
-  const opacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 0.6] });
+  const scale = pulse.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.26],
+  });
+  const opacity = pulse.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 0.6],
+  });
 
   return (
     <View style={styles.root}>
@@ -56,32 +62,34 @@ export function ColorBlurBackground({ children }: { children: ReactNode }) {
         style={[
           StyleSheet.absoluteFill,
           { opacity, transformOrigin: "top", transform: [{ scale }] },
-        ]}>
+        ]}
+      >
         <Svg width={width} height={height} style={StyleSheet.absoluteFill}>
-        <Defs>
-          {BLOBS.map((b, i) => (
-            <RadialGradient
+          <Defs>
+            {BLOBS.map((b, i) => (
+              <RadialGradient
+                key={i}
+                id={`blob${i}`}
+                cx={width * b.cx}
+                cy={b.cy}
+                r={width * b.r}
+                gradientUnits="userSpaceOnUse"
+              >
+                <Stop offset="0" stopColor={b.color} stopOpacity={b.opacity} />
+                <Stop offset="1" stopColor={b.color} stopOpacity={0} />
+              </RadialGradient>
+            ))}
+          </Defs>
+          {BLOBS.map((_, i) => (
+            <Rect
               key={i}
-              id={`blob${i}`}
-              cx={width * b.cx}
-              cy={b.cy}
-              r={width * b.r}
-              gradientUnits="userSpaceOnUse">
-              <Stop offset="0" stopColor={b.color} stopOpacity={b.opacity} />
-              <Stop offset="1" stopColor={b.color} stopOpacity={0} />
-            </RadialGradient>
+              x={0}
+              y={0}
+              width={width}
+              height={height}
+              fill={`url(#blob${i})`}
+            />
           ))}
-        </Defs>
-        {BLOBS.map((_, i) => (
-          <Rect
-            key={i}
-            x={0}
-            y={0}
-            width={width}
-            height={height}
-            fill={`url(#blob${i})`}
-          />
-        ))}
         </Svg>
       </Animated.View>
       {children}

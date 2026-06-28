@@ -13,7 +13,9 @@ import type { Env } from "./types.js";
 
 const app = new Hono<Env>();
 
-const webOrigins = (process.env.WEB_ORIGIN ?? "http://localhost:3001").split(",");
+const webOrigins = (process.env.WEB_ORIGIN ?? "http://localhost:3001").split(
+  ",",
+);
 app.use(
   "*",
   cors({

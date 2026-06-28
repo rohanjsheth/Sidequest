@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { eq, desc, and, inArray} from "drizzle-orm";
+import { eq, desc, and, inArray } from "drizzle-orm";
 import { db, events, invites, users } from "@sidequest/db";
 import { authMiddleware } from "../middleware/auth.js";
 import type { Env } from "../types.js";
@@ -21,11 +21,11 @@ me.get("/", async (c) => {
 });
 
 me.get("/activity", async (c) => {
-  const userId = c.get("userId")
+  const userId = c.get("userId");
   const hostedEvents = await db
     .select({
       id: invites.id,
-      status: invites.status, 
+      status: invites.status,
       createdAt: invites.createdAt,
       attendee: { id: users.id, name: users.name, avatarUrl: users.avatarUrl },
       event: { id: events.id, title: events.title },
@@ -33,12 +33,17 @@ me.get("/activity", async (c) => {
     .from(invites)
     .innerJoin(events, eq(invites.eventId, events.id))
     .innerJoin(users, eq(invites.attendeeId, users.id))
-    .where(and(eq(events.hostId, userId), inArray(invites.status, ['going','declined'])))
+    .where(
+      and(
+        eq(events.hostId, userId),
+        inArray(invites.status, ["going", "declined"]),
+      ),
+    )
     .orderBy(desc(invites.createdAt))
-    .limit(50)
+    .limit(50);
 
-    return c.json({ activity: hostedEvents });
-})
+  return c.json({ activity: hostedEvents });
+});
 
 me.patch("/", async (c) => {
   const body = await c.req.json();

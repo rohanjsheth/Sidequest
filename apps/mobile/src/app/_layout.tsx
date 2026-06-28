@@ -1,25 +1,31 @@
-import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider } from 'expo-router';
-import * as Notifications from 'expo-notifications';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import {
+  DarkTheme,
+  DefaultTheme,
+  router,
+  Stack,
+  ThemeProvider,
+} from "expo-router";
+import * as Notifications from "expo-notifications";
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import { useColorScheme } from "react-native";
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import { SessionProvider, useSession } from '@/lib/session';
+import { AnimatedSplashOverlay } from "@/components/animated-icon";
+import { SessionProvider, useSession } from "@/lib/session";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    Inter_400: require('@/assets/fonts/Inter_400.ttf'),
-    Inter_500: require('@/assets/fonts/Inter_500.ttf'),
-    Inter_600: require('@/assets/fonts/Inter_600.ttf'),
-    Inter_700: require('@/assets/fonts/Inter_700.ttf'),
-    Recursive_400: require('@/assets/fonts/Recursive_400.ttf'),
-    Recursive_500: require('@/assets/fonts/Recursive_500.ttf'),
-    Recursive_600: require('@/assets/fonts/Recursive_600.ttf'),
-    Recursive_700: require('@/assets/fonts/Recursive_700.ttf'),
+    Inter_400: require("@/assets/fonts/Inter_400.ttf"),
+    Inter_500: require("@/assets/fonts/Inter_500.ttf"),
+    Inter_600: require("@/assets/fonts/Inter_600.ttf"),
+    Inter_700: require("@/assets/fonts/Inter_700.ttf"),
+    Recursive_400: require("@/assets/fonts/Recursive_400.ttf"),
+    Recursive_500: require("@/assets/fonts/Recursive_500.ttf"),
+    Recursive_600: require("@/assets/fonts/Recursive_600.ttf"),
+    Recursive_700: require("@/assets/fonts/Recursive_700.ttf"),
   });
 
   useEffect(() => {
@@ -43,7 +49,7 @@ function RootNavigator() {
   useEffect(() => {
     const eventId =
       lastNotification?.notification.request.content.data?.eventId;
-    if (typeof eventId === 'string') router.push(`/plan/${eventId}`);
+    if (typeof eventId === "string") router.push(`/plan/${eventId}`);
   }, [lastNotification]);
 
   if (isLoading) return null;
@@ -52,14 +58,17 @@ function RootNavigator() {
   const hasName = !!user?.name;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <AnimatedSplashOverlay />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Protected guard={signedIn && hasName}>
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="create" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="create" options={{ presentation: "modal" }} />
           <Stack.Screen name="plan/[id]" />
-          <Stack.Screen name="report/[id]" options={{ presentation: 'modal' }} />
+          <Stack.Screen
+            name="report/[id]"
+            options={{ presentation: "modal" }}
+          />
         </Stack.Protected>
 
         <Stack.Protected guard={signedIn && !hasName}>

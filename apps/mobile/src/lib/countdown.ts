@@ -7,10 +7,7 @@ const MINUTES_PER_HOUR = 60;
 const MINUTES_PER_DAY = 24 * MINUTES_PER_HOUR;
 
 function getTotalMinutes(startsAt: string, now: number) {
-  return Math.max(
-    0,
-    Math.round((new Date(startsAt).getTime() - now) / 60000),
-  );
+  return Math.max(0, Math.round((new Date(startsAt).getTime() - now) / 60000));
 }
 
 function twoDigits(n: number) {
@@ -42,7 +39,9 @@ export function detailedCountdown(startsAt: string, now = Date.now()) {
   const days = Math.floor(totalMinutes / MINUTES_PER_DAY);
 
   if (days > 0) {
-    const hours = Math.floor((totalMinutes % MINUTES_PER_DAY) / MINUTES_PER_HOUR);
+    const hours = Math.floor(
+      (totalMinutes % MINUTES_PER_DAY) / MINUTES_PER_HOUR,
+    );
     const pill = hours > 0 ? `IN ${days}D ${hours}H` : `IN ${days}D`;
     return {
       pill,

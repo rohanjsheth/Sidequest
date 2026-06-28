@@ -1,42 +1,36 @@
-import { useState } from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { api, ApiError } from '@/lib/api';
-import { useSession, type SessionUser } from '@/lib/session';
-import { Font, SQ } from '@/constants/sidequest';
+import { api, ApiError } from "@/lib/api";
+import { useSession, type SessionUser } from "@/lib/session";
+import { Font, SQ } from "@/constants/sidequest";
 
 export default function SetName() {
   const insets = useSafeAreaInsets();
   const { user, setUser } = useSession();
 
-  const [name, setName] = useState(user?.name ?? '');
+  const [name, setName] = useState(user?.name ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const canSave = name.trim().length > 0;
-  const initial = name.trim() ? name.trim()[0].toUpperCase() : 'A';
+  const initial = name.trim() ? name.trim()[0].toUpperCase() : "A";
 
   async function save() {
     if (!canSave || saving) return;
     setError(null);
     setSaving(true);
     try {
-      const { user: updated } = await api<{ user: SessionUser }>('/me', {
-        method: 'PATCH',
+      const { user: updated } = await api<{ user: SessionUser }>("/me", {
+        method: "PATCH",
         body: { name: name.trim() },
         auth: true,
       });
       setUser(updated);
       // hasName flips true → Stack.Protected routes into the tabs
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
     } finally {
       setSaving(false);
     }
@@ -45,7 +39,7 @@ export default function SetName() {
   return (
     <View style={styles.screen}>
       <View style={[styles.intro, { paddingTop: insets.top + 26 }]}>
-        <Text style={styles.title}>What should{'\n'}we call you?</Text>
+        <Text style={styles.title}>What should{"\n"}we call you?</Text>
         <Text style={styles.sub}>
           This is how friends will spot you on the board.
         </Text>
@@ -77,8 +71,9 @@ export default function SetName() {
         <Pressable
           style={[styles.cta, (!canSave || saving) && styles.ctaOff]}
           onPress={save}
-          disabled={!canSave || saving}>
-          <Text style={styles.ctaText}>{saving ? 'Saving…' : 'Continue'}</Text>
+          disabled={!canSave || saving}
+        >
+          <Text style={styles.ctaText}>{saving ? "Saving…" : "Continue"}</Text>
         </Pressable>
       </View>
     </View>
@@ -104,14 +99,14 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
 
-  center: { alignItems: 'center', paddingTop: 40, gap: 18 },
+  center: { alignItems: "center", paddingTop: 40, gap: 18 },
   avatar: {
     width: 84,
     height: 84,
     borderRadius: 42,
     backgroundColor: SQ.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatarInitial: {
     fontFamily: Font.sansSemibold,
@@ -123,7 +118,7 @@ const styles = StyleSheet.create({
     fontSize: 27,
     letterSpacing: -0.4,
     color: SQ.ink,
-    textAlign: 'center',
+    textAlign: "center",
     minWidth: 160,
     paddingVertical: 2,
   },
@@ -141,14 +136,14 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: '#B3261E',
-    textAlign: 'center',
+    color: "#B3261E",
+    textAlign: "center",
     marginBottom: 8,
   },
   cta: {
     backgroundColor: SQ.ink,
     borderRadius: 13,
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 17,
   },
   ctaOff: { opacity: 0.35 },

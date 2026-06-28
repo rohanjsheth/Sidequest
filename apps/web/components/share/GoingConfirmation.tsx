@@ -35,7 +35,11 @@ export function GoingConfirmation({
           animation: "sq-pop 0.45s cubic-bezier(0.2, 0.8, 0.2, 1.4) both",
         }}
       >
-        {going ? <Check size={32} stroke="#fff" animate /> : <X size={32} stroke="#fff" />}
+        {going ? (
+          <Check size={32} stroke="#fff" animate />
+        ) : (
+          <X size={32} stroke="#fff" />
+        )}
       </div>
 
       <div
@@ -50,8 +54,17 @@ export function GoingConfirmation({
         {going ? "You’re going!" : "You’re marked can’t go"}
       </div>
 
-      <div style={{ fontSize: 13, color: colors.muted, lineHeight: 1.6, marginTop: 10 }}>
-        <b style={{ color: colors.ink, fontFamily: font.sans }}>{event.title}</b>
+      <div
+        style={{
+          fontSize: 13,
+          color: colors.muted,
+          lineHeight: 1.6,
+          marginTop: 10,
+        }}
+      >
+        <b style={{ color: colors.ink, fontFamily: font.sans }}>
+          {event.title}
+        </b>
         <br />
         {formatWhen(event.startsAt)} · {event.location}
       </div>
@@ -70,17 +83,29 @@ export function GoingConfirmation({
           <>
             <ChecklistRow>Added to your plans</ChecklistRow>
             <ChecklistRow>{host} is now a friend</ChecklistRow>
-            <ChecklistRow last>We&rsquo;ll remind you 1 hour before</ChecklistRow>
+            <ChecklistRow last>
+              We&rsquo;ll remind you 1 hour before
+            </ChecklistRow>
           </>
         ) : (
           <>
             <ChecklistRow>RSVP saved</ChecklistRow>
-            <ChecklistRow last>{host} will see you can&rsquo;t make it</ChecklistRow>
+            <ChecklistRow last>
+              {host} will see you can&rsquo;t make it
+            </ChecklistRow>
           </>
         )}
       </div>
 
-      <div style={{ width: "100%", marginTop: 24, display: "flex", flexDirection: "column", gap: 11 }}>
+      <div
+        style={{
+          width: "100%",
+          marginTop: 24,
+          display: "flex",
+          flexDirection: "column",
+          gap: 11,
+        }}
+      >
         <button style={primaryBtn}>Get the app to manage</button>
         <button style={ghostBtn}>Add to calendar</button>
       </div>
@@ -90,14 +115,28 @@ export function GoingConfirmation({
 
 function X({ size, stroke }: { size: number; stroke: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2.6" strokeLinecap="round">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={stroke}
+      strokeWidth="2.6"
+      strokeLinecap="round"
+    >
       <path d="M6 6l12 12" />
       <path d="M18 6L6 18" />
     </svg>
   );
 }
 
-function ChecklistRow({ children, last }: { children: React.ReactNode; last?: boolean }) {
+function ChecklistRow({
+  children,
+  last,
+}: {
+  children: React.ReactNode;
+  last?: boolean;
+}) {
   return (
     <div
       style={{
@@ -109,7 +148,14 @@ function ChecklistRow({ children, last }: { children: React.ReactNode; last?: bo
       }}
     >
       <Check size={15} stroke={colors.ink} />
-      <span style={{ flex: 1, fontSize: 13, fontFamily: font.sans, textAlign: "left" }}>
+      <span
+        style={{
+          flex: 1,
+          fontSize: 13,
+          fontFamily: font.sans,
+          textAlign: "left",
+        }}
+      >
         {children}
       </span>
     </div>
@@ -126,7 +172,16 @@ function Check({
   animate?: boolean;
 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={stroke}
+      strokeWidth="2.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path
         d="M5 12l5 5L20 6"
         style={
