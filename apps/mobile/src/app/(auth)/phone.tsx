@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, ApiError } from "@/lib/api";
 import { Font, SQ } from "@/constants/sidequest";
+import { ColorBlurBackground } from "@/components/color-blur-bg";
 
 function formatUSPhone(d: string) {
   const a = d.slice(0, 3);
@@ -15,6 +16,13 @@ function formatUSPhone(d: string) {
   if (d.length < 4) return `(${a}`;
   if (d.length < 7) return `(${a}) ${b}`;
   return `(${a}) ${b}-${c}`;
+}
+
+function normalizeUSPhone(text: string) {
+  let digits = text.replace(/\D/g, "");
+  // drop a leading US country code so autofilled "+1…" numbers don't shift
+  if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
+  return digits.slice(0, 10);
 }
 
 export default function Phone() {
@@ -41,7 +49,8 @@ export default function Phone() {
   }
 
   return (
-    <View style={styles.screen}>
+    <ColorBlurBackground>
+      <View style={styles.screen}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Pressable
           style={styles.back}
@@ -76,12 +85,11 @@ export default function Phone() {
       <TextInput
         ref={inputRef}
         value={phone}
-        onChangeText={(t) => setPhone(t.replace(/\D/g, "").slice(0, 10))}
+        onChangeText={(t) => setPhone(normalizeUSPhone(t))}
         keyboardType="phone-pad"
         textContentType="telephoneNumber"
         autoComplete="tel"
         autoFocus
-        maxLength={10}
         style={styles.hiddenInput}
       />
 
@@ -94,12 +102,13 @@ export default function Phone() {
       >
         <Text style={styles.ctaText}>{sending ? "Sending…" : "Send code"}</Text>
       </Pressable>
-    </View>
+      </View>
+    </ColorBlurBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: SQ.card },
+  screen: { flex: 1 },
   header: { paddingHorizontal: 22 },
   back: {
     width: 36,

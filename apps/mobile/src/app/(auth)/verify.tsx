@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { api, ApiError } from "@/lib/api";
 import { useSession, type SessionUser } from "@/lib/session";
 import { Font, SQ } from "@/constants/sidequest";
+import { ColorBlurBackground } from "@/components/color-blur-bg";
 
 const RESEND_SECONDS = 30;
 
@@ -75,7 +76,8 @@ export default function Verify() {
   const activeIndex = code.length;
 
   return (
-    <View style={styles.screen}>
+    <ColorBlurBackground>
+      <View style={styles.screen}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Pressable
           style={styles.back}
@@ -151,12 +153,13 @@ export default function Verify() {
           </Text>
         </Pressable>
       )}
-    </View>
+      </View>
+    </ColorBlurBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: SQ.card },
+  screen: { flex: 1 },
   header: { paddingHorizontal: 22 },
   back: {
     width: 36,

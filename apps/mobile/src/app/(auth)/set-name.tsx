@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { api, ApiError } from "@/lib/api";
 import { useSession, type SessionUser } from "@/lib/session";
 import { Font, SQ } from "@/constants/sidequest";
+import { ColorBlurBackground } from "@/components/color-blur-bg";
 
 export default function SetName() {
   const insets = useSafeAreaInsets();
@@ -37,7 +38,8 @@ export default function SetName() {
   }
 
   return (
-    <View style={styles.screen}>
+    <ColorBlurBackground>
+      <View style={styles.screen}>
       <View style={[styles.intro, { paddingTop: insets.top + 26 }]}>
         <Text style={styles.title}>What should{"\n"}we call you?</Text>
         <Text style={styles.sub}>
@@ -76,12 +78,13 @@ export default function SetName() {
           <Text style={styles.ctaText}>{saving ? "Saving…" : "Continue"}</Text>
         </Pressable>
       </View>
-    </View>
+      </View>
+    </ColorBlurBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: SQ.card },
+  screen: { flex: 1 },
 
   intro: { paddingHorizontal: 28 },
   title: {
