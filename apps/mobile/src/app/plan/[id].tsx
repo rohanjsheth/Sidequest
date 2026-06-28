@@ -78,7 +78,6 @@ export default function Plan() {
   const [savingRsvp, setSavingRsvp] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [blocking, setBlocking] = useState(false);
-  const [reporting, setReporting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -214,35 +213,18 @@ export default function Plan() {
 
   function openPlanMenu() {
     Alert.alert(hostName, undefined, [
-      { text: "Report plan", style: "destructive", onPress: confirmReport },
+      { text: "Report plan", style: "destructive", onPress: openReport },
       { text: "Block host", style: "destructive", onPress: confirmBlock },
       { text: "Cancel", style: "cancel" },
     ]);
   }
 
-  function confirmReport() {
-    Alert.alert(
-      "Report this plan?",
-      "Our team reviews reports within 24 hours and removes content that violates our guidelines.",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Report", style: "destructive", onPress: reportPlan },
-      ],
-    );
-  }
-
-  async function reportPlan() {
-    if (reporting || !plan) return;
-
-    setReporting(true);
-    try {
-      await api(`/reports/${plan.id}`, { method: "POST", auth: true });
-      showToast("Thanks — we'll review this plan");
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong");
-    } finally {
-      setReporting(false);
-    }
+  function openReport() {
+    if (!plan) return;
+    router.push({
+      pathname: "/report/[id]",
+      params: { id: plan.id, title: plan.title },
+    });
   }
 
   return (
