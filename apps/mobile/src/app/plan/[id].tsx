@@ -234,147 +234,149 @@ export default function Plan() {
   return (
     <ColorBlurBackground>
       <View style={styles.screen}>
-      <ScrollView
-        contentContainerStyle={{ paddingBottom: insets.bottom + 110 }}
-      >
-        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-          <Pressable onPress={() => router.back()} hitSlop={8}>
-            <Text style={styles.headerBtn}>‹ back</Text>
-          </Pressable>
-          {isHost ? (
-            <Pressable onPress={sharePlan} disabled={sharing} hitSlop={8}>
-              <Text style={[styles.headerBtn, sharing && styles.headerBtnOff]}>
-                {sharing ? "sharing..." : "share ↗"}
-              </Text>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: insets.bottom + 110 }}
+        >
+          <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+            <Pressable onPress={() => router.back()} hitSlop={8}>
+              <Text style={styles.headerBtn}>‹ back</Text>
             </Pressable>
-          ) : (
-            <Pressable onPress={openPlanMenu} hitSlop={8}>
-              <Feather name="more-horizontal" size={18} color="#666666" />
-            </Pressable>
-          )}
-        </View>
-
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-
-        <View style={styles.intro}>
-          <View style={styles.pill}>
-            <Text style={styles.pillText}>{countdown.pill}</Text>
-          </View>
-          <Text style={styles.title}>{plan.title}</Text>
-          <View style={styles.hostRow}>
-            <View
-              style={[
-                styles.hostAvatar,
-                { backgroundColor: avatarColor(plan.host.id).bg },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.hostAvatarText,
-                  { color: avatarColor(plan.host.id).fg },
-                ]}
-              >
-                {hostName[0].toUpperCase()}
-              </Text>
-            </View>
-            <Text style={styles.hostText}>Hosted by {hostName}</Text>
-          </View>
-        </View>
-
-        <View style={styles.countdown}>
-          <Text style={styles.inLabel}>IN</Text>
-          {countdown.units.map((unit, index) => (
-            <Fragment key={unit.label}>
-              {index > 0 ? <Text style={styles.colon}>:</Text> : null}
-              <View style={styles.cdUnit}>
-                <View style={styles.flapRow}>
-                  {[...unit.value].map((char, i) => (
-                    <FlapBig key={`${unit.label}-${i}`} char={char} />
-                  ))}
-                </View>
-                <Text style={styles.cdUnitLabel}>{unit.label}</Text>
-              </View>
-            </Fragment>
-          ))}
-        </View>
-
-        <View style={styles.goingCard}>
-          <Text style={styles.goingLabel}>{plan.going} GOING</Text>
-          <View style={styles.attendees}>
-            {attendees.map((a) => (
-              <View key={a.id} style={styles.attendee}>
-                <View
-                  style={[
-                    styles.attAvatar,
-                    { backgroundColor: avatarColor(a.id).bg },
-                    a.isHost && styles.attAvatarHost,
-                  ]}
+            {isHost ? (
+              <Pressable onPress={sharePlan} disabled={sharing} hitSlop={8}>
+                <Text
+                  style={[styles.headerBtn, sharing && styles.headerBtnOff]}
                 >
-                  <Text
-                    style={[
-                      styles.attAvatarText,
-                      { color: avatarColor(a.id).fg },
-                    ]}
-                  >
-                    {a.name[0].toUpperCase()}
-                  </Text>
-                </View>
-                <Text style={styles.attName}>{a.name}</Text>
-                {a.isHost ? <Text style={styles.attHost}>HOST</Text> : null}
-              </View>
-            ))}
+                  {sharing ? "sharing..." : "share ↗"}
+                </Text>
+              </Pressable>
+            ) : (
+              <Pressable onPress={openPlanMenu} hitSlop={8}>
+                <Feather name="more-horizontal" size={18} color="#666666" />
+              </Pressable>
+            )}
           </View>
-        </View>
 
-        <View style={styles.details}>
-          <View style={styles.detailRow}>
-            <Feather name="clock" size={15} color={SQ.icon} />
-            <Text style={styles.detailText}>{formatWhen(plan.startsAt)}</Text>
-          </View>
-          <View style={[styles.detailRow, styles.detailLast]}>
-            <Feather name="map-pin" size={15} color={SQ.icon} />
-            <Text style={styles.detailText}>{plan.location}</Text>
-          </View>
-        </View>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        {plan.description ? (
-          <Text style={styles.description}>{plan.description}</Text>
-        ) : null}
-      </ScrollView>
-
-      {!isHost ? (
-        <View style={[styles.footer, { paddingBottom: insets.bottom + 18 }]}>
-          {toast ? (
-            <View style={styles.toast}>
-              <Text style={styles.toastText}>{toast}</Text>
+          <View style={styles.intro}>
+            <View style={styles.pill}>
+              <Text style={styles.pillText}>{countdown.pill}</Text>
             </View>
-          ) : null}
-          <View style={styles.rsvpBar}>
-            {RSVPS.map((r, i) => (
-              <Pressable
-                key={r.key}
-                onPress={() => choose(r.key)}
-                disabled={savingRsvp}
+            <Text style={styles.title}>{plan.title}</Text>
+            <View style={styles.hostRow}>
+              <View
                 style={[
-                  styles.rsvpBtn,
-                  i > 0 && styles.rsvpDivider,
-                  rsvp === r.key && styles.rsvpActive,
-                  savingRsvp && styles.rsvpOff,
+                  styles.hostAvatar,
+                  { backgroundColor: avatarColor(plan.host.id).bg },
                 ]}
               >
                 <Text
                   style={[
-                    styles.rsvpText,
-                    rsvp === r.key && styles.rsvpTextActive,
+                    styles.hostAvatarText,
+                    { color: avatarColor(plan.host.id).fg },
                   ]}
                 >
-                  {r.label}
+                  {hostName[0].toUpperCase()}
                 </Text>
-              </Pressable>
+              </View>
+              <Text style={styles.hostText}>Hosted by {hostName}</Text>
+            </View>
+          </View>
+
+          <View style={styles.countdown}>
+            <Text style={styles.inLabel}>IN</Text>
+            {countdown.units.map((unit, index) => (
+              <Fragment key={unit.label}>
+                {index > 0 ? <Text style={styles.colon}>:</Text> : null}
+                <View style={styles.cdUnit}>
+                  <View style={styles.flapRow}>
+                    {[...unit.value].map((char, i) => (
+                      <FlapBig key={`${unit.label}-${i}`} char={char} />
+                    ))}
+                  </View>
+                  <Text style={styles.cdUnitLabel}>{unit.label}</Text>
+                </View>
+              </Fragment>
             ))}
           </View>
-        </View>
-      ) : null}
+
+          <View style={styles.goingCard}>
+            <Text style={styles.goingLabel}>{plan.going} GOING</Text>
+            <View style={styles.attendees}>
+              {attendees.map((a) => (
+                <View key={a.id} style={styles.attendee}>
+                  <View
+                    style={[
+                      styles.attAvatar,
+                      { backgroundColor: avatarColor(a.id).bg },
+                      a.isHost && styles.attAvatarHost,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.attAvatarText,
+                        { color: avatarColor(a.id).fg },
+                      ]}
+                    >
+                      {a.name[0].toUpperCase()}
+                    </Text>
+                  </View>
+                  <Text style={styles.attName}>{a.name}</Text>
+                  {a.isHost ? <Text style={styles.attHost}>HOST</Text> : null}
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.details}>
+            <View style={styles.detailRow}>
+              <Feather name="clock" size={15} color={SQ.icon} />
+              <Text style={styles.detailText}>{formatWhen(plan.startsAt)}</Text>
+            </View>
+            <View style={[styles.detailRow, styles.detailLast]}>
+              <Feather name="map-pin" size={15} color={SQ.icon} />
+              <Text style={styles.detailText}>{plan.location}</Text>
+            </View>
+          </View>
+
+          {plan.description ? (
+            <Text style={styles.description}>{plan.description}</Text>
+          ) : null}
+        </ScrollView>
+
+        {!isHost ? (
+          <View style={[styles.footer, { paddingBottom: insets.bottom + 18 }]}>
+            {toast ? (
+              <View style={styles.toast}>
+                <Text style={styles.toastText}>{toast}</Text>
+              </View>
+            ) : null}
+            <View style={styles.rsvpBar}>
+              {RSVPS.map((r, i) => (
+                <Pressable
+                  key={r.key}
+                  onPress={() => choose(r.key)}
+                  disabled={savingRsvp}
+                  style={[
+                    styles.rsvpBtn,
+                    i > 0 && styles.rsvpDivider,
+                    rsvp === r.key && styles.rsvpActive,
+                    savingRsvp && styles.rsvpOff,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.rsvpText,
+                      rsvp === r.key && styles.rsvpTextActive,
+                    ]}
+                  >
+                    {r.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : null}
       </View>
     </ColorBlurBackground>
   );

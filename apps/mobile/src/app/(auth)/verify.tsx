@@ -78,81 +78,81 @@ export default function Verify() {
   return (
     <ColorBlurBackground>
       <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <Pressable
-          style={styles.back}
-          onPress={() => router.back()}
-          hitSlop={8}
-        >
-          <Feather name="chevron-left" size={18} color="#444" />
-        </Pressable>
-      </View>
-
-      <View style={styles.intro}>
-        <Text style={styles.title}>Enter the code</Text>
-        <Text style={styles.sub}>
-          Sent to +1 {formatUSPhone(phone ?? "")} ·{" "}
-          <Text style={styles.edit} onPress={() => router.back()}>
-            Edit
-          </Text>
-        </Text>
-      </View>
-      <Pressable onPress={() => inputRef.current?.focus()}>
-        <View style={styles.otp}>
-          {cells.map((d, i) => {
-            const filled = d !== "";
-            const active = i === activeIndex;
-            return (
-              <View
-                key={i}
-                style={[
-                  styles.cell,
-                  filled
-                    ? styles.cellFilled
-                    : active
-                      ? styles.cellActive
-                      : styles.cellEmpty,
-                ]}
-              >
-                {filled ? <View style={styles.cellBottom} /> : null}
-                {filled ? (
-                  <Text style={styles.cellDigit}>{d}</Text>
-                ) : active ? (
-                  <View style={styles.caret} />
-                ) : null}
-              </View>
-            );
-          })}
+        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+          <Pressable
+            style={styles.back}
+            onPress={() => router.back()}
+            hitSlop={8}
+          >
+            <Feather name="chevron-left" size={18} color="#444" />
+          </Pressable>
         </View>
-      </Pressable>
 
-      <TextInput
-        ref={inputRef}
-        value={code}
-        onChangeText={(t) => setCode(t.replace(/\D/g, "").slice(0, 6))}
-        keyboardType="number-pad"
-        textContentType="oneTimeCode"
-        autoComplete="sms-otp"
-        autoFocus
-        maxLength={6}
-        style={styles.hiddenInput}
-      />
-
-      {error ? (
-        <Text style={styles.error}>{error}</Text>
-      ) : (
-        <Pressable
-          onPress={resend}
-          disabled={seconds > 0}
-          style={styles.resendWrap}
-        >
-          <Text style={styles.resend}>
-            {seconds > 0
-              ? `Resend code in 0:${String(seconds).padStart(2, "0")}`
-              : "Resend code"}
+        <View style={styles.intro}>
+          <Text style={styles.title}>Enter the code</Text>
+          <Text style={styles.sub}>
+            Sent to +1 {formatUSPhone(phone ?? "")} ·{" "}
+            <Text style={styles.edit} onPress={() => router.back()}>
+              Edit
+            </Text>
           </Text>
+        </View>
+        <Pressable onPress={() => inputRef.current?.focus()}>
+          <View style={styles.otp}>
+            {cells.map((d, i) => {
+              const filled = d !== "";
+              const active = i === activeIndex;
+              return (
+                <View
+                  key={i}
+                  style={[
+                    styles.cell,
+                    filled
+                      ? styles.cellFilled
+                      : active
+                        ? styles.cellActive
+                        : styles.cellEmpty,
+                  ]}
+                >
+                  {filled ? <View style={styles.cellBottom} /> : null}
+                  {filled ? (
+                    <Text style={styles.cellDigit}>{d}</Text>
+                  ) : active ? (
+                    <View style={styles.caret} />
+                  ) : null}
+                </View>
+              );
+            })}
+          </View>
         </Pressable>
-      )}
+
+        <TextInput
+          ref={inputRef}
+          value={code}
+          onChangeText={(t) => setCode(t.replace(/\D/g, "").slice(0, 6))}
+          keyboardType="number-pad"
+          textContentType="oneTimeCode"
+          autoComplete="sms-otp"
+          autoFocus
+          maxLength={6}
+          style={styles.hiddenInput}
+        />
+
+        {error ? (
+          <Text style={styles.error}>{error}</Text>
+        ) : (
+          <Pressable
+            onPress={resend}
+            disabled={seconds > 0}
+            style={styles.resendWrap}
+          >
+            <Text style={styles.resend}>
+              {seconds > 0
+                ? `Resend code in 0:${String(seconds).padStart(2, "0")}`
+                : "Resend code"}
+            </Text>
+          </Pressable>
+        )}
       </View>
     </ColorBlurBackground>
   );

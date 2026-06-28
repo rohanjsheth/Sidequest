@@ -40,44 +40,46 @@ export default function SetName() {
   return (
     <ColorBlurBackground>
       <View style={styles.screen}>
-      <View style={[styles.intro, { paddingTop: insets.top + 26 }]}>
-        <Text style={styles.title}>What should{"\n"}we call you?</Text>
-        <Text style={styles.sub}>
-          This is how friends will spot you on the board.
-        </Text>
-      </View>
-
-      <View style={styles.center}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarInitial}>{initial}</Text>
+        <View style={[styles.intro, { paddingTop: insets.top + 26 }]}>
+          <Text style={styles.title}>What should{"\n"}we call you?</Text>
+          <Text style={styles.sub}>
+            This is how friends will spot you on the board.
+          </Text>
         </View>
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          placeholder="Your name"
-          placeholderTextColor={SQ.ghost}
-          style={styles.input}
-          autoFocus
-          autoCapitalize="words"
-          returnKeyType="done"
-          onSubmitEditing={save}
-        />
-        <View style={styles.underline} />
-        <Text style={styles.caption}>your display name</Text>
-      </View>
 
-      <View style={styles.spacer} />
+        <View style={styles.center}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarInitial}>{initial}</Text>
+          </View>
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            placeholder="Your name"
+            placeholderTextColor={SQ.ghost}
+            style={styles.input}
+            autoFocus
+            autoCapitalize="words"
+            returnKeyType="done"
+            onSubmitEditing={save}
+          />
+          <View style={styles.underline} />
+          <Text style={styles.caption}>your display name</Text>
+        </View>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 18 }]}>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        <Pressable
-          style={[styles.cta, (!canSave || saving) && styles.ctaOff]}
-          onPress={save}
-          disabled={!canSave || saving}
-        >
-          <Text style={styles.ctaText}>{saving ? "Saving…" : "Continue"}</Text>
-        </Pressable>
-      </View>
+        <View style={styles.spacer} />
+
+        <View style={[styles.footer, { paddingBottom: insets.bottom + 18 }]}>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <Pressable
+            style={[styles.cta, (!canSave || saving) && styles.ctaOff]}
+            onPress={save}
+            disabled={!canSave || saving}
+          >
+            <Text style={styles.ctaText}>
+              {saving ? "Saving…" : "Continue"}
+            </Text>
+          </Pressable>
+        </View>
       </View>
     </ColorBlurBackground>
   );

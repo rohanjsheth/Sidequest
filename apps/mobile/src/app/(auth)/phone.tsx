@@ -51,57 +51,59 @@ export default function Phone() {
   return (
     <ColorBlurBackground>
       <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+          <Pressable
+            style={styles.back}
+            onPress={() => router.back()}
+            hitSlop={8}
+          >
+            <Feather name="chevron-left" size={18} color="#444" />
+          </Pressable>
+        </View>
+
+        <View style={styles.intro}>
+          <Text style={styles.title}>{"What's your\nnumber?"}</Text>
+          <Text style={styles.sub}>
+            {"We'll text a code to verify it's you.\nNo spam, ever."}
+          </Text>
+        </View>
+
         <Pressable
-          style={styles.back}
-          onPress={() => router.back()}
-          hitSlop={8}
+          style={styles.inputRow}
+          onPress={() => inputRef.current?.focus()}
         >
-          <Feather name="chevron-left" size={18} color="#444" />
+          <View style={styles.cc}>
+            <Text style={styles.flag}>🇺🇸</Text>
+            <Text style={styles.ccText}>+1</Text>
+          </View>
+          <View style={styles.field}>
+            <Text style={styles.number}>{formatUSPhone(phone)}</Text>
+            <View style={styles.caret} />
+          </View>
         </Pressable>
-      </View>
 
-      <View style={styles.intro}>
-        <Text style={styles.title}>{"What's your\nnumber?"}</Text>
-        <Text style={styles.sub}>
-          {"We'll text a code to verify it's you.\nNo spam, ever."}
-        </Text>
-      </View>
+        <TextInput
+          ref={inputRef}
+          value={phone}
+          onChangeText={(t) => setPhone(normalizeUSPhone(t))}
+          keyboardType="phone-pad"
+          textContentType="telephoneNumber"
+          autoComplete="tel"
+          autoFocus
+          style={styles.hiddenInput}
+        />
 
-      <Pressable
-        style={styles.inputRow}
-        onPress={() => inputRef.current?.focus()}
-      >
-        <View style={styles.cc}>
-          <Text style={styles.flag}>🇺🇸</Text>
-          <Text style={styles.ccText}>+1</Text>
-        </View>
-        <View style={styles.field}>
-          <Text style={styles.number}>{formatUSPhone(phone)}</Text>
-          <View style={styles.caret} />
-        </View>
-      </Pressable>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <TextInput
-        ref={inputRef}
-        value={phone}
-        onChangeText={(t) => setPhone(normalizeUSPhone(t))}
-        keyboardType="phone-pad"
-        textContentType="telephoneNumber"
-        autoComplete="tel"
-        autoFocus
-        style={styles.hiddenInput}
-      />
-
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-
-      <Pressable
-        style={[styles.cta, (!complete || sending) && styles.ctaOff]}
-        onPress={sendCode}
-        disabled={!complete || sending}
-      >
-        <Text style={styles.ctaText}>{sending ? "Sending…" : "Send code"}</Text>
-      </Pressable>
+        <Pressable
+          style={[styles.cta, (!complete || sending) && styles.ctaOff]}
+          onPress={sendCode}
+          disabled={!complete || sending}
+        >
+          <Text style={styles.ctaText}>
+            {sending ? "Sending…" : "Send code"}
+          </Text>
+        </Pressable>
       </View>
     </ColorBlurBackground>
   );
