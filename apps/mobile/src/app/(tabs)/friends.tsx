@@ -208,8 +208,6 @@ export default function Friends() {
                 keyboardType="phone-pad"
                 textContentType="telephoneNumber"
                 autoComplete="tel"
-                returnKeyType="send"
-                onSubmitEditing={sendFriendRequest}
                 style={styles.addInput}
                 autoFocus
               />
