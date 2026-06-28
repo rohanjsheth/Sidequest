@@ -16,6 +16,8 @@ import { api, ApiError } from "@/lib/api";
 import { detailedCountdown } from "@/lib/countdown";
 import { useSession } from "@/lib/session";
 import { Font, SQ } from "@/constants/sidequest";
+import { avatarColor } from "@/lib/avatar";
+import { ColorBlurBackground } from "@/components/color-blur-bg";
 
 const WEB_BASE = process.env.EXPO_PUBLIC_WEB_URL ?? "http://localhost:3001";
 
@@ -132,16 +134,18 @@ export default function Plan() {
 
   if (!plan) {
     return (
-      <View style={styles.screen}>
-        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-          <Pressable onPress={() => router.back()} hitSlop={8}>
-            <Text style={styles.headerBtn}>‹ back</Text>
-          </Pressable>
+      <ColorBlurBackground>
+        <View style={styles.screen}>
+          <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+            <Pressable onPress={() => router.back()} hitSlop={8}>
+              <Text style={styles.headerBtn}>‹ back</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.state}>
+            {loading ? "Loading plan..." : (error ?? "Could not load plan.")}
+          </Text>
         </View>
-        <Text style={styles.state}>
-          {loading ? "Loading plan..." : (error ?? "Could not load plan.")}
-        </Text>
-      </View>
+      </ColorBlurBackground>
     );
   }
 
@@ -228,7 +232,8 @@ export default function Plan() {
   }
 
   return (
-    <View style={styles.screen}>
+    <ColorBlurBackground>
+      <View style={styles.screen}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: insets.bottom + 110 }}
       >
@@ -257,8 +262,18 @@ export default function Plan() {
           </View>
           <Text style={styles.title}>{plan.title}</Text>
           <View style={styles.hostRow}>
-            <View style={styles.hostAvatar}>
-              <Text style={styles.hostAvatarText}>
+            <View
+              style={[
+                styles.hostAvatar,
+                { backgroundColor: avatarColor(plan.host.id).bg },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.hostAvatarText,
+                  { color: avatarColor(plan.host.id).fg },
+                ]}
+              >
                 {hostName[0].toUpperCase()}
               </Text>
             </View>
@@ -289,9 +304,18 @@ export default function Plan() {
             {attendees.map((a) => (
               <View key={a.id} style={styles.attendee}>
                 <View
-                  style={[styles.attAvatar, a.isHost && styles.attAvatarHost]}
+                  style={[
+                    styles.attAvatar,
+                    { backgroundColor: avatarColor(a.id).bg },
+                    a.isHost && styles.attAvatarHost,
+                  ]}
                 >
-                  <Text style={styles.attAvatarText}>
+                  <Text
+                    style={[
+                      styles.attAvatarText,
+                      { color: avatarColor(a.id).fg },
+                    ]}
+                  >
                     {a.name[0].toUpperCase()}
                   </Text>
                 </View>
@@ -351,12 +375,13 @@ export default function Plan() {
           </View>
         </View>
       ) : null}
-    </View>
+      </View>
+    </ColorBlurBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: SQ.card },
+  screen: { flex: 1 },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -412,7 +437,6 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: SQ.line,
     alignItems: "center",
@@ -477,7 +501,6 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: SQ.line,
     alignItems: "center",

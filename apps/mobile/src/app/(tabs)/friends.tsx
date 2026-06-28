@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Font, SQ } from "@/constants/sidequest";
 import { api, ApiError } from "@/lib/api";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
+import { avatarColor } from "@/lib/avatar";
 
 type FriendUser = {
   id: string;
@@ -236,8 +237,20 @@ export default function Friends() {
           ) : (
             friendReq.map((p) => (
               <View key={p.id} style={styles.row}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>{p.name[0]}</Text>
+                <View
+                  style={[
+                    styles.avatar,
+                    { backgroundColor: avatarColor(p.userId).bg },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.avatarText,
+                      { color: avatarColor(p.userId).fg },
+                    ]}
+                  >
+                    {p.name[0]}
+                  </Text>
                 </View>
                 <View style={styles.rowBody}>
                   <Text style={styles.name}>{p.name}</Text>
@@ -261,8 +274,20 @@ export default function Friends() {
           ) : (
             friends.map((p) => (
               <View key={p.id} style={styles.row}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>{p.name[0]}</Text>
+                <View
+                  style={[
+                    styles.avatar,
+                    { backgroundColor: avatarColor(p.userId).bg },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.avatarText,
+                      { color: avatarColor(p.userId).fg },
+                    ]}
+                  >
+                    {p.name[0]}
+                  </Text>
                 </View>
                 <View style={styles.rowBody}>
                   <Text style={styles.name}>{p.name}</Text>
@@ -405,7 +430,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: SQ.line,
     alignItems: "center",

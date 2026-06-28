@@ -15,6 +15,7 @@ import { compactCountdown } from "@/lib/countdown";
 import { useSession } from "@/lib/session";
 import { Font, SQ } from "@/constants/sidequest";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
+import { avatarColor } from "@/lib/avatar";
 
 type FeedEvent = {
   id: string;
@@ -110,15 +111,27 @@ export default function Feed() {
     }, []),
   );
 
-  const initials = (user?.name ?? "?").slice(0, 2).toUpperCase();
+  const initial = (user?.name || "?")[0].toUpperCase();
 
   return (
     <ColorBlurBackground>
       <View style={styles.screen}>
         <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
           <Text style={styles.wordmark}>SIDEQUEST</Text>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
+          <View
+            style={[
+              styles.avatar,
+              { backgroundColor: avatarColor(user?.id ?? "?").bg },
+            ]}
+          >
+            <Text
+              style={[
+                styles.avatarText,
+                { color: avatarColor(user?.id ?? "?").fg },
+              ]}
+            >
+              {initial}
+            </Text>
           </View>
         </View>
 

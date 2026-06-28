@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Font, SQ } from "@/constants/sidequest";
 import { api, ApiError } from "@/lib/api";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
+import { avatarColor } from "@/lib/avatar";
 
 type Status = "going" | "declined";
 type Activity = {
@@ -85,14 +86,15 @@ export default function Activity() {
           >
             {activity.map((a) => {
               const name = a.attendee.name ?? "Someone";
+              const c = avatarColor(a.attendee.id);
               return (
                 <Pressable
                   key={a.id}
                   style={styles.row}
                   onPress={() => router.push(`/plan/${a.event.id}`)}
                 >
-                  <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>
+                  <View style={[styles.avatar, { backgroundColor: c.bg }]}>
+                    <Text style={[styles.avatarText, { color: c.fg }]}>
                       {name[0].toUpperCase()}
                     </Text>
                   </View>
@@ -160,7 +162,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: SQ.line,
     alignItems: "center",
