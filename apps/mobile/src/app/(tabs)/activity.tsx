@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Font, SQ } from '@/constants/sidequest';
 import { api, ApiError } from '@/lib/api';
+import { ColorBlurBackground } from '@/components/color-blur-bg';
 
 type Status = 'going' | 'declined';
 type Activity = {
@@ -29,9 +30,6 @@ const VERB: Record<Status, string> = {
   going: 'is going to',
   declined: "can't make",
 };
-
-const COLORS = ['#A0A0A0', '#8A9BA8', '#B0A48F', '#7E8C99', '#9AA497', '#C2897A'];
-const colorFor = (id: string) => COLORS[id.charCodeAt(id.length - 1) % COLORS.length];
 
 export default function Activity() {
   const insets = useSafeAreaInsets();
@@ -61,8 +59,9 @@ export default function Activity() {
   );
 
   return (
-    <View style={styles.screen}>
-      <Text style={[styles.title, { paddingTop: insets.top + 14 }]}>Activity</Text>
+    <ColorBlurBackground>
+      <View style={styles.screen}>
+        <Text style={[styles.title, { paddingTop: insets.top + 14 }]}>Activity</Text>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {loading && activity === null ? (
@@ -80,7 +79,7 @@ export default function Activity() {
                 key={a.id}
                 style={styles.row}
                 onPress={() => router.push(`/plan/${a.event.id}`)}>
-                <View style={[styles.avatar, { backgroundColor: colorFor(a.attendee.id) }]}>
+                <View style={styles.avatar}>
                   <Text style={styles.avatarText}>{name[0].toUpperCase()}</Text>
                 </View>
                 <Text style={styles.text} numberOfLines={2}>
@@ -94,12 +93,13 @@ export default function Activity() {
           })}
         </ScrollView>
       )}
-    </View>
+      </View>
+    </ColorBlurBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: SQ.card },
+  screen: { flex: 1 },
   title: {
     fontFamily: Font.sansBold,
     fontSize: 32,
@@ -146,10 +146,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: SQ.line,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { fontFamily: Font.sansSemibold, fontSize: 14, color: SQ.card },
+  avatarText: { fontFamily: Font.sansSemibold, fontSize: 14, color: SQ.ink },
 
   text: { flex: 1, fontSize: 13.5, lineHeight: 19 },
   name: { fontFamily: Font.sansSemibold, color: SQ.ink },

@@ -2,6 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { Font, SQ } from '@/constants/sidequest';
 
@@ -49,7 +50,13 @@ export function TabBar({ routes, activeIndex, onTab }: Props) {
       {renderTab(0)}
       {renderTab(1)}
       <Pressable style={styles.fab} onPress={() => router.push('/create')}>
-        <Feather name="plus" size={26} color={SQ.card} />
+        <LinearGradient
+          colors={['#444444', '#0E0E0E']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={styles.fabFill}>
+          <Feather name="plus" size={26} color={SQ.card} />
+        </LinearGradient>
       </Pressable>
       {renderTab(2)}
       {renderTab(3)}
@@ -75,8 +82,6 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     backgroundColor: SQ.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginTop: -22,
     marginHorizontal: 8,
     shadowColor: '#000',
@@ -84,5 +89,12 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },
     elevation: 8,
+  },
+  fabFill: {
+    flex: 1,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
 });

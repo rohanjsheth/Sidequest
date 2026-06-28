@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Font, SQ } from "@/constants/sidequest";
 import { api, ApiError } from "@/lib/api";
+import { ColorBlurBackground } from "@/components/color-blur-bg";
 
 type FriendUser = {
   id: string;
@@ -37,17 +38,6 @@ type Person = {
   userId: string;
   hosting?: boolean;
 };
-
-const COLORS = [
-  "#A0A0A0",
-  "#8A9BA8",
-  "#B0A48F",
-  "#7E8C99",
-  "#9AA497",
-  "#C2897A",
-];
-const colorFor = (id: string) =>
-  COLORS[id.charCodeAt(id.length - 1) % COLORS.length];
 
 function personFromRow(row: FriendshipRow): Person {
   return {
@@ -196,8 +186,9 @@ export default function Friends() {
   }
 
   return (
-    <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 14 }]}>
+    <ColorBlurBackground>
+      <View style={styles.screen}>
+        <View style={[styles.header, { paddingTop: insets.top + 14 }]}>
         <Text style={styles.title}>Friends</Text>
         <Pressable style={styles.addBtn} onPress={toggleAdding}>
           <Feather name={adding ? "x" : "plus"} size={22} color={SQ.card} />
@@ -244,7 +235,7 @@ export default function Friends() {
         ) : (
           friendReq.map((p) => (
             <View key={p.id} style={styles.row}>
-              <View style={[styles.avatar, { backgroundColor: colorFor(p.id) }]}>
+              <View style={styles.avatar}>
                 <Text style={styles.avatarText}>{p.name[0]}</Text>
               </View>
               <View style={styles.rowBody}>
@@ -269,7 +260,7 @@ export default function Friends() {
         ) : (
           friends.map((p) => (
             <View key={p.id} style={styles.row}>
-              <View style={[styles.avatar, { backgroundColor: colorFor(p.id) }]}>
+              <View style={styles.avatar}>
                 <Text style={styles.avatarText}>{p.name[0]}</Text>
               </View>
               <View style={styles.rowBody}>
@@ -291,12 +282,13 @@ export default function Friends() {
           ))
         )}
       </ScrollView>
-    </View>
+      </View>
+    </ColorBlurBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: SQ.card },
+  screen: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -411,10 +403,13 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: SQ.line,
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { fontFamily: Font.sansSemibold, fontSize: 15, color: SQ.card },
+  avatarText: { fontFamily: Font.sansSemibold, fontSize: 15, color: SQ.ink },
   rowBody: { flex: 1, minWidth: 0 },
   name: { fontFamily: Font.sansSemibold, fontSize: 15, color: SQ.ink },
   sub: { fontFamily: Font.mono, fontSize: 10.5, color: SQ.faint, marginTop: 2 },

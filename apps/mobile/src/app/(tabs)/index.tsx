@@ -14,6 +14,7 @@ import { api, ApiError } from "@/lib/api";
 import { compactCountdown } from "@/lib/countdown";
 import { useSession } from "@/lib/session";
 import { Font, SQ } from "@/constants/sidequest";
+import { ColorBlurBackground } from "@/components/color-blur-bg";
 
 type FeedEvent = {
   id: string;
@@ -112,8 +113,9 @@ export default function Feed() {
   const initials = (user?.name ?? "?").slice(0, 2).toUpperCase();
 
   return (
-    <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+    <ColorBlurBackground>
+      <View style={styles.screen}>
+        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <Text style={styles.wordmark}>SIDEQUEST</Text>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initials}</Text>
@@ -136,12 +138,13 @@ export default function Feed() {
           contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
         />
       )}
-    </View>
+      </View>
+    </ColorBlurBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: SQ.card },
+  screen: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -164,7 +167,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { fontFamily: Font.sansSemibold, fontSize: 11, color: "#666666" },
+  avatarText: { fontFamily: Font.sansSemibold, fontSize: 11, color: SQ.ink },
 
   heading: {
     fontFamily: Font.sansBold,

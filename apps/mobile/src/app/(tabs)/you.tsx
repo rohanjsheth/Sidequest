@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { api, ApiError } from "@/lib/api";
 import { useSession, type SessionUser } from "@/lib/session";
 import { Font, SQ } from "@/constants/sidequest";
+import { ColorBlurBackground } from "@/components/color-blur-bg";
 
 export default function You() {
   const insets = useSafeAreaInsets();
@@ -81,8 +82,9 @@ export default function You() {
   }
 
   return (
-    <View style={styles.screen}>
-      <View style={[styles.profile, { paddingTop: insets.top + 48 }]}>
+    <ColorBlurBackground>
+      <View style={styles.screen}>
+        <View style={[styles.profile, { paddingTop: insets.top + 48 }]}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initial}</Text>
         </View>
@@ -148,12 +150,13 @@ export default function You() {
           </Text>
         </Pressable>
       </View>
-    </View>
+      </View>
+    </ColorBlurBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: SQ.card },
+  screen: { flex: 1 },
 
   profile: { alignItems: "center", gap: 13, paddingHorizontal: 24 },
   avatar: {
