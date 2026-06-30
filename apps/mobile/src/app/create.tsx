@@ -47,7 +47,6 @@ export default function CreateScreen() {
           location: location.trim(),
           startsAt: startsAt.toISOString(),
           description: trimmedNote || undefined,
-          notificationMessage: trimmedNote || undefined,
         },
         auth: true,
       });
