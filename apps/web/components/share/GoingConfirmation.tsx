@@ -106,7 +106,19 @@ export function GoingConfirmation({
           gap: 11,
         }}
       >
-        <button style={primaryBtn}>Get the app to manage</button>
+        <a
+          href="https://testflight.apple.com/join/h425Mg6b"
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            ...primaryBtn,
+            display: "block",
+            textAlign: "center",
+            textDecoration: "none",
+          }}
+        >
+          Get the app to manage
+        </a>
         <button style={ghostBtn}>Add to calendar</button>
       </div>
     </div>

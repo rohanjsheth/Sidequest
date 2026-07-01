@@ -33,11 +33,16 @@ export default function Home() {
               invite link, and see who is going without another endless thread.
             </p>
             <div className={styles.actions}>
-              <Link href="/support" className={styles.primary}>
+              <a
+                href="https://testflight.apple.com/join/h425Mg6b"
+                className={styles.primary}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Get the app
+              </a>
+              <Link href="/support" className={styles.secondary}>
                 Contact support
-              </Link>
-              <Link href="/privacy" className={styles.secondary}>
-                Privacy policy
               </Link>
             </div>
           </div>
