@@ -76,6 +76,10 @@ export const events = pgTable("events", {
   description: text("description"),
   imageUrl: text("image_url"),
   notificationMessage: text("notification_message").notNull(),
+  // null = everyone (all accepted friends)
+  audienceListId: uuid("audience_list_id").references(() => friendLists.id, {
+    onDelete: "set null",
+  }),
   shareToken: text("share_token")
     .notNull()
     .unique()

@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   Alert,
@@ -31,6 +31,9 @@ type FriendshipRow = {
 
 type FriendsResponse = { friends: FriendshipRow[] };
 type RequestsResponse = { requests: FriendshipRow[] };
+
+type FriendList = { id: string; name: string; memberCount: number };
+type ListsResponse = { lists: FriendList[] };
 
 type Person = {
   name: string;
@@ -69,6 +72,10 @@ export default function Friends() {
   const insets = useSafeAreaInsets();
   const [friends, setFriends] = useState<Person[]>([]);
   const [friendReq, setFriendReq] = useState<Person[]>([]);
+  const [lists, setLists] = useState<FriendList[]>([]);
+  const [newListName, setNewListName] = useState("");
+  const [namingList, setNamingList] = useState(false);
+  const [creatingList, setCreatingList] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -81,12 +88,14 @@ export default function Friends() {
   const loadFriends = useCallback(async () => {
     setLoading(true);
     try {
-      const [{ friends }, { requests }] = await Promise.all([
+      const [{ friends }, { requests }, { lists }] = await Promise.all([
         api<FriendsResponse>("/friends", { auth: true }),
         api<RequestsResponse>("/friends/requests", { auth: true }),
+        api<ListsResponse>("/lists", { auth: true }),
       ]);
       setFriends(friends.map(personFromRow));
       setFriendReq(requests.map(personFromRow));
+      setLists(lists);
       setError(null);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
@@ -179,6 +188,34 @@ export default function Friends() {
     }
   }
 
+  async function createList() {
+    const trimmed = newListName.trim();
+    if (trimmed === "" || creatingList) return;
+
+    setError(null);
+    setCreatingList(true);
+    try {
+      const { list } = await api<{ list: { id: string } }>("/lists", {
+        method: "POST",
+        body: { name: trimmed },
+        auth: true,
+      });
+      setNewListName("");
+      setNamingList(false);
+      router.push(`/list/${list.id}`);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
+    } finally {
+      setCreatingList(false);
+    }
+  }
+
+  function toggleNamingList() {
+    setNamingList((open) => !open);
+    setNewListName("");
+    setError(null);
+  }
+
   function toggleAdding() {
     setAdding((open) => !open);
     setPhone("");
@@ -229,7 +266,68 @@ export default function Friends() {
         {loading ? <Text style={styles.state}>Loading friends...</Text> : null}
 
         <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-          <Text style={styles.eyebrow}>REQUESTS · {friendReq.length}</Text>
+          <Text style={styles.eyebrow}>LISTS · {lists.length}</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.strip}
+          >
+            {lists.map((l) => (
+              <Pressable
+                key={l.id}
+                style={styles.chip}
+                onPress={() => router.push(`/list/${l.id}`)}
+              >
+                <Text style={styles.chipName}>{l.name}</Text>
+                <Text style={styles.chipCount}>{l.memberCount}</Text>
+              </Pressable>
+            ))}
+            <Pressable
+              style={[styles.chip, styles.chipNew]}
+              onPress={toggleNamingList}
+            >
+              <Feather
+                name={namingList ? "x" : "plus"}
+                size={13}
+                color={SQ.muted}
+              />
+              <Text style={styles.chipNewText}>New list</Text>
+            </Pressable>
+          </ScrollView>
+
+          {namingList ? (
+            <View style={styles.addPanel}>
+              <View style={styles.addInputWrap}>
+                <Text style={styles.addLabel}>LIST NAME</Text>
+                <TextInput
+                  value={newListName}
+                  onChangeText={setNewListName}
+                  placeholder="Close friends"
+                  placeholderTextColor={SQ.ghost}
+                  style={styles.addInput}
+                  autoFocus
+                  returnKeyType="done"
+                  onSubmitEditing={createList}
+                />
+              </View>
+              <Pressable
+                style={[
+                  styles.send,
+                  (newListName.trim() === "" || creatingList) && styles.sendOff,
+                ]}
+                onPress={createList}
+                disabled={newListName.trim() === "" || creatingList}
+              >
+                <Text style={styles.sendText}>
+                  {creatingList ? "Creating..." : "Create"}
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
+
+          <Text style={[styles.eyebrow, styles.eyebrowDivider]}>
+            REQUESTS · {friendReq.length}
+          </Text>
           {friendReq.length === 0 ? (
             <Text style={styles.empty}>No pending requests.</Text>
           ) : (
@@ -416,6 +514,23 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 18,
   },
+
+  strip: { paddingHorizontal: 24, gap: 8 },
+  chip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: SQ.card,
+    borderWidth: 1,
+    borderColor: SQ.line,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+  },
+  chipName: { fontFamily: Font.sansSemibold, fontSize: 13, color: SQ.ink },
+  chipCount: { fontFamily: Font.mono, fontSize: 11, color: SQ.faint },
+  chipNew: { backgroundColor: "transparent", borderStyle: "dashed", gap: 6 },
+  chipNewText: { fontFamily: Font.sansMedium, fontSize: 13, color: SQ.muted },
 
   row: {
     flexDirection: "row",

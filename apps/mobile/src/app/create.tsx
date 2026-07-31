@@ -1,7 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { DatePicker, Host } from "@expo/ui/swift-ui";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Pressable,
   ScrollView,
@@ -14,6 +14,19 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, ApiError } from "@/lib/api";
 import { Font, SQ } from "@/constants/sidequest";
+
+type FriendList = { id: string; name: string; memberCount: number };
+
+function audienceOptions(lists: FriendList[]) {
+  return [
+    { id: null, name: "Everyone", hint: "All your friends" },
+    ...lists.map((l) => ({
+      id: l.id,
+      name: l.name,
+      hint: `${l.memberCount} ${l.memberCount === 1 ? "person" : "people"}`,
+    })),
+  ] as { id: string | null; name: string; hint: string }[];
+}
 
 function nextHalfHour() {
   const d = new Date();
@@ -32,7 +45,18 @@ export default function CreateScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [lists, setLists] = useState<FriendList[]>([]);
+  const [audienceId, setAudienceId] = useState<string | null>(null);
+  const [pickingAudience, setPickingAudience] = useState(false);
+
+  const audience = lists.find((l) => l.id === audienceId) ?? null;
   const canSubmit = title.trim() !== "" && location.trim() !== "";
+
+  useEffect(() => {
+    api<{ lists: FriendList[] }>("/lists", { auth: true })
+      .then(({ lists }) => setLists(lists))
+      .catch(() => setLists([]));
+  }, []);
 
   async function createPlan() {
     if (!canSubmit || submitting) return;
@@ -47,6 +71,7 @@ export default function CreateScreen() {
           location: location.trim(),
           startsAt: startsAt.toISOString(),
           description: trimmedNote || undefined,
+          audienceListId: audienceId,
         },
         auth: true,
       });
@@ -97,7 +122,7 @@ export default function CreateScreen() {
             </View>
           </View>
 
-          <View style={[styles.row, styles.rowLast]}>
+          <View style={styles.row}>
             <Feather name="map-pin" size={16} color={SQ.icon} />
             <Text style={styles.rowLabel}>WHERE</Text>
             <TextInput
@@ -108,6 +133,59 @@ export default function CreateScreen() {
               style={styles.rowInput}
             />
           </View>
+
+          <Pressable
+            style={[styles.row, styles.rowLast]}
+            onPress={() => setPickingAudience((open) => !open)}
+          >
+            <Feather name="users" size={16} color={SQ.icon} />
+            <Text style={styles.rowLabel}>WHO</Text>
+            <Text style={styles.rowValue}>
+              {audience ? audience.name : "Everyone"}
+            </Text>
+            <Feather
+              name={pickingAudience ? "chevron-up" : "chevron-down"}
+              size={15}
+              color={SQ.icon}
+            />
+          </Pressable>
+
+          {pickingAudience ? (
+            <View style={styles.options}>
+              {audienceOptions(lists).map((opt) => {
+                const selected = opt.id === audienceId;
+                return (
+                  <Pressable
+                    key={opt.id ?? "everyone"}
+                    style={[styles.option, selected && styles.optionOn]}
+                    onPress={() => {
+                      setAudienceId(opt.id);
+                      setPickingAudience(false);
+                    }}
+                  >
+                    <View style={styles.optionBody}>
+                      <Text style={styles.optionName}>{opt.name}</Text>
+                      <Text style={styles.optionHint}>{opt.hint}</Text>
+                    </View>
+                    {selected ? (
+                      <Feather name="check" size={15} color={SQ.ink} />
+                    ) : null}
+                  </Pressable>
+                );
+              })}
+              {lists.length === 0 ? (
+                <Text style={styles.optionEmpty}>
+                  Make a list in Friends to send a plan to just some people.
+                </Text>
+              ) : null}
+            </View>
+          ) : null}
+
+          {audience?.memberCount === 0 ? (
+            <Text style={styles.caution}>
+              Nobody's in this list yet — no one will be notified.
+            </Text>
+          ) : null}
         </View>
 
         <TextInput
@@ -188,12 +266,58 @@ const styles = StyleSheet.create({
     color: SQ.faint,
   },
   rowControl: { flex: 1, alignItems: "flex-start" },
+  rowValue: {
+    flex: 1,
+    fontFamily: Font.sansMedium,
+    fontSize: 14,
+    color: SQ.ink,
+  },
   rowInput: {
     flex: 1,
     padding: 0,
     fontFamily: Font.sansMedium,
     fontSize: 14,
     color: SQ.ink,
+  },
+
+  options: {
+    borderWidth: 1,
+    borderColor: SQ.line,
+    borderRadius: 13,
+    padding: 5,
+    marginBottom: 4,
+  },
+  option: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 9,
+    paddingHorizontal: 11,
+    paddingVertical: 10,
+  },
+  optionOn: { backgroundColor: SQ.fill },
+  optionBody: { flex: 1 },
+  optionName: { fontFamily: Font.sansSemibold, fontSize: 14, color: SQ.ink },
+  optionHint: {
+    fontFamily: Font.mono,
+    fontSize: 10.5,
+    color: SQ.faint,
+    marginTop: 2,
+  },
+  optionEmpty: {
+    fontFamily: Font.mono,
+    fontSize: 11,
+    lineHeight: 16,
+    color: SQ.faint,
+    paddingHorizontal: 11,
+    paddingTop: 2,
+    paddingBottom: 8,
+  },
+  caution: {
+    fontFamily: Font.mono,
+    fontSize: 11,
+    color: "#B3261E",
+    paddingTop: 2,
+    paddingBottom: 6,
   },
 
   note: {

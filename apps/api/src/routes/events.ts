@@ -14,11 +14,13 @@ import {
   events as eventsTable,
   invites,
   friendships,
+  friendLists,
   users,
   blocks,
 } from "@sidequest/db";
 import { authMiddleware } from "../middleware/auth.js";
 import { isBlocked } from "../lib/blocks.js";
+import { listMemberIds } from "../lib/lists.js";
 import { sendPushToUsers } from "../lib/push.js";
 import type { Env } from "../types.js";
 
@@ -34,6 +36,7 @@ events.post("/", async (c) => {
     description,
     notificationMessage,
     imageUrl,
+    audienceListId,
   } = await c.req.json();
 
   if (typeof title !== "string" || title.trim() === "") {
@@ -67,6 +70,28 @@ events.post("/", async (c) => {
     return c.json({ error: "invalid startsAt" }, 400);
   }
 
+  if (
+    audienceListId !== undefined &&
+    audienceListId !== null &&
+    typeof audienceListId !== "string"
+  ) {
+    return c.json({ error: "invalid audienceListId" }, 400);
+  }
+
+  // null audience = everyone; a list must be the caller's own
+  const audience: string | null = audienceListId || null;
+  if (audience) {
+    const [list] = await db
+      .select({ id: friendLists.id })
+      .from(friendLists)
+      .where(
+        and(eq(friendLists.id, audience), eq(friendLists.ownerId, userId)),
+      );
+    if (!list) {
+      return c.json({ error: "could not find list" }, 404);
+    }
+  }
+
   // host's name powers the default blast message
   const [host] = await db.select().from(users).where(eq(users.id, userId));
   const cleanedDescription = description?.trim();
@@ -84,6 +109,7 @@ events.post("/", async (c) => {
       description: cleanedDescription || null,
       notificationMessage: blast,
       imageUrl: imageUrl?.trim(),
+      audienceListId: audience,
     })
     .returning();
 
@@ -104,9 +130,16 @@ events.post("/", async (c) => {
       ),
     );
 
-  const friendIds = friends.map((f) =>
+  let friendIds = friends.map((f) =>
     f.requesterId === userId ? f.addresseeId : f.requesterId,
   );
+
+  // a targeted plan reaches list members only — and only ones still friends,
+  // since a stale membership must never be notified
+  if (audience) {
+    const members = new Set(await listMemberIds(audience));
+    friendIds = friendIds.filter((id) => members.has(id));
+  }
 
   if (friendIds.length > 0) {
     await db.insert(invites).values(
@@ -223,9 +256,11 @@ events.get("/:id", async (c) => {
       cancelled: eventsTable.cancelled,
       shareToken: eventsTable.shareToken,
       host: { id: users.id, name: users.name, avatarUrl: users.avatarUrl },
+      audienceList: { id: friendLists.id, name: friendLists.name },
     })
     .from(eventsTable)
     .innerJoin(users, eq(eventsTable.hostId, users.id))
+    .leftJoin(friendLists, eq(eventsTable.audienceListId, friendLists.id))
     .where(eq(eventsTable.id, eventId));
 
   if (!event) {
@@ -235,6 +270,9 @@ events.get("/:id", async (c) => {
   if (await isBlocked(userId, event.host.id)) {
     return c.json({ error: "could not find event" }, 404);
   }
+
+  // the audience is the host's private list — guests never see which one
+  const audienceList = event.host.id === userId ? event.audienceList : null;
 
   const goingInvites = await db
     .select({ attendeeId: invites.attendeeId })
@@ -261,7 +299,7 @@ events.get("/:id", async (c) => {
     );
   const going = 1 + goingInvites.length;
 
-  return c.json({ event: { ...event, going } });
+  return c.json({ event: { ...event, audienceList, going } });
 });
 
 events.get("/:id/attendees", async (c) => {

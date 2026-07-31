@@ -36,6 +36,7 @@ type Plan = {
   host: Person;
   going: number;
   shareToken: string;
+  audienceList: { id: string; name: string } | null;
 };
 type Attendee = { id: string; name: string; isHost: boolean };
 type ApiAttendee = {
@@ -326,6 +327,11 @@ export default function Plan() {
                 </View>
               ))}
             </View>
+            {plan.audienceList ? (
+              <Text style={styles.audience}>
+                Sent to {plan.audienceList.name}
+              </Text>
+            ) : null}
           </View>
 
           <View style={styles.details}>
@@ -498,6 +504,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   attendees: { flexDirection: "row", flexWrap: "wrap", gap: 16 },
+  audience: {
+    fontFamily: Font.mono,
+    fontSize: 10.5,
+    color: "#8A8A8A",
+    marginTop: 16,
+    paddingTop: 12,
+    paddingHorizontal: 2,
+    borderTopWidth: 1,
+    borderTopColor: "#EAE9E4",
+  },
   attendee: { width: 56, alignItems: "center", gap: 6 },
   attAvatar: {
     width: 46,

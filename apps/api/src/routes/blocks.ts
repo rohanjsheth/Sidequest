@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { and, eq, or } from "drizzle-orm";
 import { db, blocks as blocksTable, friendships, users } from "@sidequest/db";
 import { authMiddleware } from "../middleware/auth.js";
+import { pruneListMemberships } from "../lib/lists.js";
 import type { Env } from "../types.js";
 
 export const blocks = new Hono<Env>();
@@ -37,6 +38,8 @@ blocks.post("/:id", async (c) => {
         ),
       ),
     );
+
+  await pruneListMemberships(userId, blockedId);
 
   const [block] = await db
     .insert(blocksTable)

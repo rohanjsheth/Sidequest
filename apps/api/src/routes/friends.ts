@@ -3,6 +3,7 @@ import { authMiddleware } from "../middleware/auth.js";
 import { and, eq, or } from "drizzle-orm";
 import { db, users, friendships } from "@sidequest/db";
 import { isBlocked } from "../lib/blocks.js";
+import { pruneListMemberships } from "../lib/lists.js";
 import type { Env } from "../types.js";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 
@@ -171,5 +172,8 @@ friends.delete("/:id", async (c) => {
   if (!deleted) {
     return c.json({ error: "not found" }, 404);
   }
+
+  await pruneListMemberships(deleted.requesterId, deleted.addresseeId);
+
   return c.json({ deleted });
 });

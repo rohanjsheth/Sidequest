@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { and, eq, or } from "drizzle-orm";
+import { and, count, eq, or } from "drizzle-orm";
 import {
   db,
   users,
@@ -30,10 +30,45 @@ lists.post("/", async (c) => {
 lists.get("/", async (c) => {
   const userId = c.get("userId");
   const userLists = await db
+    .select({
+      id: friendLists.id,
+      name: friendLists.name,
+      createdAt: friendLists.createdAt,
+      memberCount: count(friendListMembers.id),
+    })
+    .from(friendLists)
+    .leftJoin(friendListMembers, eq(friendListMembers.listId, friendLists.id))
+    .where(eq(friendLists.ownerId, userId))
+    .groupBy(friendLists.id)
+    .orderBy(friendLists.createdAt);
+  return c.json({ lists: userLists });
+});
+
+lists.get("/:id", async (c) => {
+  const userId = c.get("userId");
+  const listId = c.req.param("id");
+
+  const [list] = await db
     .select()
     .from(friendLists)
-    .where(eq(friendLists.ownerId, userId));
-  return c.json({ lists: userLists });
+    .where(and(eq(friendLists.id, listId), eq(friendLists.ownerId, userId)));
+
+  if (!list) {
+    return c.json({ error: "could not find list" }, 404);
+  }
+
+  const members = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      avatarUrl: users.avatarUrl,
+      phone: users.phone,
+    })
+    .from(friendListMembers)
+    .innerJoin(users, eq(users.id, friendListMembers.memberId))
+    .where(eq(friendListMembers.listId, listId));
+
+  return c.json({ list, members });
 });
 
 lists.post("/:id/members", async (c) => {
