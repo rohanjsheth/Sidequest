@@ -15,7 +15,7 @@ const TEASE = [
     sub: "Cavalier Rooftop · Maya",
     count: "6 IN",
     opacity: 0.9,
-    border: "#EEEEEE",
+    border: SQ.line,
   },
   {
     digits: ["5"],
@@ -23,7 +23,7 @@ const TEASE = [
     sub: "Mission Rec Center · Dev",
     count: "9 IN",
     opacity: 0.5,
-    border: "#F2F2F2",
+    border: SQ.rule,
   },
   {
     digits: ["2"],
@@ -31,7 +31,7 @@ const TEASE = [
     sub: null,
     count: null,
     opacity: 0.22,
-    border: "#F7F7F7",
+    border: SQ.fill,
   },
 ];
 
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     fontFamily: Font.mono,
     fontSize: 10,
     letterSpacing: 1,
-    color: SQ.hint,
+    color: SQ.ghost,
   },
 
   spacer: { flex: 1 },
@@ -193,7 +193,7 @@ const flap = StyleSheet.create({
     minWidth: 20,
     height: 30,
     borderRadius: 4,
-    backgroundColor: "#3A3A3A",
+    backgroundColor: SQ.flapTop,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -205,7 +205,7 @@ const flap = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 15,
-    backgroundColor: "#1B1B1B",
+    backgroundColor: SQ.flapBottom,
   },
-  digit: { fontFamily: Font.monoBold, fontSize: 16, color: "#FFFFFF" },
+  digit: { fontFamily: Font.monoBold, fontSize: 16, color: SQ.card },
 });

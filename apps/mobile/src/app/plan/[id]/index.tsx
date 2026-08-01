@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -13,11 +13,12 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, ApiError } from "@/lib/api";
-import { detailedCountdown } from "@/lib/countdown";
+import { detailedCountdown, formatWhen } from "@/lib/countdown";
 import { useSession } from "@/lib/session";
 import { Font, SQ } from "@/constants/sidequest";
 import { avatarColor } from "@/lib/avatar";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
+import { FlapRow } from "@/components/flap-tile";
 
 const WEB_BASE = process.env.EXPO_PUBLIC_WEB_URL ?? "http://localhost:3001";
 
@@ -33,10 +34,12 @@ type Plan = {
   location: string;
   description: string | null;
   startsAt: string;
+  cancelled: boolean;
   host: Person;
   going: number;
   shareToken: string;
   audienceList: { id: string; name: string } | null;
+  myRsvp: "invited" | "going" | "declined" | null;
 };
 type Attendee = { id: string; name: string; isHost: boolean };
 type ApiAttendee = {
@@ -50,23 +53,6 @@ const RSVPS: { key: Rsvp; label: string }[] = [
   { key: "going", label: "Going" },
   { key: "declined", label: "Can't" },
 ];
-
-function formatWhen(iso: string) {
-  return new Date(iso).toLocaleString(undefined, {
-    weekday: "short",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-function FlapBig({ char }: { char: string }) {
-  return (
-    <View style={flap.tile}>
-      <View style={flap.bottom} />
-      <Text style={flap.char}>{char}</Text>
-    </View>
-  );
-}
 
 export default function Plan() {
   const insets = useSafeAreaInsets();
@@ -95,6 +81,12 @@ export default function Plan() {
           }),
         ]);
         setPlan(event);
+        // "invited" is not an answer — only an explicit going/declined lights a button
+        setRsvp(
+          event.myRsvp === "going" || event.myRsvp === "declined"
+            ? event.myRsvp
+            : null,
+        );
         setAttendees(
           rows.map((row) => ({
             id: row.user.id,
@@ -108,15 +100,20 @@ export default function Plan() {
           err instanceof ApiError ? err.message : "Something went wrong",
         );
       } finally {
-        if (showLoading) setLoading(false);
+        // always clears — `showLoading` only controls whether we flash the
+        // loading state on the way in
+        setLoading(false);
       }
     },
     [id],
   );
 
-  useEffect(() => {
-    void loadPlan();
-  }, [loadPlan]);
+  // refetch on focus so edits made on /edit are reflected when we come back
+  useFocusEffect(
+    useCallback(() => {
+      void loadPlan(false);
+    }, [loadPlan]),
+  );
 
   useEffect(() => {
     return () => {
@@ -243,16 +240,24 @@ export default function Plan() {
               <Text style={styles.headerBtn}>‹ back</Text>
             </Pressable>
             {isHost ? (
-              <Pressable onPress={sharePlan} disabled={sharing} hitSlop={8}>
-                <Text
-                  style={[styles.headerBtn, sharing && styles.headerBtnOff]}
+              <View style={styles.headerActions}>
+                <Pressable
+                  onPress={() => router.push(`/plan/${plan.id}/edit`)}
+                  hitSlop={8}
                 >
-                  {sharing ? "sharing..." : "share ↗"}
-                </Text>
-              </Pressable>
+                  <Text style={styles.headerBtn}>edit</Text>
+                </Pressable>
+                <Pressable onPress={sharePlan} disabled={sharing} hitSlop={8}>
+                  <Text
+                    style={[styles.headerBtn, sharing && styles.headerBtnOff]}
+                  >
+                    {sharing ? "sharing..." : "share ↗"}
+                  </Text>
+                </Pressable>
+              </View>
             ) : (
               <Pressable onPress={openPlanMenu} hitSlop={8}>
-                <Feather name="more-horizontal" size={18} color="#666666" />
+                <Feather name="more-horizontal" size={18} color={SQ.muted} />
               </Pressable>
             )}
           </View>
@@ -260,8 +265,10 @@ export default function Plan() {
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <View style={styles.intro}>
-            <View style={styles.pill}>
-              <Text style={styles.pillText}>{countdown.pill}</Text>
+            <View style={[styles.pill, plan.cancelled && styles.pillCancelled]}>
+              <Text style={styles.pillText}>
+                {plan.cancelled ? "CANCELLED" : countdown.pill}
+              </Text>
             </View>
             <Text style={styles.title}>{plan.title}</Text>
             <View style={styles.hostRow}>
@@ -284,22 +291,20 @@ export default function Plan() {
             </View>
           </View>
 
-          <View style={styles.countdown}>
-            <Text style={styles.inLabel}>IN</Text>
-            {countdown.units.map((unit, index) => (
-              <Fragment key={unit.label}>
-                {index > 0 ? <Text style={styles.colon}>:</Text> : null}
-                <View style={styles.cdUnit}>
-                  <View style={styles.flapRow}>
-                    {[...unit.value].map((char, i) => (
-                      <FlapBig key={`${unit.label}-${i}`} char={char} />
-                    ))}
+          {plan.cancelled ? null : (
+            <View style={styles.countdown}>
+              <Text style={styles.inLabel}>IN</Text>
+              {countdown.units.map((unit, index) => (
+                <Fragment key={unit.label}>
+                  {index > 0 ? <Text style={styles.colon}>:</Text> : null}
+                  <View style={styles.cdUnit}>
+                    <FlapRow chars={[...unit.value]} size="lg" />
+                    <Text style={styles.cdUnitLabel}>{unit.label}</Text>
                   </View>
-                  <Text style={styles.cdUnitLabel}>{unit.label}</Text>
-                </View>
-              </Fragment>
-            ))}
-          </View>
+                </Fragment>
+              ))}
+            </View>
+          )}
 
           <View style={styles.goingCard}>
             <Text style={styles.goingLabel}>{plan.going} GOING</Text>
@@ -322,7 +327,9 @@ export default function Plan() {
                       {a.name[0].toUpperCase()}
                     </Text>
                   </View>
-                  <Text style={styles.attName}>{a.name}</Text>
+                  <Text style={styles.attName} numberOfLines={1}>
+                    {a.name}
+                  </Text>
                   {a.isHost ? <Text style={styles.attHost}>HOST</Text> : null}
                 </View>
               ))}
@@ -336,11 +343,11 @@ export default function Plan() {
 
           <View style={styles.details}>
             <View style={styles.detailRow}>
-              <Feather name="clock" size={15} color={SQ.icon} />
+              <Feather name="clock" size={15} color={SQ.faint} />
               <Text style={styles.detailText}>{formatWhen(plan.startsAt)}</Text>
             </View>
             <View style={[styles.detailRow, styles.detailLast]}>
-              <Feather name="map-pin" size={15} color={SQ.icon} />
+              <Feather name="map-pin" size={15} color={SQ.faint} />
               <Text style={styles.detailText}>{plan.location}</Text>
             </View>
           </View>
@@ -350,7 +357,7 @@ export default function Plan() {
           ) : null}
         </ScrollView>
 
-        {!isHost ? (
+        {!isHost && !plan.cancelled ? (
           <View style={[styles.footer, { paddingBottom: insets.bottom + 18 }]}>
             {toast ? (
               <View style={styles.toast}>
@@ -396,7 +403,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingBottom: 8,
   },
-  headerBtn: { fontFamily: Font.mono, fontSize: 12.5, color: "#666666" },
+  headerActions: { flexDirection: "row", gap: 18 },
+  headerBtn: { fontFamily: Font.mono, fontSize: 12.5, color: SQ.muted },
   headerBtnOff: { color: SQ.ghost },
   state: {
     fontFamily: Font.mono,
@@ -408,7 +416,7 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: "#B3261E",
+    color: SQ.danger,
     paddingHorizontal: 24,
     paddingTop: 8,
   },
@@ -421,6 +429,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
+  pillCancelled: { backgroundColor: SQ.danger },
   pillText: {
     fontFamily: Font.monoSemibold,
     fontSize: 9,
@@ -450,8 +459,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  hostAvatarText: { fontFamily: Font.mono, fontSize: 9, color: SQ.ink },
-  hostText: { fontFamily: Font.mono, fontSize: 12, color: "#666666" },
+  hostAvatarText: { fontFamily: Font.mono, fontSize: 9 },
+  hostText: { fontFamily: Font.mono, fontSize: 12, color: SQ.muted },
 
   countdown: {
     flexDirection: "row",
@@ -469,7 +478,6 @@ const styles = StyleSheet.create({
     lineHeight: 42,
   },
   cdUnit: { alignItems: "center", gap: 7 },
-  flapRow: { flexDirection: "row", gap: 3 },
   cdUnitLabel: {
     fontFamily: Font.mono,
     fontSize: 8,
@@ -487,9 +495,9 @@ const styles = StyleSheet.create({
   goingCard: {
     marginHorizontal: 24,
     marginTop: 16,
-    backgroundColor: "#F4F3EF",
+    backgroundColor: SQ.fill,
     borderWidth: 1,
-    borderColor: "#EFEEE9",
+    borderColor: SQ.rule,
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingTop: 20,
@@ -499,22 +507,22 @@ const styles = StyleSheet.create({
     fontFamily: Font.mono,
     fontSize: 11,
     letterSpacing: 1.5,
-    color: "#8A8A8A",
+    color: SQ.faint,
     marginBottom: 15,
     paddingHorizontal: 2,
   },
-  attendees: { flexDirection: "row", flexWrap: "wrap", gap: 16 },
+  attendees: { flexDirection: "row", flexWrap: "wrap", gap: 14 },
   audience: {
     fontFamily: Font.mono,
     fontSize: 10.5,
-    color: "#8A8A8A",
+    color: SQ.faint,
     marginTop: 16,
     paddingTop: 12,
     paddingHorizontal: 2,
     borderTopWidth: 1,
-    borderTopColor: "#EAE9E4",
+    borderTopColor: SQ.line,
   },
-  attendee: { width: 56, alignItems: "center", gap: 6 },
+  attendee: { width: 64, alignItems: "center", gap: 6 },
   attAvatar: {
     width: 46,
     height: 46,
@@ -531,9 +539,13 @@ const styles = StyleSheet.create({
   attAvatarText: {
     fontFamily: Font.sansSemibold,
     fontSize: 15,
-    color: SQ.ink,
   },
-  attName: { fontFamily: Font.mono, fontSize: 10.5, color: "#444444" },
+  attName: {
+    fontFamily: Font.mono,
+    fontSize: 10.5,
+    color: SQ.text,
+    maxWidth: "100%",
+  },
   attHost: {
     fontFamily: Font.monoBold,
     fontSize: 8,
@@ -552,7 +564,12 @@ const styles = StyleSheet.create({
     borderBottomColor: SQ.rule,
   },
   detailLast: { borderBottomWidth: 0 },
-  detailText: { fontFamily: Font.mono, fontSize: 12.5, color: SQ.ink },
+  detailText: {
+    flex: 1,
+    fontFamily: Font.mono,
+    fontSize: 12.5,
+    color: SQ.ink,
+  },
 
   description: {
     paddingHorizontal: 24,
@@ -600,25 +617,4 @@ const styles = StyleSheet.create({
   rsvpOff: { opacity: 0.45 },
   rsvpText: { fontFamily: Font.monoSemibold, fontSize: 13, color: SQ.ink },
   rsvpTextActive: { color: SQ.card },
-});
-
-const flap = StyleSheet.create({
-  tile: {
-    minWidth: 26,
-    height: 42,
-    borderRadius: 5,
-    backgroundColor: "#3A3A3A",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-  },
-  bottom: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 21,
-    backgroundColor: "#1B1B1B",
-  },
-  char: { fontFamily: Font.monoBold, fontSize: 22, color: "#FFFFFF" },
 });

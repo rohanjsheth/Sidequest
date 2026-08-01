@@ -98,7 +98,7 @@ export default function ReportScreen() {
           value={body}
           onChangeText={setBody}
           placeholder="Tell us what's wrong — spam, harassment, or inappropriate or unsafe content…"
-          placeholderTextColor={SQ.hint}
+          placeholderTextColor={SQ.ghost}
           style={styles.input}
           multiline
           autoFocus
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: SQ.hair,
+    borderBottomColor: SQ.rule,
   },
   cancel: { fontFamily: Font.sans, fontSize: 13, color: SQ.muted },
   headerSpacer: { width: 42 },
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.sansMedium,
     fontSize: 13,
-    color: "#B3261E",
+    color: SQ.danger,
     textAlign: "center",
     marginBottom: 10,
   },

@@ -101,7 +101,9 @@ export default function You() {
               onSubmitEditing={save}
             />
           ) : (
-            <Text style={styles.name}>{user?.name ?? "You"}</Text>
+            <Text style={styles.name} numberOfLines={1}>
+              {user?.name ?? "You"}
+            </Text>
           )}
         </View>
 
@@ -173,6 +175,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     letterSpacing: -0.4,
     color: SQ.ink,
+    maxWidth: "100%",
   },
   nameInput: {
     fontFamily: Font.sansBold,
@@ -190,7 +193,7 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: "#B3261E",
+    color: SQ.danger,
     textAlign: "center",
     marginBottom: 8,
   },
@@ -219,6 +222,6 @@ const styles = StyleSheet.create({
   actions: { paddingHorizontal: 24, paddingBottom: 28 },
   action: { paddingVertical: 15 },
   actionText: { fontFamily: Font.sansMedium, fontSize: 14, color: SQ.ink },
-  danger: { color: "#B3261E" },
+  danger: { color: SQ.danger },
   divider: { height: 1, backgroundColor: SQ.rule },
 });

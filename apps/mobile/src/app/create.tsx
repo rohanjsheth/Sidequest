@@ -109,7 +109,7 @@ export default function CreateScreen() {
 
         <View style={styles.fields}>
           <View style={styles.row}>
-            <Feather name="clock" size={16} color={SQ.icon} />
+            <Feather name="clock" size={16} color={SQ.faint} />
             <Text style={styles.rowLabel}>WHEN</Text>
             <View style={styles.rowControl}>
               <Host matchContents>
@@ -123,7 +123,7 @@ export default function CreateScreen() {
           </View>
 
           <View style={styles.row}>
-            <Feather name="map-pin" size={16} color={SQ.icon} />
+            <Feather name="map-pin" size={16} color={SQ.faint} />
             <Text style={styles.rowLabel}>WHERE</Text>
             <TextInput
               value={location}
@@ -138,7 +138,7 @@ export default function CreateScreen() {
             style={[styles.row, styles.rowLast]}
             onPress={() => setPickingAudience((open) => !open)}
           >
-            <Feather name="users" size={16} color={SQ.icon} />
+            <Feather name="users" size={16} color={SQ.faint} />
             <Text style={styles.rowLabel}>WHO</Text>
             <Text style={styles.rowValue}>
               {audience ? audience.name : "Everyone"}
@@ -146,7 +146,7 @@ export default function CreateScreen() {
             <Feather
               name={pickingAudience ? "chevron-up" : "chevron-down"}
               size={15}
-              color={SQ.icon}
+              color={SQ.faint}
             />
           </Pressable>
 
@@ -192,7 +192,7 @@ export default function CreateScreen() {
           value={note}
           onChangeText={setNote}
           placeholder="Add a note — what's the vibe?"
-          placeholderTextColor={SQ.hint}
+          placeholderTextColor={SQ.ghost}
           style={styles.note}
           multiline
         />
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: SQ.hair,
+    borderBottomColor: SQ.rule,
   },
   cancel: { fontFamily: Font.sans, fontSize: 13, color: SQ.muted },
   headerSpacer: { width: 42 },
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   caution: {
     fontFamily: Font.mono,
     fontSize: 11,
-    color: "#B3261E",
+    color: SQ.danger,
     paddingTop: 2,
     paddingBottom: 6,
   },
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.sansMedium,
     fontSize: 13,
-    color: "#B3261E",
+    color: SQ.danger,
     textAlign: "center",
     marginBottom: 10,
   },

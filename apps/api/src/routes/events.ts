@@ -299,7 +299,16 @@ events.get("/:id", async (c) => {
     );
   const going = 1 + goingInvites.length;
 
-  return c.json({ event: { ...event, audienceList, going } });
+  // the caller's own answer — the detail screen can't derive it from the
+  // attendee list, which only carries people who said going
+  const [mine] = await db
+    .select({ status: invites.status })
+    .from(invites)
+    .where(and(eq(invites.eventId, event.id), eq(invites.attendeeId, userId)));
+
+  return c.json({
+    event: { ...event, audienceList, going, myRsvp: mine?.status ?? null },
+  });
 });
 
 events.get("/:id/attendees", async (c) => {

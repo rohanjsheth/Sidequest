@@ -84,13 +84,13 @@ export default function Activity() {
           <ScrollView
             contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
           >
-            {activity.map((a) => {
+            {activity.map((a, index) => {
               const name = a.attendee.name ?? "Someone";
               const c = avatarColor(a.attendee.id);
               return (
                 <Pressable
                   key={a.id}
-                  style={styles.row}
+                  style={[styles.row, index === 0 && styles.rowFirst]}
                   onPress={() => router.push(`/plan/${a.event.id}`)}
                 >
                   <View style={[styles.avatar, { backgroundColor: c.bg }]}>
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: "#B3261E",
+    color: SQ.danger,
     paddingHorizontal: 24,
     paddingTop: 8,
   },
@@ -156,8 +156,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: "#EDEDED",
+    borderTopColor: SQ.rule,
   },
+  // the top-most rule would cut straight through the color wash
+  rowFirst: { borderTopWidth: 0 },
   avatar: {
     width: 40,
     height: 40,
@@ -167,7 +169,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { fontFamily: Font.sansSemibold, fontSize: 14, color: SQ.ink },
+  avatarText: { fontFamily: Font.sansSemibold, fontSize: 14 },
 
   text: { flex: 1, fontSize: 13.5, lineHeight: 19 },
   name: { fontFamily: Font.sansSemibold, color: SQ.ink },

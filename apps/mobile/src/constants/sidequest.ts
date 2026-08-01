@@ -1,18 +1,20 @@
+// one neutral ramp, darkest to lightest. no warm tints — the only color in the
+// app is the top blur, the avatar hues, and `danger`.
 export const SQ = {
-  paper: "#E7E5DF",
-  card: "#FFFFFF",
   ink: "#111111",
   text: "#333333",
-  muted: "#888888",
-  faint: "#999999",
-  ghost: "#CCCCCC",
-  hint: "#BBBBBB",
-  hair: "#F2F2F2",
-  rule: "#F0F0F0",
-  line: "#E5E5E5",
-  dash: "#E2E2DD",
-  fill: "#F4F4F2",
-  icon: "#9A9A9A",
+  muted: "#666666",
+  faint: "#8E8E8E",
+  ghost: "#B5B5B5",
+  line: "#E3E3E3",
+  rule: "#EDEDED",
+  fill: "#F5F5F5",
+  card: "#FFFFFF",
+
+  flapTop: "#2E2E2E",
+  flapBottom: "#171717",
+
+  danger: "#B3261E",
 } as const;
 
 export const Font = {

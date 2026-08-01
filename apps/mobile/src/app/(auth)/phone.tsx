@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 14,
     borderWidth: 1.5,
-    borderColor: "#EAEAEA",
+    borderColor: SQ.line,
     borderRadius: 11,
   },
   flag: { fontSize: 18 },
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: "#B3261E",
+    color: SQ.danger,
     textAlign: "center",
     marginHorizontal: 28,
     marginTop: 16,

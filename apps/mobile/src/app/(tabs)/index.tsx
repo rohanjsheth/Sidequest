@@ -11,10 +11,11 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, ApiError } from "@/lib/api";
-import { compactCountdown } from "@/lib/countdown";
+import { compactCountdown, formatWhen } from "@/lib/countdown";
 import { useSession } from "@/lib/session";
 import { Font, SQ } from "@/constants/sidequest";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
+import { FlapRow } from "@/components/flap-tile";
 import { avatarColor } from "@/lib/avatar";
 
 type FeedEvent = {
@@ -26,29 +27,23 @@ type FeedEvent = {
   going: number;
 };
 
-function FlapTile({ char }: { char: string }) {
-  const isUnit = /[a-z]/i.test(char);
-  return (
-    <View style={[flap.tile, isUnit && flap.unit]}>
-      <View style={flap.bottom} />
-      <Text style={[flap.char, isUnit && flap.charUnit]}>{char}</Text>
-    </View>
-  );
-}
-
-function EventRow({ event, now }: { event: FeedEvent; now: number }) {
+function EventRow({
+  event,
+  now,
+  first,
+}: {
+  event: FeedEvent;
+  now: number;
+  first: boolean;
+}) {
   const c = compactCountdown(event.startsAt, now);
   return (
     <Pressable
-      style={styles.row}
+      style={[styles.row, first && styles.rowFirst]}
       onPress={() => router.push(`/plan/${event.id}`)}
     >
       <View style={styles.cdCol}>
-        <View style={styles.flaps}>
-          {c.chars.map((ch, i) => (
-            <FlapTile key={i} char={ch} />
-          ))}
-        </View>
+        <FlapRow chars={c.chars} size="sm" />
       </View>
 
       <View style={styles.body}>
@@ -61,6 +56,7 @@ function EventRow({ event, now }: { event: FeedEvent; now: number }) {
               <Text style={styles.soonText}>SOON</Text>
             </View>
           ) : null}
+          <Text style={styles.when}>{formatWhen(event.startsAt, now)}</Text>
           <Text style={styles.meta} numberOfLines={1}>
             {event.location} · {event.host.name ?? "Someone"}
           </Text>
@@ -118,7 +114,9 @@ export default function Feed() {
       <View style={styles.screen}>
         <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
           <Text style={styles.wordmark}>SIDEQUEST</Text>
-          <View
+          <Pressable
+            onPress={() => router.navigate("/you")}
+            hitSlop={10}
             style={[
               styles.avatar,
               { backgroundColor: avatarColor(user?.id ?? "?").bg },
@@ -132,7 +130,7 @@ export default function Feed() {
             >
               {initial}
             </Text>
-          </View>
+          </Pressable>
         </View>
 
         {events === null && !error ? (
@@ -145,7 +143,9 @@ export default function Feed() {
           <FlatList
             data={events}
             keyExtractor={(e) => e.id}
-            renderItem={({ item }) => <EventRow event={item} now={now} />}
+            renderItem={({ item, index }) => (
+              <EventRow event={item} now={now} first={index === 0} />
+            )}
             extraData={now}
             ListHeaderComponent={<Text style={styles.heading}>Upcoming</Text>}
             contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { fontFamily: Font.sansSemibold, fontSize: 11, color: SQ.ink },
+  avatarText: { fontFamily: Font.sansSemibold, fontSize: 11 },
 
   heading: {
     fontFamily: Font.sansBold,
@@ -209,11 +209,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 18,
     borderTopWidth: 1,
-    borderTopColor: "#EDEDED",
+    borderTopColor: SQ.rule,
     alignItems: "center",
   },
+  // the top-most rule would cut straight through the color wash
+  rowFirst: { borderTopWidth: 0 },
   cdCol: { minWidth: 55 },
-  flaps: { flexDirection: "row", gap: 3 },
 
   body: { flex: 1, minWidth: 0 },
   title: {
@@ -223,7 +224,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: SQ.ink,
   },
-  metaRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 7 },
+  metaRow: { flexDirection: "row", alignItems: "center", gap: 7, marginTop: 7 },
   soon: {
     backgroundColor: SQ.ink,
     borderRadius: 4,
@@ -236,7 +237,14 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
     color: SQ.card,
   },
-  meta: { flex: 1, fontFamily: Font.mono, fontSize: 11.5, color: "#666666" },
+  // the time never shrinks — a long venue name truncates instead
+  when: {
+    fontFamily: Font.monoMedium,
+    fontSize: 11.5,
+    color: SQ.ink,
+    flexShrink: 0,
+  },
+  meta: { flex: 1, fontFamily: Font.mono, fontSize: 11.5, color: SQ.muted },
 
   goingCol: { alignItems: "flex-end" },
   goingNum: { fontFamily: Font.sansBold, fontSize: 17, color: SQ.ink },
@@ -247,28 +255,4 @@ const styles = StyleSheet.create({
     color: SQ.faint,
     marginTop: 3,
   },
-});
-
-const flap = StyleSheet.create({
-  tile: {
-    minWidth: 21,
-    height: 32,
-    borderRadius: 5,
-    backgroundColor: "#2A2A2A",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    paddingHorizontal: 3,
-  },
-  unit: { minWidth: 16 },
-  bottom: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 16,
-    backgroundColor: "#161616",
-  },
-  char: { fontFamily: Font.monoBold, fontSize: 16, color: "#FFFFFF" },
-  charUnit: { fontSize: 13 },
 });

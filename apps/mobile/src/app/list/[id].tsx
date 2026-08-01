@@ -15,8 +15,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Font, SQ } from "@/constants/sidequest";
 import { api, ApiError } from "@/lib/api";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
+import { PersonRow } from "@/components/person-row";
 import { Skeleton, SkeletonPersonRow } from "@/components/skeleton";
-import { avatarColor } from "@/lib/avatar";
+import { displayPhone } from "@/lib/phone";
 
 type Member = {
   id: string;
@@ -233,7 +234,7 @@ export default function ListDetail() {
             <Text style={styles.empty}>Add friends below.</Text>
           ) : (
             members.map((m) => (
-              <PersonRow
+              <MemberRow
                 key={m.id}
                 person={m}
                 icon="minus"
@@ -259,7 +260,7 @@ export default function ListDetail() {
             </Text>
           ) : (
             candidates.map((f) => (
-              <PersonRow
+              <MemberRow
                 key={f.id}
                 person={f}
                 icon={staged.includes(f.id) ? "check" : "plus"}
@@ -290,7 +291,7 @@ export default function ListDetail() {
   );
 }
 
-function PersonRow({
+function MemberRow({
   person,
   icon,
   selected = false,
@@ -301,18 +302,14 @@ function PersonRow({
   selected?: boolean;
   onPress: () => void;
 }) {
-  const label = person.name ?? "Friend";
-  const color = avatarColor(person.id);
   const filled = icon !== "minus";
   return (
-    <View style={[styles.row, selected && styles.rowStaged]}>
-      <View style={[styles.avatar, { backgroundColor: color.bg }]}>
-        <Text style={[styles.avatarText, { color: color.fg }]}>{label[0]}</Text>
-      </View>
-      <View style={styles.rowBody}>
-        <Text style={styles.name}>{label}</Text>
-        <Text style={styles.sub}>{person.phone}</Text>
-      </View>
+    <PersonRow
+      seed={person.id}
+      name={person.name ?? "Friend"}
+      sub={displayPhone(person.phone)}
+      style={selected ? styles.rowStaged : undefined}
+    >
       <Pressable
         style={[styles.action, filled && styles.actionAdd]}
         onPress={onPress}
@@ -320,7 +317,7 @@ function PersonRow({
       >
         <Feather name={icon} size={16} color={filled ? SQ.card : SQ.faint} />
       </Pressable>
-    </View>
+    </PersonRow>
   );
 }
 
@@ -333,7 +330,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingBottom: 6,
   },
-  delete: { fontFamily: Font.sansMedium, fontSize: 13, color: "#B3261E" },
+  delete: { fontFamily: Font.sansMedium, fontSize: 13, color: SQ.danger },
 
   titleWrap: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 4 },
   title: {
@@ -357,7 +354,7 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: "#B3261E",
+    color: SQ.danger,
     paddingHorizontal: 24,
     paddingTop: 8,
   },
@@ -380,32 +377,12 @@ const styles = StyleSheet.create({
   },
   eyebrowDivider: {
     borderTopWidth: 1,
-    borderTopColor: SQ.hair,
+    borderTopColor: SQ.rule,
     marginTop: 8,
     paddingTop: 18,
   },
 
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 13,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-  },
   rowStaged: { backgroundColor: SQ.fill },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: SQ.line,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: { fontFamily: Font.sansSemibold, fontSize: 15, color: SQ.ink },
-  rowBody: { flex: 1, minWidth: 0 },
-  name: { fontFamily: Font.sansSemibold, fontSize: 15, color: SQ.ink },
-  sub: { fontFamily: Font.mono, fontSize: 10.5, color: SQ.faint, marginTop: 2 },
 
   action: {
     width: 32,

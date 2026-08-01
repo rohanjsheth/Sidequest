@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: "#B3261E",
+    color: SQ.danger,
     textAlign: "center",
     marginBottom: 8,
   },

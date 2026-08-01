@@ -15,8 +15,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Font, SQ } from "@/constants/sidequest";
 import { api, ApiError } from "@/lib/api";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
+import { PersonRow } from "@/components/person-row";
 import { SkeletonChip, SkeletonPersonRow } from "@/components/skeleton";
-import { avatarColor } from "@/lib/avatar";
+import { displayPhone, formatUSPhone, normalizeUSPhone } from "@/lib/phone";
 
 type FriendUser = {
   id: string;
@@ -49,24 +50,8 @@ function personFromRow(row: FriendshipRow): Person {
     id: row.friendshipId,
     userId: row.user.id,
     name: row.user.name ?? "Friend",
-    sub: row.user.phone,
+    sub: displayPhone(row.user.phone),
   };
-}
-
-function normalizeUSPhone(text: string) {
-  let digits = text.replace(/\D/g, "");
-  if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
-  return digits.slice(0, 10);
-}
-
-function formatUSPhone(digits: string) {
-  const a = digits.slice(0, 3);
-  const b = digits.slice(3, 6);
-  const c = digits.slice(6, 10);
-  if (!digits) return "";
-  if (digits.length < 4) return `(${a}`;
-  if (digits.length < 7) return `(${a}) ${b}`;
-  return `(${a}) ${b}-${c}`;
 }
 
 export default function Friends() {
@@ -341,33 +326,14 @@ export default function Friends() {
             <Text style={styles.empty}>No pending requests.</Text>
           ) : (
             friendReq.map((p) => (
-              <View key={p.id} style={styles.row}>
-                <View
-                  style={[
-                    styles.avatar,
-                    { backgroundColor: avatarColor(p.userId).bg },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.avatarText,
-                      { color: avatarColor(p.userId).fg },
-                    ]}
-                  >
-                    {p.name[0]}
-                  </Text>
-                </View>
-                <View style={styles.rowBody}>
-                  <Text style={styles.name}>{p.name}</Text>
-                  <Text style={styles.sub}>{p.sub}</Text>
-                </View>
+              <PersonRow key={p.id} seed={p.userId} name={p.name} sub={p.sub}>
                 <Pressable style={styles.accept} onPress={() => accept(p.id)}>
                   <Text style={styles.acceptText}>Accept</Text>
                 </Pressable>
                 <Pressable style={styles.decline} onPress={() => decline(p.id)}>
-                  <Feather name="x" size={15} color="#AAAAAA" />
+                  <Feather name="x" size={15} color={SQ.ghost} />
                 </Pressable>
-              </View>
+              </PersonRow>
             ))
           )}
 
@@ -384,31 +350,13 @@ export default function Friends() {
             <Text style={styles.empty}>No friends yet.</Text>
           ) : (
             friends.map((p) => (
-              <View key={p.id} style={styles.row}>
-                <View
-                  style={[
-                    styles.avatar,
-                    { backgroundColor: avatarColor(p.userId).bg },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.avatarText,
-                      { color: avatarColor(p.userId).fg },
-                    ]}
-                  >
-                    {p.name[0]}
-                  </Text>
-                </View>
-                <View style={styles.rowBody}>
-                  <Text style={styles.name}>{p.name}</Text>
-                  <View style={styles.subRow}>
-                    {p.hosting ? <View style={styles.dot} /> : null}
-                    <Text style={[styles.sub, p.hosting && styles.subHosting]}>
-                      {p.sub}
-                    </Text>
-                  </View>
-                </View>
+              <PersonRow
+                key={p.id}
+                seed={p.userId}
+                name={p.name}
+                sub={p.sub}
+                accent={p.hosting}
+              >
                 <Pressable
                   style={styles.menuBtn}
                   onPress={() => openFriendMenu(p)}
@@ -416,7 +364,7 @@ export default function Friends() {
                 >
                   <Feather name="more-horizontal" size={18} color={SQ.faint} />
                 </Pressable>
-              </View>
+              </PersonRow>
             ))
           )}
         </ScrollView>
@@ -453,6 +401,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     paddingHorizontal: 24,
+    paddingTop: 14,
     paddingBottom: 12,
   },
   addInputWrap: {
@@ -488,7 +437,7 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: "#B3261E",
+    color: SQ.danger,
     paddingHorizontal: 24,
     paddingTop: 8,
   },
@@ -518,7 +467,7 @@ const styles = StyleSheet.create({
   },
   eyebrowDivider: {
     borderTopWidth: 1,
-    borderTopColor: SQ.hair,
+    borderTopColor: SQ.rule,
     marginTop: 8,
     paddingTop: 18,
   },
@@ -540,29 +489,6 @@ const styles = StyleSheet.create({
   chipNew: { backgroundColor: "transparent", borderStyle: "dashed", gap: 6 },
   chipNewText: { fontFamily: Font.sansMedium, fontSize: 13, color: SQ.muted },
 
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 13,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: SQ.line,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: { fontFamily: Font.sansSemibold, fontSize: 15, color: SQ.ink },
-  rowBody: { flex: 1, minWidth: 0 },
-  name: { fontFamily: Font.sansSemibold, fontSize: 15, color: SQ.ink },
-  sub: { fontFamily: Font.mono, fontSize: 10.5, color: SQ.faint, marginTop: 2 },
-  subRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 3 },
-  subHosting: { color: SQ.ink, marginTop: 0 },
-  dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: SQ.ink },
   menuBtn: {
     width: 32,
     height: 32,

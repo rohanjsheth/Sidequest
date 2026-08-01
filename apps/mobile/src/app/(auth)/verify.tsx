@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     overflow: "hidden",
   },
-  cellFilled: { backgroundColor: "#3A3A3A" },
+  cellFilled: { backgroundColor: SQ.flapTop },
   cellActive: { backgroundColor: SQ.fill, borderWidth: 2, borderColor: SQ.ink },
   cellEmpty: { backgroundColor: SQ.fill },
   cellBottom: {
@@ -210,9 +210,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 32,
-    backgroundColor: "#1B1B1B",
+    backgroundColor: SQ.flapBottom,
   },
-  cellDigit: { fontFamily: Font.monoBold, fontSize: 30, color: "#FFFFFF" },
+  cellDigit: { fontFamily: Font.monoBold, fontSize: 30, color: SQ.card },
   caret: { width: 2, height: 30, backgroundColor: SQ.ink },
 
   resendWrap: { paddingTop: 22, alignItems: "center" },
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: Font.mono,
     fontSize: 12,
-    color: "#B3261E",
+    color: SQ.danger,
     textAlign: "center",
     paddingTop: 22,
   },

@@ -34,6 +34,33 @@ export function compactCountdown(startsAt: string, now: number) {
   };
 }
 
+function isSameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+/** "Today 7:30 PM" · "Tomorrow 7:30 PM" · "Fri 7:30 PM" */
+export function formatWhen(startsAt: string, now = Date.now()) {
+  const date = new Date(startsAt);
+  const time = date.toLocaleString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  const today = new Date(now);
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  if (isSameDay(date, today)) return `Today ${time}`;
+  if (isSameDay(date, tomorrow)) return `Tomorrow ${time}`;
+
+  const day = date.toLocaleString(undefined, { weekday: "short" });
+  return `${day} ${time}`;
+}
+
 export function detailedCountdown(startsAt: string, now = Date.now()) {
   const totalMinutes = getTotalMinutes(startsAt, now);
   const days = Math.floor(totalMinutes / MINUTES_PER_DAY);

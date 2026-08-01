@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 import { SQ } from "@/constants/sidequest";
+import { ROW_METRICS } from "@/components/person-row";
 
 // one driver for every skeleton on screen — a loop per row would be wasteful
 const sweep = new Animated.Value(0);
@@ -65,7 +66,7 @@ export function Skeleton({
     <View
       onLayout={(e) => setMeasured(e.nativeEvent.layout.width)}
       style={[
-        { width, height, borderRadius: radius, backgroundColor: SQ.hair },
+        { width, height, borderRadius: radius, backgroundColor: SQ.rule },
         styles.clip,
         style,
       ]}
@@ -91,7 +92,11 @@ export function Skeleton({
 export function SkeletonPersonRow() {
   return (
     <View style={styles.row}>
-      <Skeleton width={44} height={44} radius={22} />
+      <Skeleton
+        width={ROW_METRICS.avatar}
+        height={ROW_METRICS.avatar}
+        radius={ROW_METRICS.avatar / 2}
+      />
       <View style={styles.rowBody}>
         <Skeleton width={132} height={13} />
         <Skeleton width={88} height={10} style={styles.rowSub} />
@@ -109,10 +114,10 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 13,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
+    gap: ROW_METRICS.gap,
+    paddingHorizontal: ROW_METRICS.paddingHorizontal,
+    paddingVertical: ROW_METRICS.paddingVertical,
   },
   rowBody: { flex: 1, minWidth: 0 },
-  rowSub: { marginTop: 7 },
+  rowSub: { marginTop: ROW_METRICS.subGap + 4 },
 });
