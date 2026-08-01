@@ -39,7 +39,7 @@ export default function TermsPage() {
               </p>
               <p>
                 If you do not agree, do not use Sidequest. Contact{" "}
-                <a href="mailto:support@sidequest.app">support@sidequest.app</a>{" "}
+                <a href="mailto:rsheth990@gmail.com">rsheth990@gmail.com</a>{" "}
                 with questions.
               </p>
             </div>
@@ -118,7 +118,7 @@ export default function TermsPage() {
               <p>
                 You can report a plan from inside the app using the ⋯ menu, or
                 email{" "}
-                <a href="mailto:support@sidequest.app">support@sidequest.app</a>{" "}
+                <a href="mailto:rsheth990@gmail.com">rsheth990@gmail.com</a>{" "}
                 with the relevant details. We review reports within 24 hours and
                 remove content or users that violate these terms.
               </p>
@@ -162,7 +162,7 @@ export default function TermsPage() {
 
         <footer className={styles.footer}>
           <span>Sidequest</span>
-          <span>support@sidequest.app</span>
+          <span>rsheth990@gmail.com</span>
         </footer>
       </div>
     </main>

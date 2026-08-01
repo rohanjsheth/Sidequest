@@ -89,7 +89,7 @@ export default function Home() {
           <h2>Support</h2>
           <p>
             For account, safety, or privacy questions, contact{" "}
-            <a href="mailto:support@sidequest.app">support@sidequest.app</a>.
+            <a href="mailto:rsheth990@gmail.com">rsheth990@gmail.com</a>.
           </p>
         </div>
       </section>

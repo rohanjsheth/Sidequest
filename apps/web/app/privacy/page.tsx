@@ -40,8 +40,7 @@ export default function PrivacyPage() {
               </p>
               <p>
                 If you have privacy questions, contact{" "}
-                <a href="mailto:support@sidequest.app">support@sidequest.app</a>
-                .
+                <a href="mailto:rsheth990@gmail.com">rsheth990@gmail.com</a>.
               </p>
             </div>
           </section>
@@ -148,7 +147,7 @@ export default function PrivacyPage() {
             <div className={styles.body}>
               <p>
                 If you see abusive, offensive, spammy, or unsafe content, email{" "}
-                <a href="mailto:support@sidequest.app">support@sidequest.app</a>{" "}
+                <a href="mailto:rsheth990@gmail.com">rsheth990@gmail.com</a>{" "}
                 with the plan, user, and reason. We review safety reports and
                 may remove content or restrict accounts.
               </p>
@@ -169,7 +168,7 @@ export default function PrivacyPage() {
 
         <footer className={styles.footer}>
           <span>Sidequest</span>
-          <span>support@sidequest.app</span>
+          <span>rsheth990@gmail.com</span>
         </footer>
       </div>
     </main>

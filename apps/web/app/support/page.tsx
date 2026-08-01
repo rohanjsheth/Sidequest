@@ -34,8 +34,8 @@ export default function SupportPage() {
             <div className={styles.body}>
               <div className={styles.callout}>
                 Email{" "}
-                <a href="mailto:support@sidequest.app">support@sidequest.app</a>{" "}
-                for account, privacy, safety, or product help.
+                <a href="mailto:rsheth990@gmail.com">rsheth990@gmail.com</a> for
+                account, privacy, safety, or product help.
               </div>
               <p>
                 Include your phone number only if it is needed to find your
@@ -78,8 +78,7 @@ export default function SupportPage() {
               <p>
                 To report harassment, hate, sexual content, spam, impersonation,
                 unsafe plans, or other objectionable content, email{" "}
-                <a href="mailto:support@sidequest.app">support@sidequest.app</a>
-                .
+                <a href="mailto:rsheth990@gmail.com">rsheth990@gmail.com</a>.
               </p>
               <p>
                 Include the plan title or share link, the user involved, what
@@ -104,7 +103,7 @@ export default function SupportPage() {
 
         <footer className={styles.footer}>
           <span>Sidequest</span>
-          <span>support@sidequest.app</span>
+          <span>rsheth990@gmail.com</span>
         </footer>
       </div>
     </main>

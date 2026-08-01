@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Font, SQ } from "@/constants/sidequest";
 import { api, ApiError } from "@/lib/api";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
+import { SkeletonChip, SkeletonPersonRow } from "@/components/skeleton";
 import { avatarColor } from "@/lib/avatar";
 
 type FriendUser = {
@@ -70,13 +71,12 @@ function formatUSPhone(digits: string) {
 
 export default function Friends() {
   const insets = useSafeAreaInsets();
-  const [friends, setFriends] = useState<Person[]>([]);
-  const [friendReq, setFriendReq] = useState<Person[]>([]);
-  const [lists, setLists] = useState<FriendList[]>([]);
+  const [friends, setFriends] = useState<Person[] | null>(null);
+  const [friendReq, setFriendReq] = useState<Person[] | null>(null);
+  const [lists, setLists] = useState<FriendList[] | null>(null);
   const [newListName, setNewListName] = useState("");
   const [namingList, setNamingList] = useState(false);
   const [creatingList, setCreatingList] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -86,7 +86,6 @@ export default function Friends() {
   const canRequest = phone.length === 10 && !sendingRequest;
 
   const loadFriends = useCallback(async () => {
-    setLoading(true);
     try {
       const [{ friends }, { requests }, { lists }] = await Promise.all([
         api<FriendsResponse>("/friends", { auth: true }),
@@ -99,8 +98,6 @@ export default function Friends() {
       setError(null);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -263,36 +260,46 @@ export default function Friends() {
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
         {notice ? <Text style={styles.notice}>{notice}</Text> : null}
-        {loading ? <Text style={styles.state}>Loading friends...</Text> : null}
 
         <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-          <Text style={styles.eyebrow}>LISTS · {lists.length}</Text>
+          <Text style={styles.eyebrow}>
+            LISTS{lists ? ` · ${lists.length}` : ""}
+          </Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.strip}
           >
-            {lists.map((l) => (
-              <Pressable
-                key={l.id}
-                style={styles.chip}
-                onPress={() => router.push(`/list/${l.id}`)}
-              >
-                <Text style={styles.chipName}>{l.name}</Text>
-                <Text style={styles.chipCount}>{l.memberCount}</Text>
-              </Pressable>
-            ))}
-            <Pressable
-              style={[styles.chip, styles.chipNew]}
-              onPress={toggleNamingList}
-            >
-              <Feather
-                name={namingList ? "x" : "plus"}
-                size={13}
-                color={SQ.muted}
-              />
-              <Text style={styles.chipNewText}>New list</Text>
-            </Pressable>
+            {lists === null ? (
+              <>
+                <SkeletonChip />
+                <SkeletonChip width={92} />
+              </>
+            ) : (
+              <>
+                {lists.map((l) => (
+                  <Pressable
+                    key={l.id}
+                    style={styles.chip}
+                    onPress={() => router.push(`/list/${l.id}`)}
+                  >
+                    <Text style={styles.chipName}>{l.name}</Text>
+                    <Text style={styles.chipCount}>{l.memberCount}</Text>
+                  </Pressable>
+                ))}
+                <Pressable
+                  style={[styles.chip, styles.chipNew]}
+                  onPress={toggleNamingList}
+                >
+                  <Feather
+                    name={namingList ? "x" : "plus"}
+                    size={13}
+                    color={SQ.muted}
+                  />
+                  <Text style={styles.chipNewText}>New list</Text>
+                </Pressable>
+              </>
+            )}
           </ScrollView>
 
           {namingList ? (
@@ -326,9 +333,11 @@ export default function Friends() {
           ) : null}
 
           <Text style={[styles.eyebrow, styles.eyebrowDivider]}>
-            REQUESTS · {friendReq.length}
+            REQUESTS{friendReq ? ` · ${friendReq.length}` : ""}
           </Text>
-          {friendReq.length === 0 ? (
+          {friendReq === null ? (
+            <SkeletonPersonRow />
+          ) : friendReq.length === 0 ? (
             <Text style={styles.empty}>No pending requests.</Text>
           ) : (
             friendReq.map((p) => (
@@ -363,9 +372,15 @@ export default function Friends() {
           )}
 
           <Text style={[styles.eyebrow, styles.eyebrowDivider]}>
-            ALL FRIENDS · {friends.length}
+            ALL FRIENDS{friends ? ` · ${friends.length}` : ""}
           </Text>
-          {friends.length === 0 ? (
+          {friends === null ? (
+            <>
+              <SkeletonPersonRow />
+              <SkeletonPersonRow />
+              <SkeletonPersonRow />
+            </>
+          ) : friends.length === 0 ? (
             <Text style={styles.empty}>No friends yet.</Text>
           ) : (
             friends.map((p) => (
@@ -481,13 +496,6 @@ const styles = StyleSheet.create({
     fontFamily: Font.mono,
     fontSize: 12,
     color: SQ.ink,
-    paddingHorizontal: 24,
-    paddingTop: 8,
-  },
-  state: {
-    fontFamily: Font.mono,
-    fontSize: 12,
-    color: SQ.faint,
     paddingHorizontal: 24,
     paddingTop: 8,
   },

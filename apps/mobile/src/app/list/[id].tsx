@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Font, SQ } from "@/constants/sidequest";
 import { api, ApiError } from "@/lib/api";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
+import { Skeleton, SkeletonPersonRow } from "@/components/skeleton";
 import { avatarColor } from "@/lib/avatar";
 
 type Member = {
@@ -36,18 +37,18 @@ export default function ListDetail() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const [name, setName] = useState("");
-  const [members, setMembers] = useState<Member[]>([]);
-  const [friends, setFriends] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [name, setName] = useState<string | null>(null);
+  const [members, setMembers] = useState<Member[] | null>(null);
+  const [friends, setFriends] = useState<Member[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [renaming, setRenaming] = useState(false);
   const [draftName, setDraftName] = useState("");
-  const [busyId, setBusyId] = useState<string | null>(null);
+  const [staged, setStaged] = useState<string[]>([]);
+  const [committing, setCommitting] = useState(false);
 
-  const memberIds = new Set(members.map((m) => m.id));
-  const candidates = friends.filter((f) => !memberIds.has(f.id));
+  const memberIds = new Set((members ?? []).map((m) => m.id));
+  const candidates = (friends ?? []).filter((f) => !memberIds.has(f.id));
 
   const load = useCallback(async () => {
     try {
@@ -61,8 +62,6 @@ export default function ListDetail() {
       setError(null);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
-    } finally {
-      setLoading(false);
     }
   }, [id]);
 
@@ -72,42 +71,65 @@ export default function ListDetail() {
     }, [load]),
   );
 
-  async function mutate(fn: () => Promise<unknown>, memberId: string) {
-    if (busyId) return;
+  function toggleStaged(memberId: string) {
+    setStaged((current) =>
+      current.includes(memberId)
+        ? current.filter((s) => s !== memberId)
+        : [...current, memberId],
+    );
+  }
+
+  async function commitAdds() {
+    if (staged.length === 0 || committing) return;
     setError(null);
-    setBusyId(memberId);
+    setCommitting(true);
+
+    const results = await Promise.allSettled(
+      staged.map((friendId) =>
+        api(`/lists/${id}/members`, {
+          method: "POST",
+          body: { friendId },
+          auth: true,
+        }),
+      ),
+    );
+
+    // 409 means they were already in the list — same end state, not a failure
+    const failed = results.filter(
+      (r) =>
+        r.status === "rejected" &&
+        !(r.reason instanceof ApiError && r.reason.status === 409),
+    );
+    if (failed.length > 0) {
+      setError(
+        failed.length === staged.length
+          ? "Couldn't add them. Try again."
+          : `Couldn't add ${failed.length} of them.`,
+      );
+    }
+
+    setStaged([]);
+    await load();
+    setCommitting(false);
+  }
+
+  async function removeMember(m: Member) {
+    const previous = members;
+    setMembers((current) => (current ?? []).filter((x) => x.id !== m.id));
+    setError(null);
     try {
-      await fn();
-      await load();
+      await api(`/lists/${id}/members/${m.id}`, {
+        method: "DELETE",
+        auth: true,
+      });
     } catch (err) {
+      setMembers(previous);
       setError(err instanceof ApiError ? err.message : "Something went wrong");
-    } finally {
-      setBusyId(null);
     }
   }
 
-  function addMember(m: Member) {
-    void mutate(
-      () =>
-        api(`/lists/${id}/members`, {
-          method: "POST",
-          body: { friendId: m.id },
-          auth: true,
-        }),
-      m.id,
-    );
-  }
-
-  function removeMember(m: Member) {
-    void mutate(
-      () =>
-        api(`/lists/${id}/members/${m.id}`, { method: "DELETE", auth: true }),
-      m.id,
-    );
-  }
-
   function startRename() {
-    setDraftName(name);
+    setDraftName(name ?? "");
     setRenaming(true);
   }
 
@@ -133,7 +155,7 @@ export default function ListDetail() {
 
   function confirmDelete() {
     Alert.alert(
-      `Delete "${name}"?`,
+      `Delete "${name ?? "this list"}"?`,
       "Plans you already sent to this list stay put — they just stop showing a list name.",
       [
         { text: "Cancel", style: "cancel" },
@@ -155,6 +177,8 @@ export default function ListDetail() {
     );
   }
 
+  const count = members?.length ?? 0;
+
   return (
     <ColorBlurBackground>
       <View style={styles.screen}>
@@ -168,7 +192,9 @@ export default function ListDetail() {
         </View>
 
         <View style={styles.titleWrap}>
-          {renaming ? (
+          {name === null ? (
+            <Skeleton width={190} height={30} radius={8} />
+          ) : renaming ? (
             <TextInput
               value={draftName}
               onChangeText={setDraftName}
@@ -180,24 +206,30 @@ export default function ListDetail() {
             />
           ) : (
             <Pressable onPress={startRename}>
-              <Text style={styles.title}>{name || " "}</Text>
+              <Text style={styles.title}>{name}</Text>
             </Pressable>
           )}
           <Text style={styles.subtitle}>
-            {members.length === 0
-              ? "Nobody yet — plans sent here reach no one"
-              : `${members.length} ${members.length === 1 ? "person" : "people"} get plans sent here`}
+            {members === null
+              ? " "
+              : count === 0
+                ? "Nobody yet — plans sent here reach no one"
+                : `${count} ${count === 1 ? "person" : "people"} get plans sent here`}
           </Text>
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
-        {loading ? <Text style={styles.state}>Loading...</Text> : null}
 
-        <ScrollView
-          contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
-        >
-          <Text style={styles.eyebrow}>IN THIS LIST · {members.length}</Text>
-          {members.length === 0 ? (
+        <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+          <Text style={styles.eyebrow}>
+            IN THIS LIST{members ? ` · ${count}` : ""}
+          </Text>
+          {members === null ? (
+            <>
+              <SkeletonPersonRow />
+              <SkeletonPersonRow />
+            </>
+          ) : count === 0 ? (
             <Text style={styles.empty}>Add friends below.</Text>
           ) : (
             members.map((m) => (
@@ -205,16 +237,21 @@ export default function ListDetail() {
                 key={m.id}
                 person={m}
                 icon="minus"
-                busy={busyId === m.id}
                 onPress={() => removeMember(m)}
               />
             ))
           )}
 
           <Text style={[styles.eyebrow, styles.eyebrowDivider]}>
-            ADD FRIENDS · {candidates.length}
+            ADD FRIENDS{friends ? ` · ${candidates.length}` : ""}
           </Text>
-          {candidates.length === 0 ? (
+          {friends === null ? (
+            <>
+              <SkeletonPersonRow />
+              <SkeletonPersonRow />
+              <SkeletonPersonRow />
+            </>
+          ) : candidates.length === 0 ? (
             <Text style={styles.empty}>
               {friends.length === 0
                 ? "No friends yet."
@@ -225,13 +262,29 @@ export default function ListDetail() {
               <PersonRow
                 key={f.id}
                 person={f}
-                icon="plus"
-                busy={busyId === f.id}
-                onPress={() => addMember(f)}
+                icon={staged.includes(f.id) ? "check" : "plus"}
+                selected={staged.includes(f.id)}
+                onPress={() => toggleStaged(f.id)}
               />
             ))
           )}
         </ScrollView>
+
+        {staged.length > 0 ? (
+          <View
+            style={[styles.commitBar, { paddingBottom: insets.bottom + 14 }]}
+          >
+            <Pressable
+              style={[styles.commit, committing && styles.commitOff]}
+              onPress={commitAdds}
+              disabled={committing}
+            >
+              <Text style={styles.commitText}>
+                {committing ? "Adding..." : `Add ${staged.length} to list`}
+              </Text>
+            </Pressable>
+          </View>
+        ) : null}
       </View>
     </ColorBlurBackground>
   );
@@ -240,18 +293,19 @@ export default function ListDetail() {
 function PersonRow({
   person,
   icon,
-  busy,
+  selected = false,
   onPress,
 }: {
   person: Member;
-  icon: "plus" | "minus";
-  busy: boolean;
+  icon: "plus" | "minus" | "check";
+  selected?: boolean;
   onPress: () => void;
 }) {
   const label = person.name ?? "Friend";
   const color = avatarColor(person.id);
+  const filled = icon !== "minus";
   return (
-    <View style={[styles.row, busy && styles.rowBusy]}>
+    <View style={[styles.row, selected && styles.rowStaged]}>
       <View style={[styles.avatar, { backgroundColor: color.bg }]}>
         <Text style={[styles.avatarText, { color: color.fg }]}>{label[0]}</Text>
       </View>
@@ -260,16 +314,11 @@ function PersonRow({
         <Text style={styles.sub}>{person.phone}</Text>
       </View>
       <Pressable
-        style={[styles.action, icon === "plus" && styles.actionAdd]}
+        style={[styles.action, filled && styles.actionAdd]}
         onPress={onPress}
-        disabled={busy}
         hitSlop={8}
       >
-        <Feather
-          name={icon}
-          size={16}
-          color={icon === "plus" ? SQ.card : SQ.faint}
-        />
+        <Feather name={icon} size={16} color={filled ? SQ.card : SQ.faint} />
       </Pressable>
     </View>
   );
@@ -312,13 +361,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 8,
   },
-  state: {
-    fontFamily: Font.mono,
-    fontSize: 12,
-    color: SQ.faint,
-    paddingHorizontal: 24,
-    paddingTop: 8,
-  },
   empty: {
     fontFamily: Font.mono,
     fontSize: 12,
@@ -350,7 +392,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 10,
   },
-  rowBusy: { opacity: 0.4 },
+  rowStaged: { backgroundColor: SQ.fill },
   avatar: {
     width: 44,
     height: 44,
@@ -375,4 +417,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   actionAdd: { backgroundColor: SQ.ink, borderColor: SQ.ink },
+
+  commitBar: {
+    borderTopWidth: 1,
+    borderTopColor: SQ.line,
+    backgroundColor: SQ.card,
+    paddingHorizontal: 24,
+    paddingTop: 14,
+  },
+  commit: {
+    backgroundColor: SQ.ink,
+    borderRadius: 13,
+    alignItems: "center",
+    paddingVertical: 16,
+  },
+  commitOff: { opacity: 0.35 },
+  commitText: { fontFamily: Font.sansSemibold, fontSize: 14, color: SQ.card },
 });
