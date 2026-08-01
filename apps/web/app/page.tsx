@@ -81,8 +81,9 @@ export default function Home() {
         <div>
           <h2>Controls for social safety</h2>
           <p>
-            Sidequest supports account deletion and is adding in-app reporting,
-            blocking, and moderation workflows for public beta.
+            Sidequest supports in-app reporting, blocking, and account deletion.
+            Reported content and users are reviewed, and we remove content or
+            restrict accounts that violate our terms.
           </p>
         </div>
         <div>
