@@ -1,18 +1,103 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import type { ComponentProps } from "react";
+import { useEffect } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import Animated, {
+  Easing,
+  Extrapolation,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Font, SQ } from "@/constants/sidequest";
+import { SQ } from "@/constants/sidequest";
 
 const LABELS: Record<string, string> = {
-  index: "BOARD",
-  friends: "FRIENDS",
-  activity: "ACTIVITY",
-  you: "YOU",
+  index: "Board",
+  friends: "Friends",
+  activity: "Activity",
+  you: "You",
 };
 
+type FeatherName = ComponentProps<typeof Feather>["name"];
+
+const ICONS: Record<string, FeatherName> = {
+  index: "home",
+  friends: "users",
+  activity: "bell",
+  you: "user",
+};
+
+// p drives the whole select animation: the icon pops first, the pill lands second.
+const SELECT_MS = 250;
+const DESELECT_MS = 105;
+
 type TabRoute = { key: string; name: string };
+
+type TabProps = {
+  route: TabRoute;
+  focused: boolean;
+  onPress: () => void;
+};
+
+function Tab({ route, focused, onPress }: TabProps) {
+  const p = useSharedValue(focused ? 1 : 0);
+
+  useEffect(() => {
+    p.value = withTiming(focused ? 1 : 0, {
+      duration: focused ? SELECT_MS : DESELECT_MS,
+      easing: Easing.linear,
+    });
+  }, [focused, p]);
+
+  const iconStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(p.value, [0, 0.45, 1], [1, 1.32, 1]) }],
+  }));
+
+  const pillStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(p.value, [0, 0.45, 1], [0, 0, 1]),
+    transform: [
+      {
+        scale: interpolate(
+          p.value,
+          [0.45, 1],
+          [0.75, 1],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
+  }));
+
+  const activeIconStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(p.value, [0.45, 0.85], [0, 1], Extrapolation.CLAMP),
+  }));
+
+  const name = ICONS[route.name] ?? "circle";
+
+  return (
+    <Pressable
+      style={styles.tab}
+      accessibilityLabel={LABELS[route.name] ?? route.name}
+      accessibilityRole="button"
+      accessibilityState={{ selected: focused }}
+      hitSlop={{ top: 18, bottom: 18, left: 12, right: 12 }}
+      onPress={onPress}
+    >
+      <View style={styles.iconWrap}>
+        <Animated.View style={[styles.pill, pillStyle]} />
+        <Animated.View style={iconStyle}>
+          <Feather name={name} size={21} color={SQ.ghost} />
+          <Animated.View style={[styles.iconOverlay, activeIconStyle]}>
+            <Feather name={name} size={21} color={SQ.card} />
+          </Animated.View>
+        </Animated.View>
+      </View>
+    </Pressable>
+  );
+}
 
 type Props = {
   routes: TabRoute[];
@@ -28,30 +113,28 @@ export function TabBar({ routes, activeIndex, onTab }: Props) {
     if (!route) return null;
     const focused = activeIndex === index;
     return (
-      <Pressable
+      <Tab
         key={route.key}
-        style={styles.tab}
-        hitSlop={{ top: 16, bottom: 16, left: 10, right: 10 }}
+        route={route}
+        focused={focused}
         onPress={() => {
           if (!focused) onTab(route.name, route.key);
         }}
-      >
-        <Text
-          style={[styles.label, focused && styles.labelActive]}
-          numberOfLines={1}
-        >
-          {LABELS[route.name] ?? route.name.toUpperCase()}
-        </Text>
-      </Pressable>
+      />
     );
   }
 
   return (
-    <View style={[styles.bar, { paddingBottom: insets.bottom + 12 }]}>
+    <View style={[styles.bar, { paddingBottom: Math.max(8, insets.bottom - 8) }]}>
       {renderTab(0)}
       {renderTab(1)}
-      <Pressable style={styles.fab} onPress={() => router.push("/create")}>
-        <Feather name="plus" size={23} color={SQ.card} />
+      <Pressable
+        accessibilityLabel="Create plan"
+        accessibilityRole="button"
+        style={styles.fab}
+        onPress={() => router.push("/create")}
+      >
+        <Feather name="plus" size={21} color={SQ.card} />
       </Pressable>
       {renderTab(2)}
       {renderTab(3)}
@@ -66,30 +149,45 @@ const styles = StyleSheet.create({
     backgroundColor: SQ.card,
     borderTopWidth: 1,
     borderTopColor: SQ.line,
-    paddingHorizontal: 22,
-    paddingTop: 14,
+    paddingHorizontal: 16,
+    paddingTop: 10,
   },
-  tab: { flex: 1, alignItems: "center", paddingVertical: 9 },
-  label: {
-    fontFamily: Font.mono,
-    fontSize: 11.5,
-    letterSpacing: 1.3,
-    color: SQ.ghost,
+  tab: {
+    flex: 1,
+    minHeight: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 1,
   },
-  labelActive: { fontFamily: Font.monoBold, color: SQ.ink },
-  // sits flush in the row, so it carries less weight than the old notched FAB
-  fab: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+  iconWrap: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pill: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: 999,
     backgroundColor: SQ.ink,
-    marginHorizontal: 8,
+  },
+  iconOverlay: {
+    ...StyleSheet.absoluteFill,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  fab: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: SQ.ink,
+    marginHorizontal: 10,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
-    shadowOpacity: 0.16,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
+    shadowOpacity: 0.13,
+    shadowRadius: 7,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
 });
