@@ -14,7 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, ApiError } from "@/lib/api";
-import { Font, SQ } from "@/constants/sidequest";
+import { Font, SQ, Type } from "@/constants/sidequest";
 
 export default function ReportScreen() {
   const insets = useSafeAreaInsets();
@@ -47,9 +47,9 @@ export default function ReportScreen() {
   if (done) {
     return (
       <View style={styles.screen}>
-        <View style={[styles.header, { paddingTop: insets.top + 14 }]}>
+        <View style={styles.header}>
           <View style={styles.headerSpacer} />
-          <Text style={styles.heading}>REPORT SENT</Text>
+          <Text style={styles.heading}>Report sent</Text>
           <View style={styles.headerSpacer} />
         </View>
         <View style={styles.doneBody}>
@@ -76,11 +76,11 @@ export default function ReportScreen() {
       style={styles.screen}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <View style={[styles.header, { paddingTop: insets.top + 14 }]}>
+      <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Text style={styles.cancel}>Cancel</Text>
         </Pressable>
-        <Text style={styles.heading}>REPORT PLAN</Text>
+        <Text style={styles.heading}>Report plan</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -124,11 +124,13 @@ export default function ReportScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: SQ.card },
+  // a modal sheet starts below the notch, so insets.top does not apply here
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 22,
+    paddingTop: 18,
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: SQ.rule,
@@ -136,9 +138,9 @@ const styles = StyleSheet.create({
   cancel: { fontFamily: Font.sans, fontSize: 13, color: SQ.muted },
   headerSpacer: { width: 42 },
   heading: {
-    fontFamily: Font.monoBold,
-    fontSize: 11,
-    letterSpacing: 2,
+    fontFamily: Font.sansBold,
+    fontSize: 20,
+    letterSpacing: -0.4,
     color: SQ.ink,
   },
 
@@ -148,7 +150,7 @@ const styles = StyleSheet.create({
   context: {
     paddingHorizontal: 24,
     paddingTop: 20,
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.faint,
   },
@@ -208,7 +210,7 @@ const styles = StyleSheet.create({
     color: SQ.ink,
   },
   doneSub: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12.5,
     lineHeight: 19,
     color: SQ.faint,

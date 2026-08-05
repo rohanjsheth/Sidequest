@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, ApiError } from "@/lib/api";
 import { useSession, type SessionUser } from "@/lib/session";
-import { Font, SQ } from "@/constants/sidequest";
+import { Font, SQ, Type } from "@/constants/sidequest";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
 
 const RESEND_SECONDS = 30;
@@ -91,7 +91,7 @@ export default function Verify() {
         <View style={styles.intro}>
           <Text style={styles.title}>Enter the code</Text>
           <Text style={styles.sub}>
-            Sent to +1 {formatUSPhone(phone ?? "")} ·{" "}
+            sent to +1 {formatUSPhone(phone ?? "")} ·{" "}
             <Text style={styles.edit} onPress={() => router.back()}>
               Edit
             </Text>
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     color: SQ.ink,
   },
   sub: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 13,
     lineHeight: 20,
     color: SQ.muted,
@@ -212,13 +212,13 @@ const styles = StyleSheet.create({
     height: 32,
     backgroundColor: SQ.flapBottom,
   },
-  cellDigit: { fontFamily: Font.monoBold, fontSize: 30, color: SQ.card },
+  cellDigit: { ...Type.tabularStrong, fontSize: 30, color: SQ.card },
   caret: { width: 2, height: 30, backgroundColor: SQ.ink },
 
   resendWrap: { paddingTop: 22, alignItems: "center" },
-  resend: { fontFamily: Font.mono, fontSize: 12, color: SQ.faint },
+  resend: { fontFamily: Font.sans, fontSize: 12, color: SQ.faint },
   error: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.danger,
     textAlign: "center",

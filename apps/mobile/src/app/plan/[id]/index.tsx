@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { api, ApiError } from "@/lib/api";
 import { detailedCountdown, formatWhen } from "@/lib/countdown";
 import { useSession } from "@/lib/session";
-import { Font, SQ } from "@/constants/sidequest";
+import { Font, SQ, Type } from "@/constants/sidequest";
 import { avatarColor } from "@/lib/avatar";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
 import { FlapRow } from "@/components/flap-tile";
@@ -267,7 +267,7 @@ export default function Plan() {
           <View style={styles.intro}>
             <View style={[styles.pill, plan.cancelled && styles.pillCancelled]}>
               <Text style={styles.pillText}>
-                {plan.cancelled ? "CANCELLED" : countdown.pill}
+                {plan.cancelled ? "cancelled" : countdown.pill}
               </Text>
             </View>
             <Text style={styles.title}>{plan.title}</Text>
@@ -287,13 +287,13 @@ export default function Plan() {
                   {hostName[0].toUpperCase()}
                 </Text>
               </View>
-              <Text style={styles.hostText}>Hosted by {hostName}</Text>
+              <Text style={styles.hostText}>hosted by {hostName}</Text>
             </View>
           </View>
 
           {plan.cancelled ? null : (
             <View style={styles.countdown}>
-              <Text style={styles.inLabel}>IN</Text>
+              <Text style={styles.inLabel}>in</Text>
               {countdown.units.map((unit, index) => (
                 <Fragment key={unit.label}>
                   {index > 0 ? <Text style={styles.colon}>:</Text> : null}
@@ -307,7 +307,7 @@ export default function Plan() {
           )}
 
           <View style={styles.goingCard}>
-            <Text style={styles.goingLabel}>{plan.going} GOING</Text>
+            <Text style={styles.goingLabel}>{plan.going} going</Text>
             <View style={styles.attendees}>
               {attendees.map((a) => (
                 <View key={a.id} style={styles.attendee}>
@@ -330,13 +330,13 @@ export default function Plan() {
                   <Text style={styles.attName} numberOfLines={1}>
                     {a.name}
                   </Text>
-                  {a.isHost ? <Text style={styles.attHost}>HOST</Text> : null}
+                  {a.isHost ? <Text style={styles.attHost}>host</Text> : null}
                 </View>
               ))}
             </View>
             {plan.audienceList ? (
               <Text style={styles.audience}>
-                Sent to {plan.audienceList.name}
+                sent to {plan.audienceList.name}
               </Text>
             ) : null}
           </View>
@@ -344,7 +344,11 @@ export default function Plan() {
           <View style={styles.details}>
             <View style={styles.detailRow}>
               <Feather name="clock" size={15} color={SQ.faint} />
-              <Text style={styles.detailText}>{formatWhen(plan.startsAt)}</Text>
+              <View style={styles.timeBadge}>
+                <Text style={styles.detailTime}>
+                  {formatWhen(plan.startsAt)}
+                </Text>
+              </View>
             </View>
             <View style={[styles.detailRow, styles.detailLast]}>
               <Feather name="map-pin" size={15} color={SQ.faint} />
@@ -404,17 +408,17 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   headerActions: { flexDirection: "row", gap: 18 },
-  headerBtn: { fontFamily: Font.mono, fontSize: 12.5, color: SQ.muted },
+  headerBtn: { ...Type.control, fontSize: 12.5, color: SQ.ink },
   headerBtnOff: { color: SQ.ghost },
   state: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12.5,
     color: SQ.faint,
     paddingHorizontal: 24,
     paddingTop: 24,
   },
   error: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.danger,
     paddingHorizontal: 24,
@@ -431,9 +435,8 @@ const styles = StyleSheet.create({
   },
   pillCancelled: { backgroundColor: SQ.danger },
   pillText: {
-    fontFamily: Font.monoSemibold,
+    ...Type.badge,
     fontSize: 9,
-    letterSpacing: 1.5,
     color: SQ.card,
   },
   title: {
@@ -459,8 +462,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  hostAvatarText: { fontFamily: Font.mono, fontSize: 9 },
-  hostText: { fontFamily: Font.mono, fontSize: 12, color: SQ.muted },
+  hostAvatarText: { fontFamily: Font.sans, fontSize: 9 },
+  hostText: { fontFamily: Font.sans, fontSize: 12, color: SQ.muted },
 
   countdown: {
     flexDirection: "row",
@@ -470,22 +473,22 @@ const styles = StyleSheet.create({
     paddingTop: 18,
   },
   inLabel: {
-    fontFamily: Font.monoBold,
+    ...Type.mechanical,
     fontSize: 15,
-    letterSpacing: 2,
+    letterSpacing: 1,
     color: SQ.ink,
     height: 42,
     lineHeight: 42,
   },
   cdUnit: { alignItems: "center", gap: 7 },
   cdUnitLabel: {
-    fontFamily: Font.mono,
-    fontSize: 8,
-    letterSpacing: 1.5,
+    ...Type.mechanicalLabel,
+    fontSize: 10,
+    letterSpacing: 0.75,
     color: SQ.faint,
   },
   colon: {
-    fontFamily: Font.monoBold,
+    ...Type.mechanical,
     fontSize: 20,
     color: SQ.ghost,
     height: 42,
@@ -504,16 +507,15 @@ const styles = StyleSheet.create({
     paddingBottom: 18,
   },
   goingLabel: {
-    fontFamily: Font.mono,
-    fontSize: 11,
-    letterSpacing: 1.5,
-    color: SQ.faint,
+    ...Type.label,
+    fontSize: 13,
+    color: SQ.muted,
     marginBottom: 15,
     paddingHorizontal: 2,
   },
   attendees: { flexDirection: "row", flexWrap: "wrap", gap: 14 },
   audience: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 10.5,
     color: SQ.faint,
     marginTop: 16,
@@ -541,15 +543,14 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   attName: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 10.5,
     color: SQ.text,
     maxWidth: "100%",
   },
   attHost: {
-    fontFamily: Font.monoBold,
-    fontSize: 8,
-    letterSpacing: 1,
+    ...Type.labelStrong,
+    fontSize: 9.5,
     color: SQ.ink,
     marginTop: -3,
   },
@@ -564,9 +565,22 @@ const styles = StyleSheet.create({
     borderBottomColor: SQ.rule,
   },
   detailLast: { borderBottomWidth: 0 },
+  // the time is ours to set — same mono badge as the board row. the venue below
+  // it is the user's words, so it stays Inter and stays as they typed it.
+  timeBadge: {
+    backgroundColor: SQ.ink,
+    borderRadius: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  detailTime: {
+    ...Type.metaMedium,
+    fontSize: 12.5,
+    color: SQ.card,
+  },
   detailText: {
     flex: 1,
-    fontFamily: Font.mono,
+    fontFamily: Font.sansSemibold,
     fontSize: 12.5,
     color: SQ.ink,
   },
@@ -615,6 +629,6 @@ const styles = StyleSheet.create({
   rsvpDivider: { borderLeftWidth: 1, borderLeftColor: SQ.line },
   rsvpActive: { backgroundColor: SQ.ink },
   rsvpOff: { opacity: 0.45 },
-  rsvpText: { fontFamily: Font.monoSemibold, fontSize: 13, color: SQ.ink },
+  rsvpText: { ...Type.controlStrong, fontSize: 13, color: SQ.ink },
   rsvpTextActive: { color: SQ.card },
 });

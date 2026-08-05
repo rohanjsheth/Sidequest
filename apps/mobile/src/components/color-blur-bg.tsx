@@ -14,10 +14,10 @@ const BASE = "#FFFFFF";
 // soft color pools toward the top, washing down into the light base.
 // cx: fraction of width · cy: px from top · r: ×width (bigger r reaches lower). tune freely.
 const BLOBS = [
-  { color: "#5C8DF0", cx: 0.22, cy: 15, r: 0.35, opacity: 0.5 }, // blue
-  { color: "#74C0FF", cx: 0.82, cy: 10, r: 0.36, opacity: 0.4 }, // sky
-  { color: "#FF6F9C", cx: 0.5, cy: 25, r: 0.32, opacity: 0.4 }, // rose
-  { color: "#FFC56B", cx: 0.3, cy: 50, r: 0.34, opacity: 0.37 }, // gold
+  { color: "#5C8DF0", cx: 0.22, cy: 15, r: 0.68, opacity: 0.5 }, // blue
+  { color: "#74C0FF", cx: 0.82, cy: 10, r: 0.7, opacity: 0.4 }, // sky
+  { color: "#FF6F9C", cx: 0.5, cy: 60, r: 0.64, opacity: 0.4 }, // rose
+  { color: "#FFC56B", cx: 0.3, cy: 110, r: 0.66, opacity: 0.37 }, // gold
 ];
 
 export function ColorBlurBackground({ children }: { children: ReactNode }) {

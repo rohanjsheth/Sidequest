@@ -13,7 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, ApiError } from "@/lib/api";
-import { Font, SQ } from "@/constants/sidequest";
+import { Font, SQ, Type } from "@/constants/sidequest";
 
 type FriendList = { id: string; name: string; memberCount: number };
 
@@ -85,11 +85,11 @@ export default function CreateScreen() {
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 14 }]}>
+      <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Text style={styles.cancel}>Cancel</Text>
         </Pressable>
-        <Text style={styles.heading}>NEW PLAN</Text>
+        <Text style={styles.heading}>New plan</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -110,7 +110,7 @@ export default function CreateScreen() {
         <View style={styles.fields}>
           <View style={styles.row}>
             <Feather name="clock" size={16} color={SQ.faint} />
-            <Text style={styles.rowLabel}>WHEN</Text>
+            <Text style={styles.rowLabel}>when</Text>
             <View style={styles.rowControl}>
               <Host matchContents>
                 <DatePicker
@@ -124,7 +124,7 @@ export default function CreateScreen() {
 
           <View style={styles.row}>
             <Feather name="map-pin" size={16} color={SQ.faint} />
-            <Text style={styles.rowLabel}>WHERE</Text>
+            <Text style={styles.rowLabel}>where</Text>
             <TextInput
               value={location}
               onChangeText={setLocation}
@@ -139,7 +139,7 @@ export default function CreateScreen() {
             onPress={() => setPickingAudience((open) => !open)}
           >
             <Feather name="users" size={16} color={SQ.faint} />
-            <Text style={styles.rowLabel}>WHO</Text>
+            <Text style={styles.rowLabel}>who</Text>
             <Text style={styles.rowValue}>
               {audience ? audience.name : "Everyone"}
             </Text>
@@ -216,11 +216,13 @@ export default function CreateScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: SQ.card },
+  // a modal sheet starts below the notch, so insets.top does not apply here
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 22,
+    paddingTop: 18,
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: SQ.rule,
@@ -228,9 +230,9 @@ const styles = StyleSheet.create({
   cancel: { fontFamily: Font.sans, fontSize: 13, color: SQ.muted },
   headerSpacer: { width: 42 },
   heading: {
-    fontFamily: Font.monoBold,
-    fontSize: 11,
-    letterSpacing: 2,
+    fontFamily: Font.sansBold,
+    fontSize: 20,
+    letterSpacing: -0.4,
     color: SQ.ink,
   },
 
@@ -259,10 +261,9 @@ const styles = StyleSheet.create({
   },
   rowLast: { borderBottomWidth: 0 },
   rowLabel: {
+    ...Type.label,
     width: 54,
-    fontFamily: Font.mono,
     fontSize: 10,
-    letterSpacing: 1.5,
     color: SQ.faint,
   },
   rowControl: { flex: 1, alignItems: "flex-start" },
@@ -298,13 +299,13 @@ const styles = StyleSheet.create({
   optionBody: { flex: 1 },
   optionName: { fontFamily: Font.sansSemibold, fontSize: 14, color: SQ.ink },
   optionHint: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 10.5,
     color: SQ.faint,
     marginTop: 2,
   },
   optionEmpty: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 11,
     lineHeight: 16,
     color: SQ.faint,
@@ -313,7 +314,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   caution: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 11,
     color: SQ.danger,
     paddingTop: 2,

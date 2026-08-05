@@ -84,13 +84,13 @@ export default function Activity() {
           <ScrollView
             contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
           >
-            {activity.map((a, index) => {
+            {activity.map((a) => {
               const name = a.attendee.name ?? "Someone";
               const c = avatarColor(a.attendee.id);
               return (
                 <Pressable
                   key={a.id}
-                  style={[styles.row, index === 0 && styles.rowFirst]}
+                  style={styles.row}
                   onPress={() => router.push(`/plan/${a.event.id}`)}
                 >
                   <View style={[styles.avatar, { backgroundColor: c.bg }]}>
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   },
 
   empty: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 13,
     color: SQ.faint,
     textAlign: "center",
@@ -135,14 +135,14 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   state: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.faint,
     paddingHorizontal: 24,
     paddingTop: 8,
   },
   error: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.danger,
     paddingHorizontal: 24,
@@ -155,11 +155,7 @@ const styles = StyleSheet.create({
     gap: 13,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: SQ.rule,
   },
-  // the top-most rule would cut straight through the color wash
-  rowFirst: { borderTopWidth: 0 },
   avatar: {
     width: 40,
     height: 40,
@@ -173,8 +169,8 @@ const styles = StyleSheet.create({
 
   text: { flex: 1, fontSize: 13.5, lineHeight: 19 },
   name: { fontFamily: Font.sansSemibold, color: SQ.ink },
-  verb: { fontFamily: Font.mono, fontSize: 12, color: SQ.faint },
+  verb: { fontFamily: Font.sans, fontSize: 12, color: SQ.faint },
   event: { fontFamily: Font.sansSemibold, color: SQ.ink },
 
-  time: { fontFamily: Font.mono, fontSize: 10.5, color: SQ.ghost },
+  time: { fontFamily: Font.sans, fontSize: 10.5, color: SQ.ghost },
 });

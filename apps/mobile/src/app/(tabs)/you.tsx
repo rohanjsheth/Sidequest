@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
 
   editWrap: { paddingHorizontal: 24, paddingTop: 24 },
   error: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.danger,
     textAlign: "center",

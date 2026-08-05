@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Font, SQ } from "@/constants/sidequest";
+import { Font, SQ, Type } from "@/constants/sidequest";
 
 const WEB_BASE = (
   process.env.EXPO_PUBLIC_WEB_URL ?? "http://localhost:3001"
@@ -39,6 +39,8 @@ function FlapTile({ d }: { d: string }) {
   return (
     <View style={flap.tile}>
       <View style={flap.bottom} />
+      <View style={flap.seam} />
+      <View style={flap.gloss} />
       <Text style={flap.digit}>{d}</Text>
     </View>
   );
@@ -118,10 +120,9 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: SQ.card },
   wordmark: {
+    ...Type.brand,
     paddingHorizontal: 28,
-    fontFamily: Font.monoBold,
     fontSize: 16,
-    letterSpacing: 3.5,
     color: SQ.ink,
   },
 
@@ -139,13 +140,13 @@ const styles = StyleSheet.create({
   cardBody: { flex: 1, minWidth: 0 },
   cardTitle: { fontFamily: Font.sansSemibold, fontSize: 14, color: SQ.ink },
   cardSub: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 10,
     color: SQ.faint,
     marginTop: 3,
   },
   cardCount: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 10,
     letterSpacing: 1,
     color: SQ.ghost,
@@ -162,7 +163,7 @@ const styles = StyleSheet.create({
     color: SQ.ink,
   },
   sub: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 13,
     lineHeight: 20,
     color: SQ.muted,
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
   },
   ctaText: { fontFamily: Font.sansSemibold, fontSize: 14, color: SQ.card },
   terms: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 10,
     lineHeight: 15,
     color: SQ.faint,
@@ -207,5 +208,21 @@ const flap = StyleSheet.create({
     height: 15,
     backgroundColor: SQ.flapBottom,
   },
-  digit: { fontFamily: Font.monoBold, fontSize: 16, color: SQ.card },
+  seam: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 15 - StyleSheet.hairlineWidth,
+    height: StyleSheet.hairlineWidth * 2,
+    backgroundColor: SQ.flapSeam,
+  },
+  gloss: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.09)",
+  },
+  digit: { ...Type.mechanical, fontSize: 16, color: SQ.card },
 });

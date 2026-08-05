@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Font, SQ } from "@/constants/sidequest";
+import { Font, SQ, Type } from "@/constants/sidequest";
 import { api, ApiError } from "@/lib/api";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
 import { PersonRow } from "@/components/person-row";
@@ -244,7 +244,7 @@ export default function ListDetail() {
           )}
 
           <Text style={[styles.eyebrow, styles.eyebrowDivider]}>
-            ADD FRIENDS{friends ? ` · ${candidates.length}` : ""}
+            add friends{friends ? ` · ${candidates.length}` : ""}
           </Text>
           {friends === null ? (
             <>
@@ -345,21 +345,21 @@ const styles = StyleSheet.create({
     borderBottomColor: SQ.ink,
   },
   subtitle: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 11,
     color: SQ.faint,
     marginTop: 6,
   },
 
   error: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.danger,
     paddingHorizontal: 24,
     paddingTop: 8,
   },
   empty: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.faint,
     paddingHorizontal: 24,
@@ -367,10 +367,9 @@ const styles = StyleSheet.create({
   },
 
   eyebrow: {
-    fontFamily: Font.mono,
-    fontSize: 10,
-    letterSpacing: 1.5,
-    color: SQ.faint,
+    ...Type.label,
+    fontSize: 13,
+    color: SQ.text,
     paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 8,

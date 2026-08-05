@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Font, SQ } from "@/constants/sidequest";
+import { Font, SQ, Type } from "@/constants/sidequest";
 import { api, ApiError } from "@/lib/api";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
 import { PersonRow } from "@/components/person-row";
@@ -218,7 +218,7 @@ export default function Friends() {
         {adding ? (
           <View style={styles.addPanel}>
             <View style={styles.addInputWrap}>
-              <Text style={styles.addLabel}>PHONE</Text>
+              <Text style={styles.addLabel}>phone</Text>
               <TextInput
                 value={formatUSPhone(phone)}
                 onChangeText={(value) => setPhone(normalizeUSPhone(value))}
@@ -248,7 +248,7 @@ export default function Friends() {
 
         <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
           <Text style={styles.eyebrow}>
-            LISTS{lists ? ` · ${lists.length}` : ""}
+            lists{lists ? ` · ${lists.length}` : ""}
           </Text>
           <ScrollView
             horizontal
@@ -290,7 +290,7 @@ export default function Friends() {
           {namingList ? (
             <View style={styles.addPanel}>
               <View style={styles.addInputWrap}>
-                <Text style={styles.addLabel}>LIST NAME</Text>
+                <Text style={styles.addLabel}>list name</Text>
                 <TextInput
                   value={newListName}
                   onChangeText={setNewListName}
@@ -318,12 +318,10 @@ export default function Friends() {
           ) : null}
 
           <Text style={[styles.eyebrow, styles.eyebrowDivider]}>
-            REQUESTS{friendReq ? ` · ${friendReq.length}` : ""}
+            requests{friendReq ? ` · ${friendReq.length}` : ""}
           </Text>
           {friendReq === null ? (
             <SkeletonPersonRow />
-          ) : friendReq.length === 0 ? (
-            <Text style={styles.empty}>No pending requests.</Text>
           ) : (
             friendReq.map((p) => (
               <PersonRow key={p.id} seed={p.userId} name={p.name} sub={p.sub}>
@@ -338,7 +336,7 @@ export default function Friends() {
           )}
 
           <Text style={[styles.eyebrow, styles.eyebrowDivider]}>
-            ALL FRIENDS{friends ? ` · ${friends.length}` : ""}
+            all friends{friends ? ` · ${friends.length}` : ""}
           </Text>
           {friends === null ? (
             <>
@@ -414,13 +412,12 @@ const styles = StyleSheet.create({
     paddingBottom: 9,
   },
   addLabel: {
-    fontFamily: Font.mono,
+    ...Type.label,
     fontSize: 9,
-    letterSpacing: 1.3,
-    color: SQ.faint,
+    color: SQ.text,
   },
   addInput: {
-    fontFamily: Font.monoMedium,
+    fontFamily: Font.sansMedium,
     fontSize: 16,
     color: SQ.ink,
     padding: 0,
@@ -435,21 +432,21 @@ const styles = StyleSheet.create({
   sendOff: { opacity: 0.35 },
   sendText: { fontFamily: Font.sansSemibold, fontSize: 13, color: SQ.card },
   error: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.danger,
     paddingHorizontal: 24,
     paddingTop: 8,
   },
   notice: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.ink,
     paddingHorizontal: 24,
     paddingTop: 8,
   },
   empty: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.faint,
     paddingHorizontal: 24,
@@ -457,17 +454,15 @@ const styles = StyleSheet.create({
   },
 
   eyebrow: {
-    fontFamily: Font.mono,
-    fontSize: 10,
-    letterSpacing: 1.5,
-    color: SQ.faint,
+    ...Type.label,
+    fontSize: 13,
+    color: SQ.text,
     paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 8,
   },
+  // no rule any more — the space alone marks the section break
   eyebrowDivider: {
-    borderTopWidth: 1,
-    borderTopColor: SQ.rule,
     marginTop: 8,
     paddingTop: 18,
   },
@@ -485,8 +480,14 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
   },
   chipName: { fontFamily: Font.sansSemibold, fontSize: 13, color: SQ.ink },
-  chipCount: { fontFamily: Font.mono, fontSize: 11, color: SQ.faint },
-  chipNew: { backgroundColor: "transparent", borderStyle: "dashed", gap: 6 },
+  chipCount: { fontFamily: Font.sans, fontSize: 11, color: SQ.faint },
+  // half-filled rather than empty — still reads as the odd one out next to the
+  // solid chips, but it no longer disappears into whatever wash is behind it
+  chipNew: {
+    backgroundColor: "rgba(255,255,255,0.5)",
+    borderStyle: "dashed",
+    gap: 6,
+  },
   chipNewText: { fontFamily: Font.sansMedium, fontSize: 13, color: SQ.muted },
 
   menuBtn: {

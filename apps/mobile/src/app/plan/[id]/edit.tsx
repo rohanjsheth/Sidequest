@@ -14,7 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, ApiError } from "@/lib/api";
-import { Font, SQ } from "@/constants/sidequest";
+import { Font, SQ, Type } from "@/constants/sidequest";
 
 type Plan = {
   id: string;
@@ -140,11 +140,11 @@ export default function EditPlan() {
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 14 }]}>
+      <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Text style={styles.cancel}>Cancel</Text>
         </Pressable>
-        <Text style={styles.heading}>EDIT PLAN</Text>
+        <Text style={styles.heading}>Edit plan</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -166,7 +166,7 @@ export default function EditPlan() {
         <View style={styles.fields}>
           <View style={styles.row}>
             <Feather name="clock" size={16} color={SQ.faint} />
-            <Text style={styles.rowLabel}>WHEN</Text>
+            <Text style={styles.rowLabel}>when</Text>
             <View style={styles.rowControl}>
               {loaded ? (
                 <Host matchContents>
@@ -182,7 +182,7 @@ export default function EditPlan() {
 
           <View style={[styles.row, styles.rowLast]}>
             <Feather name="map-pin" size={16} color={SQ.faint} />
-            <Text style={styles.rowLabel}>WHERE</Text>
+            <Text style={styles.rowLabel}>where</Text>
             <TextInput
               value={location}
               onChangeText={setLocation}
@@ -236,11 +236,13 @@ export default function EditPlan() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: SQ.card },
+  // a modal sheet starts below the notch, so insets.top does not apply here
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 22,
+    paddingTop: 18,
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: SQ.rule,
@@ -248,9 +250,9 @@ const styles = StyleSheet.create({
   cancel: { fontFamily: Font.sans, fontSize: 13, color: SQ.muted },
   headerSpacer: { width: 42 },
   heading: {
-    fontFamily: Font.monoBold,
-    fontSize: 11,
-    letterSpacing: 2,
+    fontFamily: Font.sansBold,
+    fontSize: 20,
+    letterSpacing: -0.4,
     color: SQ.ink,
   },
 
@@ -280,7 +282,7 @@ const styles = StyleSheet.create({
   rowLast: { borderBottomWidth: 0 },
   rowLabel: {
     width: 54,
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 10,
     letterSpacing: 1.5,
     color: SQ.faint,

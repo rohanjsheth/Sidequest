@@ -17,11 +17,18 @@ import { SessionProvider, useSession } from "@/lib/session";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  // both sans families are registered whichever one `SANS` names — an unused
+  // face costs ~68kb in the bundle and nothing at runtime, and keeping them both
+  // loaded is what makes the switch a one-line change
   const [loaded] = useFonts({
     Inter_400: require("@/assets/fonts/Inter_400.ttf"),
     Inter_500: require("@/assets/fonts/Inter_500.ttf"),
     Inter_600: require("@/assets/fonts/Inter_600.ttf"),
     Inter_700: require("@/assets/fonts/Inter_700.ttf"),
+    InstrumentSans_400: require("@/assets/fonts/InstrumentSans_400.ttf"),
+    InstrumentSans_500: require("@/assets/fonts/InstrumentSans_500.ttf"),
+    InstrumentSans_600: require("@/assets/fonts/InstrumentSans_600.ttf"),
+    InstrumentSans_700: require("@/assets/fonts/InstrumentSans_700.ttf"),
     Recursive_400: require("@/assets/fonts/Recursive_400.ttf"),
     Recursive_500: require("@/assets/fonts/Recursive_500.ttf"),
     Recursive_600: require("@/assets/fonts/Recursive_600.ttf"),

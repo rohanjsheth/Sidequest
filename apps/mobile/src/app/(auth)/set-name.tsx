@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     color: SQ.ink,
   },
   sub: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 13,
     lineHeight: 20,
     color: SQ.muted,
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   },
   underline: { width: 160, height: 2, backgroundColor: SQ.ink, marginTop: -6 },
   caption: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 10,
     letterSpacing: 0.5,
     color: SQ.faint,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
 
   footer: { paddingHorizontal: 24, paddingTop: 14 },
   error: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.danger,
     textAlign: "center",

@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, ApiError } from "@/lib/api";
-import { Font, SQ } from "@/constants/sidequest";
+import { Font, SQ, Type } from "@/constants/sidequest";
 import { ColorBlurBackground } from "@/components/color-blur-bg";
 
 function formatUSPhone(d: string) {
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     color: SQ.ink,
   },
   sub: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 13,
     lineHeight: 20,
     color: SQ.muted,
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   number: {
-    fontFamily: Font.monoMedium,
+    ...Type.tabular,
     fontSize: 24,
     letterSpacing: 1,
     color: SQ.ink,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   ctaOff: { opacity: 0.35 },
   ctaText: { fontFamily: Font.sansSemibold, fontSize: 14, color: SQ.card },
   error: {
-    fontFamily: Font.mono,
+    fontFamily: Font.sans,
     fontSize: 12,
     color: SQ.danger,
     textAlign: "center",

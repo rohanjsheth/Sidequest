@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     gap: 5,
     marginTop: ROW_METRICS.subGap,
   },
-  sub: { flex: 1, fontFamily: Font.mono, fontSize: 10.5, color: SQ.faint },
+  sub: { flex: 1, fontFamily: Font.sans, fontSize: 10.5, color: SQ.faint },
   subAccent: { color: SQ.ink },
   dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: SQ.ink },
 });
