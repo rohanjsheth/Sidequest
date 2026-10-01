@@ -56,6 +56,7 @@ export function GoingConfirmation({
 
       <div
         style={{
+          fontFamily: font.sans,
           fontSize: 13,
           color: colors.muted,
           lineHeight: 1.6,
@@ -72,9 +73,9 @@ export function GoingConfirmation({
       <div
         style={{
           width: "100%",
-          background: colors.card,
-          border: `1px solid ${colors.hair}`,
-          borderRadius: 16,
+          background: colors.fill,
+          border: `1px solid ${colors.rule}`,
+          borderRadius: 20,
           padding: "6px 18px",
           marginTop: 26,
         }}
@@ -156,7 +157,7 @@ function ChecklistRow({
         alignItems: "center",
         gap: 11,
         padding: "13px 0",
-        borderBottom: last ? undefined : "1px solid #F2F2F2",
+        borderBottom: last ? undefined : `1px solid ${colors.line}`,
       }}
     >
       <Check size={15} stroke={colors.ink} />
@@ -212,23 +213,24 @@ function Check({
 
 const primaryBtn: React.CSSProperties = {
   background: colors.ink,
-  color: "#fff",
+  color: colors.card,
   border: "none",
-  borderRadius: 13,
+  borderRadius: 11,
   padding: "16px 0",
   fontSize: 14,
   fontWeight: 600,
-  fontFamily: font.sans,
+  fontFamily: font.mono,
   cursor: "pointer",
 };
 
 const ghostBtn: React.CSSProperties = {
   background: "transparent",
-  border: "1.5px solid #E2E2DD",
-  borderRadius: 13,
+  color: colors.ink,
+  border: `1px solid ${colors.ink}`,
+  borderRadius: 11,
   padding: "14px 0",
   fontSize: 13,
   fontWeight: 600,
-  fontFamily: font.sans,
+  fontFamily: font.mono,
   cursor: "pointer",
 };

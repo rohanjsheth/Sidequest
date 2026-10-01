@@ -38,55 +38,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function SharePage({ params }: Props) {
   const { token } = await params;
   const event = await getEvent(token);
-  const host = event.host.name ?? "Someone";
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: colors.surface,
-        display: "flex",
-        justifyContent: "center",
-      }}
-    >
-      <div style={{ width: "100%", maxWidth: 440, padding: "20px 18px 40px" }}>
-        <div style={{ textAlign: "center" }}>
-          <span style={{ fontSize: 13, letterSpacing: 3, fontWeight: 700 }}>
-            SIDEQUEST
-          </span>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            padding: "16px 0",
-          }}
-        >
-          <span
+    <main style={{ minHeight: "100vh", display: "flex", justifyContent: "center" }}>
+      <div style={{ width: "100%", maxWidth: 440, padding: "22px 24px 40px" }}>
+        <div style={{ paddingBottom: 26 }}>
+          <a
+            href="/"
             style={{
-              width: 24,
-              height: 24,
-              borderRadius: "50%",
-              background: "#A0A0A0",
-              color: "#fff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 10,
-              fontFamily: font.sans,
-              fontWeight: 600,
+              fontFamily: font.mono,
+              fontWeight: 700,
+              fontSize: 13,
+              letterSpacing: 3.5,
+              color: colors.ink,
             }}
           >
-            {host[0]?.toUpperCase()}
-          </span>
-          <span
-            style={{ fontSize: 12, color: colors.muted, fontFamily: font.sans }}
-          >
-            <b style={{ color: colors.ink }}>{host}</b> invited you to a plan
-          </span>
+            SIDEQUEST
+          </a>
         </div>
 
         <PlanCard event={event} />
@@ -95,13 +63,14 @@ export default async function SharePage({ params }: Props) {
         <div
           style={{
             textAlign: "center",
-            padding: "24px 0 0",
+            padding: "28px 0 0",
+            fontFamily: font.sans,
             fontSize: 11,
             color: colors.faint,
             lineHeight: 1.6,
           }}
         >
-          Sidequest — plans with friends,
+          sidequest — plans with friends,
           <br />
           minus the group chat.
         </div>

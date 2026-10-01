@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
-import { Inter, Recursive } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Instrument_Sans, Recursive } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const sans = Instrument_Sans({ subsets: ["latin"], variable: "--font-sans" });
 const recursive = Recursive({
   subsets: ["latin"],
   variable: "--font-recursive",
@@ -21,12 +21,20 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#FFFFFF",
+  colorScheme: "light",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${recursive.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={`${sans.variable} ${recursive.variable}`}>
+      <body>
+        <div className="sq-blur" aria-hidden />
+        {children}
+      </body>
     </html>
   );
 }

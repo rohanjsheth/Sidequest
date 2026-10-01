@@ -17,16 +17,16 @@ export default function PrivacyPage() {
             SIDEQUEST
           </Link>
           <div className={styles.navLinks}>
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
-            <Link href="/support">Support</Link>
+            <Link href="/privacy">privacy</Link>
+            <Link href="/terms">terms</Link>
+            <Link href="/support">support</Link>
           </div>
         </nav>
 
         <header className={styles.hero}>
-          <p className={styles.kicker}>Privacy Policy</p>
+          <p className={styles.kicker}>privacy policy</p>
           <h1>How Sidequest handles your information.</h1>
-          <p className={styles.updated}>Last updated: June 25, 2026</p>
+          <p className={styles.updated}>last updated: June 25, 2026</p>
         </header>
 
         <div className={styles.content}>
@@ -167,7 +167,7 @@ export default function PrivacyPage() {
         </div>
 
         <footer className={styles.footer}>
-          <span>Sidequest</span>
+          <span>sidequest</span>
           <span>rsheth990@gmail.com</span>
         </footer>
       </div>

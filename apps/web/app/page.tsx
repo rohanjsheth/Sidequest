@@ -2,9 +2,9 @@ import Link from "next/link";
 import styles from "./page.module.css";
 
 const links = [
-  { href: "/privacy", label: "Privacy" },
-  { href: "/terms", label: "Terms" },
-  { href: "/support", label: "Support" },
+  { href: "/privacy", label: "privacy" },
+  { href: "/terms", label: "terms" },
+  { href: "/support", label: "support" },
 ];
 
 export default function Home() {
@@ -26,7 +26,7 @@ export default function Home() {
 
         <div className={styles.heroGrid}>
           <div className={styles.copy}>
-            <p className={styles.kicker}>Plans with friends</p>
+            <p className={styles.kicker}>plans with friends</p>
             <h1>Less group chat. More showing up.</h1>
             <p className={styles.lede}>
               Sidequest helps friends make lightweight plans, share a private
@@ -49,21 +49,37 @@ export default function Home() {
 
           <div className={styles.mock} aria-label="Sidequest plan preview">
             <div className={styles.mockTop}>
-              <span>UPCOMING</span>
-              <span>6 GOING</span>
+              <span className={styles.pill}>in 4h 12m</span>
+              <span>6 going</span>
             </div>
             <div className={styles.flaps}>
-              {["0", "4", "h"].map((char) => (
-                <span key={char} className={styles.flap}>
-                  {char}
-                </span>
-              ))}
+              <span className={styles.flap}>
+                04<small>h</small>
+              </span>
+              <span className={styles.flap}>
+                12<small>m</small>
+              </span>
             </div>
             <h2>Rooftop sunset hangs</h2>
-            <p>Cavalier Rooftop · Maya</p>
+            <p>
+              <span className={styles.time}>today 7:30 pm</span>
+              Cavalier Rooftop
+            </p>
             <div className={styles.people}>
-              {["A", "M", "D"].map((initial) => (
-                <span key={initial}>{initial}</span>
+              {[
+                ["M", 212],
+                ["A", 340],
+                ["D", 28],
+              ].map(([initial, hue]) => (
+                <span
+                  key={initial}
+                  style={{
+                    background: `hsl(${hue}, 70%, 92%)`,
+                    color: `hsl(${hue}, 55%, 35%)`,
+                  }}
+                >
+                  {initial}
+                </span>
               ))}
             </div>
           </div>

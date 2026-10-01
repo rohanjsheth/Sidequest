@@ -1,60 +1,58 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
+import { detailedCountdown } from "@/lib/countdown";
 import { colors, font } from "@/lib/theme";
 import { SplitFlap } from "./SplitFlap";
 
-function parts(startsAt: string) {
-  const diff = Math.max(0, new Date(startsAt).getTime() - Date.now());
-  const totalMin = Math.floor(diff / 60000);
-  return {
-    hrs: String(Math.floor(totalMin / 60)).padStart(2, "0"),
-    min: String(totalMin % 60).padStart(2, "0"),
-  };
-}
-
 export function Countdown({ startsAt }: { startsAt: string }) {
-  const [{ hrs, min }, set] = useState(() => parts(startsAt));
+  const [units, set] = useState(() => detailedCountdown(startsAt).units);
 
   useEffect(() => {
-    const id = setInterval(() => set(parts(startsAt)), 1000);
+    const id = setInterval(() => set(detailedCountdown(startsAt).units), 1000);
     return () => clearInterval(id);
   }, [startsAt]);
 
   return (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-      <div style={{ height: 42, display: "flex", alignItems: "center" }}>
-        <span style={{ fontSize: 14, letterSpacing: 2, fontWeight: 700 }}>
-          IN
-        </span>
-      </div>
-      <Group value={hrs} label="HRS" />
-      <div style={{ height: 42, display: "flex", alignItems: "center" }}>
-        <span style={{ fontSize: 18, color: "#bbb", fontWeight: 700 }}>:</span>
-      </div>
-      <Group value={min} label="MIN" />
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 11 }}>
+      <span style={{ ...s.furniture, fontSize: 15, letterSpacing: 1 }}>in</span>
+      {units.map((unit, i) => (
+        <Fragment key={unit.label}>
+          {i > 0 ? (
+            <span style={{ ...s.furniture, fontSize: 20, color: colors.ghost }}>
+              :
+            </span>
+          ) : null}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 7,
+            }}
+          >
+            <SplitFlap text={unit.value} />
+            <span style={s.unitLabel}>{unit.label}</span>
+          </div>
+        </Fragment>
+      ))}
     </div>
   );
 }
 
-function Group({ value, label }: { value: string; label: string }) {
-  return (
-    <div
-      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-    >
-      <SplitFlap text={value} />
-      <span
-        style={{
-          fontSize: 8,
-          letterSpacing: 1.5,
-          color: colors.faint,
-          marginTop: 6,
-          fontFamily: font.mono,
-        }}
-      >
-        {label}
-      </span>
-    </div>
-  );
-}
+const s: Record<string, React.CSSProperties> = {
+  furniture: {
+    fontFamily: font.mono,
+    fontWeight: 700,
+    color: colors.ink,
+    height: 46,
+    lineHeight: "46px",
+  },
+  unitLabel: {
+    fontFamily: font.mono,
+    fontSize: 10,
+    letterSpacing: 0.75,
+    color: colors.faint,
+  },
+};

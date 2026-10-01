@@ -14,7 +14,7 @@ export function Sheet({
         style={{
           position: "fixed",
           inset: 0,
-          background: "rgba(20,20,20,0.32)",
+          background: "rgba(17,17,17,0.32)",
         }}
       />
       <div
@@ -43,7 +43,7 @@ export function Sheet({
               width: 38,
               height: 5,
               borderRadius: 3,
-              background: "#E2E2DD",
+              background: colors.line,
             }}
           />
         </div>

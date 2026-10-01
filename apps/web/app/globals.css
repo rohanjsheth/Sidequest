@@ -10,16 +10,53 @@ body {
 }
 
 body {
-  background: #e7e5df;
+  position: relative;
+  background: #fff;
   color: #111;
-  font-family: var(--font-recursive), ui-monospace, monospace;
+  font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* the app's top blur (mobile color-blur-bg.tsx). same four pools, same
+   breathing; radii are capped so a wide screen doesn't wash the whole page */
+.sq-blur {
+  --w: min(100vw, 680px);
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 720px;
+  z-index: -1;
+  pointer-events: none;
+  transform-origin: top;
+  background:
+    radial-gradient(circle calc(var(--w) * 0.68) at 22% 15px, rgb(92 141 240 / 0.5), transparent),
+    radial-gradient(circle calc(var(--w) * 0.7) at 82% 10px, rgb(116 192 255 / 0.4), transparent),
+    radial-gradient(circle calc(var(--w) * 0.64) at 50% 60px, rgb(255 111 156 / 0.4), transparent),
+    radial-gradient(circle calc(var(--w) * 0.66) at 30% 110px, rgb(255 197 107 / 0.37), transparent);
+  animation: sq-breathe 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes sq-breathe {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.6;
+    transform: scale(1.26);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sq-blur {
+    animation: none;
+  }
 }
 
 @keyframes sq-caret {

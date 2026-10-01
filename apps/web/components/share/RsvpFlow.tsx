@@ -68,7 +68,7 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
         style={{
           position: "fixed",
           inset: 0,
-          background: colors.surface,
+          background: colors.card,
           overflow: "auto",
         }}
       >
@@ -80,25 +80,22 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
   return (
     <>
       <div style={{ padding: "18px 0 0" }}>
-        <div style={s.label}>RSVP — NO APP NEEDED</div>
+        <div style={s.label}>rsvp — no app needed</div>
         <div style={s.segmented}>
-          {CHOICES.map((c, i) => {
-            const isGoing = c.value === "going";
-            return (
-              <button
-                key={c.value}
-                onClick={() => pick(c.value)}
-                style={{
-                  ...s.seg,
-                  borderLeft: i > 0 ? "1px solid #E5E5E5" : "none",
-                  background: isGoing ? colors.ink : "transparent",
-                  color: isGoing ? "#fff" : colors.ink,
-                }}
-              >
-                {c.label}
-              </button>
-            );
-          })}
+          {CHOICES.map((c, i) => (
+            <button
+              key={c.value}
+              onClick={() => pick(c.value)}
+              style={{
+                ...s.seg,
+                borderLeft: i > 0 ? `1px solid ${colors.line}` : "none",
+                background: choice === c.value ? colors.ink : colors.card,
+                color: choice === c.value ? colors.card : colors.ink,
+              }}
+            >
+              {c.label}
+            </button>
+          ))}
         </div>
         <div style={s.hint}>
           We&rsquo;ll text a code to confirm it&rsquo;s you.{" "}
@@ -138,6 +135,7 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
           <div
             style={{
               textAlign: "center",
+              fontFamily: font.sans,
               fontSize: 12,
               color: colors.faint,
               marginTop: 16,
@@ -154,7 +152,7 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
 
       {step === "name" && (
         <Sheet onClose={() => setStep("pick")}>
-          <div style={{ ...s.kicker, textAlign: "center" }}>LAST STEP</div>
+          <div style={{ ...s.kicker, textAlign: "center" }}>last step</div>
           <SheetTitle>What should we call you?</SheetTitle>
           <div
             style={{
@@ -172,7 +170,7 @@ export function RsvpFlow({ event }: { event: ShareEvent }) {
               placeholder="Your name"
               style={s.nameInput}
             />
-            <div style={{ fontSize: 10.5, color: colors.faint }}>
+            <div style={{ fontFamily: font.sans, fontSize: 10.5, color: colors.faint }}>
               friends will see this on the plan
             </div>
           </div>
@@ -264,24 +262,24 @@ const otpBase: React.CSSProperties = {
   flex: 1,
   height: 62,
   borderRadius: 7,
+  fontFamily: "var(--font-recursive), ui-monospace, monospace",
   fontSize: 29,
   fontWeight: 700,
 };
 
 const s: Record<string, React.CSSProperties> = {
   label: {
-    fontSize: 10,
-    letterSpacing: 1.5,
-    color: colors.faint,
+    fontFamily: font.sans,
+    fontSize: 12,
+    letterSpacing: 0.5,
+    color: colors.muted,
     marginBottom: 10,
   },
   segmented: {
     display: "flex",
     border: `1px solid ${colors.ink}`,
-    borderRadius: 12,
+    borderRadius: 11,
     overflow: "hidden",
-    fontFamily: font.sans,
-    fontSize: 13,
   },
   seg: {
     flex: 1,
@@ -289,7 +287,7 @@ const s: Record<string, React.CSSProperties> = {
     padding: "14px 0",
     background: "transparent",
     border: "none",
-    fontFamily: font.sans,
+    fontFamily: font.mono,
     fontSize: 13,
     fontWeight: 600,
     cursor: "pointer",
@@ -307,9 +305,15 @@ const s: Record<string, React.CSSProperties> = {
     textDecoration: "underline",
     cursor: "pointer",
   },
-  kicker: { fontSize: 10, letterSpacing: 2, color: colors.faint },
-  sub: {
+  kicker: {
+    fontFamily: font.sans,
     fontSize: 12,
+    letterSpacing: 0.5,
+    color: colors.faint,
+  },
+  sub: {
+    fontFamily: font.sans,
+    fontSize: 12.5,
     color: colors.muted,
     textAlign: "center",
     lineHeight: 1.6,
@@ -318,10 +322,11 @@ const s: Record<string, React.CSSProperties> = {
   input: {
     width: "100%",
     fontFamily: font.mono,
+    fontWeight: 500,
     fontSize: 18,
     color: colors.ink,
-    background: colors.surface,
-    border: `1px solid ${colors.hair}`,
+    background: colors.fill,
+    border: `1px solid ${colors.line}`,
     borderRadius: 12,
     padding: "14px 14px",
     marginTop: 20,
@@ -330,6 +335,8 @@ const s: Record<string, React.CSSProperties> = {
   nameInput: {
     fontFamily: font.sans,
     fontSize: 25,
+    color: colors.ink,
+    background: "transparent",
     fontWeight: 700,
     letterSpacing: "-0.4px",
     textAlign: "center",
@@ -342,8 +349,9 @@ const s: Record<string, React.CSSProperties> = {
     width: 74,
     height: 74,
     borderRadius: "50%",
-    background: colors.ink,
-    color: "#fff",
+    background: colors.fill,
+    border: `1px solid ${colors.line}`,
+    color: colors.ink,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -354,27 +362,27 @@ const s: Record<string, React.CSSProperties> = {
   primary: {
     width: "100%",
     background: colors.ink,
-    color: "#fff",
+    color: colors.card,
     border: "none",
-    borderRadius: 13,
+    borderRadius: 11,
     padding: "16px 0",
     fontSize: 14,
     fontWeight: 600,
-    fontFamily: font.sans,
+    fontFamily: font.mono,
     marginTop: 18,
     cursor: "pointer",
   },
   otpFilled: {
     ...otpBase,
     background: `linear-gradient(180deg, ${colors.flapTop} 0 50%, ${colors.flapBottom} 50% 100%)`,
-    color: "#fff",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.22)",
+    color: colors.card,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.14)",
   },
   otpCurrent: {
     ...otpBase,
-    background: "#F4F4F2",
+    background: colors.fill,
     border: `2px solid ${colors.ink}`,
     color: colors.ink,
   },
-  otpEmpty: { ...otpBase, background: "#F4F4F2" },
+  otpEmpty: { ...otpBase, background: colors.fill },
 };
