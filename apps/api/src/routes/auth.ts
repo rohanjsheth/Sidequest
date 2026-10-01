@@ -3,7 +3,7 @@ import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { twilioClient, verifyServiceSid } from "../lib/twilio.js";
 import { db, users } from "@sidequest/db";
 import { SignJWT } from "jose";
-import { RATE_LIMIT_PHONE } from "../lib/constants.js";
+import { PHONE_ALLOW_LIST, RATE_LIMIT_PHONE } from "../lib/constants.js";
 import {
   ensureReviewUser,
   isReviewCode,
@@ -11,8 +11,6 @@ import {
 } from "../lib/review-login.js";
 
 export const auth = new Hono();
-
-const allowList = ["US"];
 
 async function signUserToken(userId: string) {
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
@@ -31,7 +29,7 @@ auth.post("/start", async (c) => {
     return c.json({ error: "invalid phone" }, 400);
   }
 
-  if (!parsedPhone.country || !allowList.includes(parsedPhone.country)) {
+  if (!parsedPhone.country || !PHONE_ALLOW_LIST.includes(parsedPhone.country)) {
     return c.json({ error: "phone not allowed" }, 400);
   }
 
@@ -55,7 +53,7 @@ auth.post("/verify", async (c) => {
     return c.json({ error: "invalid phone" }, 400);
   }
 
-  if (!parsedPhone.country || !allowList.includes(parsedPhone.country)) {
+  if (!parsedPhone.country || !PHONE_ALLOW_LIST.includes(parsedPhone.country)) {
     return c.json({ error: "phone not allowed" }, 400);
   }
 
