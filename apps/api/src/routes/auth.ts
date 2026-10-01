@@ -12,6 +12,8 @@ import {
 
 export const auth = new Hono();
 
+const allowList = ["US"];
+
 async function signUserToken(userId: string) {
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
   return new SignJWT({})
@@ -27,6 +29,10 @@ auth.post("/start", async (c) => {
   const parsedPhone = parsePhoneNumberFromString(phone, "US");
   if (!parsedPhone?.isValid()) {
     return c.json({ error: "invalid phone" }, 400);
+  }
+
+  if (!parsedPhone.country || !allowList.includes(parsedPhone.country)) {
+    return c.json({ error: "phone not allowed" }, 400);
   }
 
   if (isReviewPhone(parsedPhone.number)) {
@@ -47,6 +53,10 @@ auth.post("/verify", async (c) => {
   const parsedPhone = parsePhoneNumberFromString(phone, "US");
   if (!parsedPhone?.isValid()) {
     return c.json({ error: "invalid phone" }, 400);
+  }
+
+  if (!parsedPhone.country || !allowList.includes(parsedPhone.country)) {
+    return c.json({ error: "phone not allowed" }, 400);
   }
 
   if (isReviewPhone(parsedPhone.number)) {
